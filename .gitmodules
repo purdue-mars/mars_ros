@@ -1,0 +1,15 @@
+[submodule "mars_sim/franka_panda_description"]
+	path = mars_sim/franka_panda_description
+	url = https://github.com/justagist/franka_panda_description
+[submodule "mars_sim/gazebo_panda"]
+	path = mars_sim/gazebo_panda
+	url = https://github.com/justagist/gazebo_panda
+[submodule "mars_sim/orocos_kinematics_dynamics"]
+	path = mars_sim/orocos_kinematics_dynamics
+	url = https://github.com/orocos/orocos_kinematics_dynamics
+[submodule "mars_sim/realsense_ros_gazebo"]
+	path = mars_sim/realsense_ros_gazebo
+	url = https://github.com/nilseuropa/realsense_ros_gazebo
+[submodule "mars_sim/nist_board_gazebo"]
+	path = mars_sim/nist_board_gazebo
+	url = https://github.com/purdue-mars/nist_board_gazebo
