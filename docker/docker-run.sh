@@ -17,3 +17,4 @@ docker run --rm \
 	$@ \
 	mars-icra-2022:local-$USER \
 	${DOCKER_CMD:+/bin/bash -c "$DOCKER_CMD"}
+
