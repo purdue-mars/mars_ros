@@ -15,6 +15,20 @@ RUN apt update && \
     # Clean Up to reduce image size
     rm -rf /var/lib/apt/lists/* /root/.cache/pip/
 
+# Project-specific dependencies
+RUN apt update && \
+    DEBIAN_FRONTEND=noninteractive apt install --no-install-recommends -y \
+    # orocos
+    python3-psutil python3-future \ 
+    # gazebo
+    ros-noetic-gazebo-ros-pkgs ros-noetic-gazebo-ros-control \
+    # franka
+    ros-noetic-libfranka ros-noetic-franka-ros \
+    # realsense
+    ros-noetic-realsense2-camera && \
+    # clean up
+    rm -rf /var/lib/apt/lists/* /root/.cache/pip/
+
 # create user
 ARG USER=mars
 ARG PW=password
