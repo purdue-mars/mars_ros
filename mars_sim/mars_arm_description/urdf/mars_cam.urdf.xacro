@@ -1,0 +1,38 @@
+<?xml version="1.0"?>
+<robot xmlns:xacro="http://www.ros.org/wiki/xacro" name="mars_cam">
+  <xacro:macro name="mars_cam" params="robot_name:='panda' description_pkg:='mars_arm_description' in_gazebo:='false'">
+    <link name="${robot_name}_camlink">
+      <visual>
+        <geometry>
+          <mesh filename="package://${description_pkg}/meshes/visual/camlink.dae"
+            scale="0.001 0.001 0.001"/>
+        </geometry>
+      </visual>
+      <collision>
+        <geometry>
+          <mesh filename="package://${description_pkg}/meshes/collision/camlink.stl"
+            scale="0.001 0.001 0.001"/>
+        </geometry>
+      </collision>
+      <xacro:unless value="${in_gazebo == 'false'}">
+        <inertial>
+          <origin xyz="0 0 0" rpy="0 0 0"/>
+          <mass value="3.06"/>
+          <inertia ixx="0.3" ixy="0.0" ixz="0.0" iyy="0.3" iyz="0.0" izz="0.3"/>
+        </inertial>
+      </xacro:unless>
+    </link>
+
+    <joint name="${robot_name}_camjoint" type="fixed">      
+      <origin rpy="3.1415 0 0.785" xyz="0 0 0.0075"/>
+      <parent link="${robot_name}_link8"/>
+      <child link="${robot_name}_camlink"/>
+      <axis xyz="0 0 0"/>
+    </joint>
+
+    <xacro:include filename="$(find realsense_ros_gazebo)/xacro/depthcam.xacro"/>
+    <xacro:realsense_d435 sensor_name="d455_hand" parent_link="${robot_name}_camlink" rate="10">
+      <origin xyz="0 -0.05 -0.002" rpy="1.561 1.561 0" />
+    </xacro:realsense_d435>
+  </xacro:macro>
+</robot>

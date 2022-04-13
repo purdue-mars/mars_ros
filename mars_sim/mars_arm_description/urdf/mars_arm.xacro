@@ -1,9 +1,0 @@
-<?xml version="1.0"?>
-<robot xmlns:xacro="http://www.ros.org/wiki/xacro" name="mars_arm">
-  <xacro:include filename="$(find franka_panda_description)/robots/panda.gazebo.xacro"/>
-  <!-- <xacro:include filename="$(find realsense_ros_gazebo)/xacro/depthcam.xacro"/>
-  <xacro:realsense_d435 sensor_name="d455_hand" parent_link="panda_joint8" rate="10">
-  <xacro:panda_arm arm_id="panda"/>
-    <origin xyz="-0.35 0 0.54" rpy="0 1.57 0" />
-  </xacro:realsense_d435> -->
-</robot>
