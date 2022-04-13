@@ -1,6 +1,6 @@
 # icra_mars_2022
 
-### Installation
+### Installation/setup in local environment
 
 1. Install ROS Noetic and setup ROS workspace
 
@@ -13,6 +13,30 @@ rosdep install --from-paths src --ignore-src --rosdistro=noetic -y
 3. Build and source
 
 ```
+catkin build
+source ~/catkin_ws/devel/setup.bash
+```
+
+### Installation/setup in docker
+
+1. Install docker
+
+2. Run the docker build script:
+
+```
+./docker/docker-build.sh
+```
+
+3. Run the docker run script:
+
+```
+./docker/docker-run.sh
+```
+
+4. Build and source
+
+```
+cd catkin_ws
 catkin build
 source ~/catkin_ws/devel/setup.bash
 ```
