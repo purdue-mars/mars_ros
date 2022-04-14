@@ -13,3 +13,6 @@
 [submodule "mars_sim/nist_board_gazebo"]
 	path = mars_sim/nist_board_gazebo
 	url = git@github.com:purdue-mars/nist_board_gazebo.git
+[submodule "mars_sim/wsg50-ros-pkg"]
+	path = mars_sim/wsg50-ros-pkg
+	url = git@github.com:nalt/wsg50-ros-pkg.git

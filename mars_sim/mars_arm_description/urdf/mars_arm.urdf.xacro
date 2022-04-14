@@ -22,5 +22,6 @@
 
   <xacro:include filename="$(find wsg_50_simulation)/urdf/wsg_50.urdf.xacro"/>
   <xacro:wsg_50_xacro name="$(arg robot_name)-gripper" parent="$(arg robot_name)_camlink" finger_length=".023" finger_tip="0">
+    <origin xyz="0 0 -0.0005" rpy="0 3.14 0" />
   </xacro:wsg_50_xacro>
 </robot>
