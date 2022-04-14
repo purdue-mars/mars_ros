@@ -1,5 +1,26 @@
 # icra_mars_2022
 
+### Gazebo setup
+
+It's recommended you update the default PID values in the `gazebo_panda` pkg:
+
+```
+panda_joint1:
+    pid: { p: 3000, i: 10.0, d: 25.0 }
+panda_joint2:
+    pid: { p: 3000.0, i: 10.0, d: 25.0 }
+panda_joint3:
+    pid: { p: 1000.0, i: 10.0, d: 25.0 }
+panda_joint4:
+    pid: { p: 100.0, i: 10.0, d: 25.0 }
+panda_joint5:
+    pid: { p: 100.0, i: 10.0, d: 50.0 }
+panda_joint6:
+    pid: { p: 100.0, i: 10.0, d: 50.0 }
+panda_joint7:
+    pid: { p: 100.0, i: 10.0, d: 50.0 }
+```
+
 ### Installation/setup in local environment
 
 1. Install ROS Noetic and setup ROS workspace
