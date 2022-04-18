@@ -2,7 +2,7 @@
 
 DOCKER_DIR=$(realpath $(dirname $0))
 
-docker build --build-arg USER=$USER \
+docker build --build-arg USER=mars \
              --build-arg PW="robot" \
              --build-arg UID=$(id -u) \
              --build-arg GID=$(id -g) \
