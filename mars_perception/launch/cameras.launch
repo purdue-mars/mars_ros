@@ -1,11 +1,12 @@
 <launch>
-  <arg name="serial_no_d455_hand"    	    default="146222252184"/> 		
+  <arg name="serial_no_d455"    	    default="146222252184"/> 		
+  <arg name="serial_no_d405"    	    default="126122270992"/> 		
   <arg name="initial_reset"                 default="false"/>
   <arg name="sim"                           default="false"/>
 
   <group ns="d455_hand">
     <include file="$(find realsense2_camera)/launch/rs_camera.launch">
-      <arg name="serial_no" value="$(arg serial_no_d455_hand)" />
+      <arg name="serial_no" value="$(arg serial_no_d455)" />
       <arg name="tf_prefix" value="d455_hand" />
       <arg name="filters" value="disparity,decimation"/>
       <arg name="enable_pointcloud" value="true"/>
@@ -14,7 +15,11 @@
   </group>
 
   <node name="d405_pc_node" pkg="mars_perception" type="d405_pc_node" >
-      <param name="color_output_topic" value="$(arg initial_reset)"/>
+      <param name="color_out_topic" value="/d405/color"/>
+      <param name="pc2_out_topic" value="/d405/depth"/>
+      <param name="serial_no" type="str" value="$(arg serial_no_d405)"/>
   </node>
+
+  <node pkg="tf" type="static_transform_publisher" name="map" args="0 0 0.5 0 0 0 1 base_link d405_frame 100" />
 
 </launch>

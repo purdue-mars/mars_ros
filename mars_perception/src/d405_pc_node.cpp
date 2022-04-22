@@ -23,8 +23,10 @@ int main(int argc, char * argv[]) try
 
     std::string pc2_out_topic; 
     std::string color_out_topic; 
+    std::string serial_no; 
     ros::param::get("~pc2_out_topic",pc2_out_topic);
     ros::param::get("~color_out_topic",color_out_topic);
+    ros::param::get("~serial_no",serial_no);
 
     ros::Publisher pcl_publisher = nh.advertise<sensor_msgs::PointCloud2>(pc2_out_topic, 1);;
 
@@ -34,11 +36,15 @@ int main(int argc, char * argv[]) try
     rs2::pointcloud pc;
     // We want the points object to be persistent so we can display the last cloud when a frame drops
     rs2::points points;
+    
+    rs2::config cfg;
+    cfg.enable_device(serial_no);
 
     // Declare RealSense pipeline, encapsulating the actual device and sensors
     rs2::pipeline pipe;
     // Start streaming with default recommended configuration
-    pipe.start();
+    ros::Rate r(30);
+    pipe.start(cfg);
     while (ros::ok()) // Application still alive?
     {
         ros::spinOnce();
@@ -46,10 +52,12 @@ int main(int argc, char * argv[]) try
         auto frames = pipe.wait_for_frames();
 
         auto color = frames.get_color_frame();
-
         // For cameras that don't have RGB sensor, we'll map the pointcloud to infrared instead of color
         if (!color)
             color = frames.get_infrared_frame();
+
+             // Creating OpenCV Matrix from a color image
+        //Mat color(Size(640, 480), CV_8UC3, (void*)pipe->get_frame_data(rs::stream::color), Mat::AUTO_STEP);
 
         // Tell pointcloud object to map to this color frame
         pc.map_to(color);
@@ -74,7 +82,10 @@ int main(int argc, char * argv[]) try
 
         sensor_msgs::PointCloud2 msg;
         pcl::toROSMsg(*cloud_filtered.get(), msg);
+        msg.header.stamp = ros::Time::now();
+        msg.header.frame_id = "d405_frame"; 
         pcl_publisher.publish(msg);
+        r.sleep();
     }
 
     return EXIT_SUCCESS;
