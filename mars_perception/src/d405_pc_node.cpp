@@ -23,6 +23,8 @@ int main(int argc, char * argv[]) try
 
     std::string pc2_out_topic; 
     std::string color_out_topic; 
+    std::string d405_serial_no;
+    ros::param::get("~d405_serial",d405_serial_no);
     ros::param::get("~pc2_out_topic",pc2_out_topic);
     ros::param::get("~color_out_topic",color_out_topic);
 
@@ -31,14 +33,18 @@ int main(int argc, char * argv[]) try
     ros::Publisher color_publisher = nh.advertise<sensor_msgs::Image>(color_out_topic, 1);;
     
     // Declare pointcloud object, for calculating pointclouds and texture mappings
+    rs2::context ctx;
     rs2::pointcloud pc;
     // We want the points object to be persistent so we can display the last cloud when a frame drops
     rs2::points points;
 
     // Declare RealSense pipeline, encapsulating the actual device and sensors
-    rs2::pipeline pipe;
+    rs2::pipeline pipe(ctx);
+    rs2::config cfg;
+    cfg.enable_device(d405_serial_no);
     // Start streaming with default recommended configuration
-    pipe.start();
+    pipe.start(cfg);
+    
     while (ros::ok()) // Application still alive?
     {
         ros::spinOnce();
@@ -59,21 +65,10 @@ int main(int argc, char * argv[]) try
         // Generate the pointcloud and texture mappings
         points = pc.calculate(depth);
 
-        auto pcl_points = points_to_pcl(points);
-
-        pcl_ptr cloud_filtered(new pcl::PointCloud<pcl::PointXYZ>);
-        pcl::PassThrough<pcl::PointXYZ> pass;
-        pass.setInputCloud(pcl_points);
-        pass.setFilterFieldName("z");
-        pass.setFilterLimits(0.0, 1.0);
-        pass.filter(*cloud_filtered);
-
-        std::vector<pcl_ptr> layers;
-        layers.push_back(pcl_points);
-        layers.push_back(cloud_filtered);
+        pcl_ptr pcl_points = points_to_pcl(points);
 
         sensor_msgs::PointCloud2 msg;
-        pcl::toROSMsg(*cloud_filtered.get(), msg);
+        pcl::toROSMsg(*pcl_points.get(), msg);
         pcl_publisher.publish(msg);
     }
 
