@@ -1,29 +1,31 @@
 <launch>
-  <arg name="serial_no_d455"    	    default="146222252184"/> 		
-  <arg name="serial_no_d405"    	    default="126122270992"/> 		
-  <arg name="initial_reset"                 default="false"/>
-  <arg name="sim"                           default="false"/>
+  <arg name="serial_no_d455" default="146222252184" />
+  <arg name="serial_no_d405" default="126122270852" />
+  <arg name="initial_reset" default="false" />
+  <arg name="sim" default="false" />
 
-  <group ns="d455_hand">
+  <group ns="d455">
     <include file="$(find realsense2_camera)/launch/rs_camera.launch">
       <arg name="serial_no" value="$(arg serial_no_d455)" />
-      <arg name="tf_prefix" value="d455_hand" />
-      <arg name="filters" value="disparity,decimation"/>
-      <arg name="enable_pointcloud" value="true"/>
-      <arg name="initial_reset" value="$(arg initial_reset)"/>
+      <arg name="tf_prefix" value="d455" />
+      <arg name="filters" value="disparity,decimation" />
+      <arg name="enable_pointcloud" value="true" />
+      <arg name="initial_reset" value="$(arg initial_reset)" />
     </include>
   </group>
 
-  <group ns="d405_hand">
+  <group ns="d405">
     <include file="$(find realsense2_camera)/launch/rs_camera.launch">
       <arg name="serial_no" value="$(arg serial_no_d405)" />
-      <arg name="tf_prefix" value="d405_hand" />
-      <arg name="filters" value="disparity,decimation"/>
-      <arg name="enable_pointcloud" value="true"/>
-      <arg name="initial_reset" value="$(arg initial_reset)"/>
+      <arg name="tf_prefix" value="d405" />
+      <arg name="filters" value="disparity,decimation" />
+      <arg name="enable_pointcloud" value="true" />
+      <arg name="initial_reset" value="$(arg initial_reset)" />
     </include>
   </group>
 
-  <node pkg="tf" type="static_transform_publisher" name="map" args="0.0339 -0.0494 0.0287 -2.3761 -3.0119 3.0020 panda_link_8 d405_frame 100" />
-  <node pkg="tf" type="static_transform_publisher" name="map" args="0.744 -0.2295 0.2058 2.7432 -2.2964 1.0780 base_link d455_frame 100" />
+  <node pkg="tf" type="static_transform_publisher" name="d405_tf" args="0.0353 -0.0674 0.0739 -2.4099 -3.0980 3.0538 panda_link8 d405_color_optical_frame 100" />
+  <node pkg="tf" type="static_transform_publisher" name="d455_tf" args="0.7452 -0.2365 0.1966 2.7476 -2.2872 1.0109 panda_link0 d455_color_optical_frame 100" />
+  <node pkg="tf" type="static_transform_publisher" name="d405_tf_depth" args="0.0353 -0.0674 0.0739 -2.4099 -3.0980 3.0538 panda_link8 d405_depth_optical_frame 100" />
+  <node pkg="tf" type="static_transform_publisher" name="d455_tf_depth" args="0.7452 -0.2365 0.1966 -0.7416599 -0.3526063 0.2692387 0.5031103 panda_link0 d455_depth_optical_frame 100" />
 </launch>

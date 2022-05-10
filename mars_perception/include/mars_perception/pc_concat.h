@@ -29,29 +29,28 @@
 #define PC_SIZE 2
 class PointsConcatFilter
 {
-public:
-  PointsConcatFilter();
-  PointsConcatFilter(ros::NodeHandle* nh);
+  public:
+    PointsConcatFilter();
+    PointsConcatFilter(ros::NodeHandle* nh);
+    pcl::PointCloud<pcl::PointXYZ>::Ptr get_pointcloud_ptr();
+  private:
+    typedef pcl::PointXYZ PointT;
+    typedef pcl::PointCloud<PointT> PointCloudT;
+    typedef sensor_msgs::PointCloud2 PointCloudMsgT;
+    typedef message_filters::sync_policies::ApproximateTime<PointCloudMsgT, PointCloudMsgT>
+        SyncPolicyT;
 
-private:
-  typedef pcl::PointXYZ PointT;
-  typedef pcl::PointCloud<PointT> PointCloudT;
-  typedef sensor_msgs::PointCloud2 PointCloudMsgT;
-  typedef message_filters::sync_policies::ApproximateTime<PointCloudMsgT, PointCloudMsgT>
-      SyncPolicyT;
+    ros::NodeHandle* nh_;
+    message_filters::Subscriber<PointCloudMsgT> *cloud_subscribers_[PC_SIZE];
+    message_filters::Synchronizer<SyncPolicyT> *cloud_synchronizer_;
+    ros::Subscriber config_subscriber_;
+    ros::Publisher cloud_publisher_;
+    tf::TransformListener tf_listener_;
 
-  ros::NodeHandle* nh_;
-  message_filters::Subscriber<PointCloudMsgT> *cloud_subscribers_[PC_SIZE];
-  message_filters::Synchronizer<SyncPolicyT> *cloud_synchronizer_;
-  ros::Subscriber config_subscriber_;
-  ros::Publisher cloud_publisher_;
-  tf::TransformListener tf_listener_;
+    std::vector<std::string> input_topics_;
+    std::string concat_frame_id_;
 
-  std::vector<std::string> input_topics_;
-  std::string concat_frame_id_;
+    PointCloudT::Ptr cloud_concatenated_;
 
-  PointCloudT::Ptr cloud_concatenated_;
-
-  void pointcloud_callback(const PointCloudMsgT::ConstPtr &msg1, const PointCloudMsgT::ConstPtr &msg2);
-  PointCloudT::Ptr PointsConcatFilter::get_pointcloud_ptr();
+    void pointcloud_callback(const PointCloudMsgT::ConstPtr &msg1, const PointCloudMsgT::ConstPtr &msg2);
 };

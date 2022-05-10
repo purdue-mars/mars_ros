@@ -2,8 +2,10 @@
 
 PointsConcatFilter::PointsConcatFilter(ros::NodeHandle* nh) : nh_{nh}, tf_listener_()
 {
-  nh->getParam("~input_topics",input_topics_);
-  nh->getParam("~concat_frame",concat_frame_id_);
+  ros::param::get("~input_topics",input_topics_);
+  ros::param::get("~concat_frame",concat_frame_id_);
+
+  std::cout << input_topics_ << "\n";
 
   if (input_topics_.size() != PC_SIZE)
   {
@@ -30,7 +32,7 @@ PointsConcatFilter::PointsConcatFilter(ros::NodeHandle* nh) : nh_{nh}, tf_listen
       boost::bind(&PointsConcatFilter::pointcloud_callback, this, _1, _2));
 }
 
-pcl::shared_ptr<PointsConcatFilter::PointCloudT> PointsConcatFilter::get_pointcloud_ptr() {
+pcl::shared_ptr<PointsConcatFilter::PointCloudT>PointsConcatFilter::get_pointcloud_ptr() {
     return cloud_concatenated_;
 }
 
@@ -65,12 +67,4 @@ void PointsConcatFilter::pointcloud_callback(const PointCloudMsgT::ConstPtr &msg
   {
     *cloud_concatenated_ += *cloud_sources[i];
   }
-}
-
-int main(int argc, char **argv)
-{
-  ros::init(argc, argv, "points_concat");
-  PointsConcatFilter node;
-  ros::spin();
-  return 0;
 }
