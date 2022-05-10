@@ -14,11 +14,15 @@
     </include>
   </group>
 
-  <node name="d405_pc_node" pkg="mars_perception" type="d405_pc_node" >
-      <param name="color_out_topic" value="/d405/color"/>
-      <param name="pc2_out_topic" value="/d405/depth"/>
-      <param name="serial_no" type="str" value="$(arg serial_no_d405)"/>
-  </node>
+  <group ns="d405_hand">
+    <include file="$(find realsense2_camera)/launch/rs_camera.launch">
+      <arg name="serial_no" value="$(arg serial_no_d405)" />
+      <arg name="tf_prefix" value="d405_hand" />
+      <arg name="filters" value="disparity,decimation"/>
+      <arg name="enable_pointcloud" value="true"/>
+      <arg name="initial_reset" value="$(arg initial_reset)"/>
+    </include>
+  </group>
 
   <node pkg="tf" type="static_transform_publisher" name="map" args="0 0 0.5 0 0 0 1 base_link d405_frame 100" />
 
