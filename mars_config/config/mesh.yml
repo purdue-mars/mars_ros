@@ -1,0 +1,3 @@
+# mesh paths as params
+square_peg: $(find nist_board_gazebo)/models/mesh/KET8-1.STL
+circle_peg: $(find nist_board_gazebo)/models/mesh/RGOCG8-50_8mm-1.STL
