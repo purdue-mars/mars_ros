@@ -1,0 +1,6 @@
+geometry_msgs/Pose start
+geometry_msgs/Pose end
+---
+bool was_success
+---
+float32 percent_complete
