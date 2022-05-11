@@ -1,0 +1,87 @@
+#!/usr/bin/python3
+
+import rospy
+import actionlib
+import frankx
+import tf
+import threading
+
+from mars_control.msg import MoveToAction
+
+
+def pose_msg_to_affine(msg):
+    return frankx.Affine(
+        msg.position.x,
+        msg.position.y,
+        msg.position.z,
+        msg.orientation.x,
+        msg.orientation.y,
+        msg.orientation.z,
+        msg.orientation.w,
+    )
+
+
+robot = frankx.Robot("192.168.0.144")
+robot_lock = threading.Lock()
+
+
+class MoveToServer:
+    def __init__(self):
+        self.server = actionlib.SimpleActionServer(
+            "move_to", MoveToAction, self.execute, False
+        )
+        self.server.start()
+
+    def execute(self, goal):
+        # Verify we end at expected pose
+        robot_lock.acquire()
+        curr_pose = robot.current_pose()
+        robot_lock.release()
+
+        start_pose = pose_msg_to_affine(goal.start)
+        if start_pose != curr_pose:
+            self.server.set_aborted(
+                None,
+                f"Not at expected starting pose: expected {start_pose}, got {curr_pose}",
+            )
+
+        # Move to end pose
+        # TODO: Maybe some collision or bad path detection?
+        end_pose = pose_msg_to_affine(goal.end)
+        motion = frankx.LinearMotion(end_pose)
+
+        robot_lock.acquire()
+        robot.move(motion)
+        curr_pose = robot.current_pose()
+        robot_lock.release()
+        if end_pose != curr_pose:
+            self.server.set_aborted(
+                f"Not at expected ending pose: expected {end_pose}, got {curr_pose}"
+            )
+
+        self.server.set_succeeded()
+
+
+if __name__ == "__main__":
+    rospy.init_node("panda_node")
+
+    frame_id = rospy.get_param("~frame_id", "base_frame")
+    rate = rospy.get_param("~rate", 30)
+
+    server = MoveToServer()
+
+    br = tf.TransformBroadcaster()
+    r = rospy.Rate(rate)
+    while not rospy.is_shutdown():
+        robot_lock.acquire()
+        pose = robot.current_pose()
+        robot_lock.release()
+
+        br.sendTransform(
+            (pose.x, pose.y, pose.z),
+            (pose.q_x, pose.q_y, pose.q_z, pose.q_w),
+            rospy.Time.now(),
+            "ee_frame",
+            frame_id,
+        )
+        r.sleep()

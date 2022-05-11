@@ -1,0 +1,61 @@
+#!/usr/bin/python3
+
+import rospy
+import actionlib
+import frankx
+
+from mars_control.msg import MoveToAction
+
+
+def pose_msg_to_affine(msg):
+    return frankx.Affine(
+        msg.position.x,
+        msg.position.y,
+        msg.position.z,
+        msg.orientation.x,
+        msg.orientation.y,
+        msg.orientation.z,
+        msg.orientation.w,
+    )
+
+
+class MoveToServer:
+    def __init__(self):
+        self.server = actionlib.SimpleActionServer(
+            "move_to", MoveToAction, self.execute, False
+        )
+        self.server.start()
+
+    def execute(self, goal):
+        # TODO: Parametrize ip
+        robot = frankx.Robot("192.168.0.144")
+
+        # Verify we end at expected pose
+        start_pose = pose_msg_to_affine(goal.start)
+        curr_pose = robot.current_pose()
+        if start_pose != curr_pose:
+            self.server.set_aborted(
+                None,
+                f"Not at expected starting pose: expected {start_pose}, got {curr_pose}",
+            )
+
+        # Move to end pose
+        # TODO: Maybe some collision or bad path detection?
+        end_pose = pose_msg_to_affine(goal.end)
+        motion = frankx.LinearMotion(end_pose)
+        robot.move(motion)
+
+        # Verify we end at expected pose
+        curr_pose = robot.current_pose()
+        if end_pose != curr_pose:
+            self.server.set_aborted(
+                f"Not at expected ending pose: expected {end_pose}, got {curr_pose}"
+            )
+
+        self.server.set_succeeded()
+
+
+if __name__ == "__main__":
+    rospy.init_node("move_to_server")
+    server = MoveToServer()
+    rospy.spin()
