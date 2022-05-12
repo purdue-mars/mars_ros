@@ -6,6 +6,8 @@ Panels:
       Expanded:
         - /MarkerArray1
         - /PlanningScene1/Scene Robot1
+        - /PointCloud21
+        - /PointCloud22
       Splitter Ratio: 0.7425600290298462
     Tree Height: 1172
   - Class: rviz/Help
@@ -248,7 +250,7 @@ Visualization Manager:
       Selectable: true
       Size (Pixels): 3
       Size (m): 0.009999999776482582
-      Style: Flat Squares
+      Style: Points
       Topic: /d455/camera/depth/color/points
       Unreliable: false
       Use Fixed Frame: true
@@ -276,7 +278,7 @@ Visualization Manager:
       Selectable: true
       Size (Pixels): 3
       Size (m): 0.009999999776482582
-      Style: Flat Squares
+      Style: Points
       Topic: /d405/camera/depth/color/points
       Unreliable: false
       Use Fixed Frame: true
@@ -509,7 +511,7 @@ Visualization Manager:
   Views:
     Current:
       Class: rviz/XYOrbit
-      Distance: 1.2989604473114014
+      Distance: 1.0821669101715088
       Enable Stereo Rendering:
         Stereo Eye Separation: 0.05999999865889549
         Stereo Focal Distance: 1
@@ -525,9 +527,9 @@ Visualization Manager:
       Invert Z Axis: false
       Name: Current View
       Near Clip Distance: 0.009999999776482582
-      Pitch: 0.19979612529277802
+      Pitch: 0.04479610547423363
       Target Frame: panda_link0
-      Yaw: 6.079955577850342
+      Yaw: 5.97995662689209
     Saved: ~
 Window Geometry:
   Displays:

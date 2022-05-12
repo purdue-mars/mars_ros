@@ -10,7 +10,7 @@ int main(int argc, char** argv) {
     client.waitForExistence();
 
     mars_msgs::ICPMeshTF srv;
-    srv.request.mesh_name = "square_peg";
+    srv.request.mesh_name = "circle_peg";
     if (client.call(srv))
     {
         geometry_msgs::Pose p = srv.response.tf.pose;

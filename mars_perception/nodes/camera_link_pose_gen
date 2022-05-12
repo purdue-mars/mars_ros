@@ -1,11 +1,13 @@
 #!/usr/bin/env python3
+
+'''Generates the camera parent pose relative to the robot base given a transformation from the robot base to the optical frame (outputted by calibration tool)'''
 import rospy
 
 import tf2_ros
 import tf2_geometry_msgs #import the packages first
 from geometry_msgs.msg import PoseStamped
 
-rospy.init_node('tf2_turtle_listener')
+rospy.init_node('camera_link_pose_gen')
 
 tf_buffer = tf2_ros.Buffer(rospy.Duration(1200.0)) #tf buffer length
 tf_listener = tf2_ros.TransformListener(tf_buffer)
