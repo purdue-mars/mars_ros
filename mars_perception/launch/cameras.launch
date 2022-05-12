@@ -24,8 +24,18 @@
     </include>
   </group>
 
-  <node pkg="tf" type="static_transform_publisher" name="d405_tf" args="0.0353 -0.0674 0.0739 -2.4099 -3.0980 3.0538 panda_link8 d405_color_optical_frame 100" />
-  <node pkg="tf" type="static_transform_publisher" name="d455_tf" args="0.7452 -0.2365 0.1966 2.7476 -2.2872 1.0109 panda_link0 d455_color_optical_frame 100" />
-  <node pkg="tf" type="static_transform_publisher" name="d405_tf_depth" args="0.0353 -0.0674 0.0739 -2.4099 -3.0980 3.0538 panda_link8 d405_depth_optical_frame 100" />
-  <node pkg="tf" type="static_transform_publisher" name="d455_tf_depth" args="0.7452 -0.2365 0.1966 -0.7416599 -0.3526063 0.2692387 0.5031103 panda_link0 d455_depth_optical_frame 100" />
+  <!-- <node pkg="tf" type="static_transform_publisher" name="d405_tf" args="0.0441 -0.0520 0.0157 -2.3343 -3.0885 3.1116 panda_link8 d405_color_optical_frame 100" />
+  <node pkg="tf" type="static_transform_publisher" name="d455_tf" args="0.7459 -0.2337 0.2080 2.7874 -2.2779 1.1330 panda_link0 d455_color_optical_frame 100" />
+  <node pkg="tf" type="static_transform_publisher" name="d405_d_tf" args="0.0441 -0.0520 0.0157 -2.3343 -3.0885 3.1116 panda_link8 d405_depth_optical_frame 100" />
+  <node pkg="tf" type="static_transform_publisher" name="d455_d_tf" args="0.7459 -0.2337 0.2080 2.7874 -2.2779 1.1330 panda_link0 d455_depth_optical_frame 100" /> -->
+
+  <!-- The rpy in the comment uses the extrinsic XYZ convention, which is the same as is used in a URDF. See
+      http://wiki.ros.org/geometry2/RotationMethods and https://en.wikipedia.org/wiki/Euler_angles for more info. -->
+  <!-- xyz="0.741624 -0.246248 0.18879" rpy="1.16056 -2.2782 2.8125" -->
+
+  <!-- The rpy in the comment uses the extrinsic XYZ convention, which is the same as is used in a URDF. See
+      http://wiki.ros.org/geometry2/RotationMethods and https://en.wikipedia.org/wiki/Euler_angles for more info. -->
+  <!-- xyz="0.0419262 -0.0542951 0.0249049" rpy="3.10617 -3.08343 -2.34866" -->
+
+
 </launch>
