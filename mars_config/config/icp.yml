@@ -1,2 +1,2 @@
   input_topics: ["/d405/camera/depth/color/points","/d455/camera/depth/color/points"]
-  concat_frame: "base_link"
+  concat_frame: "panda_link0"

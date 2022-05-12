@@ -13,6 +13,7 @@ find_package(catkin REQUIRED COMPONENTS
   sensor_msgs 
   pcl_conversions
   pcl_ros
+  mars_msgs
 )
 
 find_package(PCL REQUIRED) # This includes all modules
@@ -35,6 +36,7 @@ catkin_package(
     sensor_msgs 
     pcl_conversions
     pcl_ros
+    mars_msgs
 
   DEPENDS EIGEN3 
 
@@ -56,14 +58,20 @@ include_directories(
 link_directories(${PCL_LIBRARY_DIRS})
 add_definitions(${PCL_DEFINITIONS})
 
-add_executable(${PROJECT_NAME}_icp_node nodes/icp_node.cpp src/icp.cpp src/pc_concat.cpp)
-set_target_properties(${PROJECT_NAME}_icp_node PROPERTIES OUTPUT_NAME icp_node PREFIX "")
-add_dependencies(${PROJECT_NAME}_icp_node ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
-target_link_libraries(${PROJECT_NAME}_icp_node
+add_executable(${PROJECT_NAME}_icp_server nodes/icp_server.cpp src/icp.cpp src/pc_concat.cpp)
+set_target_properties(${PROJECT_NAME}_icp_server PROPERTIES OUTPUT_NAME icp_server PREFIX "")
+add_dependencies(${PROJECT_NAME}_icp_server ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
+target_link_libraries(${PROJECT_NAME}_icp_server
   ${catkin_LIBRARIES}
   ${PCL_LIBRARIES}
   ${Eigen3_LIBRARIES}
+)
 
+add_executable(${PROJECT_NAME}_icp_client nodes/icp_client_test.cpp)
+set_target_properties(${PROJECT_NAME}_icp_client PROPERTIES OUTPUT_NAME icp_client PREFIX "")
+add_dependencies(${PROJECT_NAME}_icp_client ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
+target_link_libraries(${PROJECT_NAME}_icp_client
+  ${catkin_LIBRARIES}
 )
 
 if(CATKIN_ENABLE_TESTING)

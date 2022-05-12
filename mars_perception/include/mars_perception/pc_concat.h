@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
+#pragma once
 #include <message_filters/subscriber.h>
 #include <message_filters/sync_policies/approximate_time.h>
 #include <message_filters/synchronizer.h>
@@ -31,8 +31,8 @@ class PointsConcatFilter
 {
   public:
     PointsConcatFilter();
-    PointsConcatFilter(ros::NodeHandle* nh);
     pcl::PointCloud<pcl::PointXYZ>::Ptr get_pointcloud_ptr();
+    int empty();
   private:
     typedef pcl::PointXYZ PointT;
     typedef pcl::PointCloud<PointT> PointCloudT;
@@ -40,7 +40,7 @@ class PointsConcatFilter
     typedef message_filters::sync_policies::ApproximateTime<PointCloudMsgT, PointCloudMsgT>
         SyncPolicyT;
 
-    ros::NodeHandle* nh_;
+    ros::NodeHandle nh_;
     message_filters::Subscriber<PointCloudMsgT> *cloud_subscribers_[PC_SIZE];
     message_filters::Synchronizer<SyncPolicyT> *cloud_synchronizer_;
     ros::Subscriber config_subscriber_;

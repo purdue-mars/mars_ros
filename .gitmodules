@@ -12,7 +12,7 @@
 	url = https://github.com/nilseuropa/realsense_ros_gazebo
 [submodule "mars_sim/nist_board_gazebo"]
 	path = mars_sim/nist_board_gazebo
-	url = git@github.com:purdue-mars/nist_board_gazebo.git
+	url = https://github.com/purdue-mars/nist_board_gazebo 
 [submodule "mars_sim/wsg50-ros-pkg"]
 	path = mars_sim/wsg50-ros-pkg
 	url = https://github.com/purdue-mars/wsg50-ros-pkg

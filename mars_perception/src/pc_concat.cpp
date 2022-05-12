@@ -1,30 +1,22 @@
 #include <mars_perception/pc_concat.h>
 
-PointsConcatFilter::PointsConcatFilter(ros::NodeHandle* nh) : nh_{nh}, tf_listener_()
+PointsConcatFilter::PointsConcatFilter() : nh_(), tf_listener_(), cloud_concatenated_(new PointCloudT)
 {
   ros::param::get("~input_topics",input_topics_);
   ros::param::get("~concat_frame",concat_frame_id_);
-
-  std::cout << input_topics_ << "\n";
 
   if (input_topics_.size() != PC_SIZE)
   {
     ROS_ERROR("The size of input_topics must be between 2");
     ros::shutdown();
   }
+
   for (size_t i = 0; i < PC_SIZE; ++i)
   {
-    if (i < input_topics_.size())
-    {
       cloud_subscribers_[i] =
-          new message_filters::Subscriber<PointCloudMsgT>(*nh_, input_topics_[i], 1);
-    }
-    else
-    {
-      cloud_subscribers_[i] =
-          new message_filters::Subscriber<PointCloudMsgT>(*nh_, input_topics_[0], 1);
-    }
+          new message_filters::Subscriber<PointCloudMsgT>(nh_, input_topics_[i], 10);
   }
+
   cloud_synchronizer_ = new message_filters::Synchronizer<SyncPolicyT>(
       SyncPolicyT(10), *cloud_subscribers_[0], *cloud_subscribers_[1]);
       
@@ -32,12 +24,17 @@ PointsConcatFilter::PointsConcatFilter(ros::NodeHandle* nh) : nh_{nh}, tf_listen
       boost::bind(&PointsConcatFilter::pointcloud_callback, this, _1, _2));
 }
 
-pcl::shared_ptr<PointsConcatFilter::PointCloudT>PointsConcatFilter::get_pointcloud_ptr() {
+int PointsConcatFilter::empty() {
+  return cloud_concatenated_.get()->empty();
+}
+
+pcl::PointCloud<pcl::PointXYZ>::Ptr PointsConcatFilter::get_pointcloud_ptr() {
     return cloud_concatenated_;
 }
 
 void PointsConcatFilter::pointcloud_callback(const PointCloudMsgT::ConstPtr &msg1, const PointCloudMsgT::ConstPtr &msg2)
 {
+
   PointCloudMsgT::ConstPtr msgs[2] = { msg1, msg2 };
   PointCloudT::Ptr cloud_sources[2];
 
