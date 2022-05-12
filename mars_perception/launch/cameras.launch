@@ -24,18 +24,7 @@
     </include>
   </group>
 
-  <!-- <node pkg="tf" type="static_transform_publisher" name="d405_tf" args="0.0441 -0.0520 0.0157 -2.3343 -3.0885 3.1116 panda_link8 d405_color_optical_frame 100" />
-  <node pkg="tf" type="static_transform_publisher" name="d455_tf" args="0.7459 -0.2337 0.2080 2.7874 -2.2779 1.1330 panda_link0 d455_color_optical_frame 100" />
-  <node pkg="tf" type="static_transform_publisher" name="d405_d_tf" args="0.0441 -0.0520 0.0157 -2.3343 -3.0885 3.1116 panda_link8 d405_depth_optical_frame 100" />
-  <node pkg="tf" type="static_transform_publisher" name="d455_d_tf" args="0.7459 -0.2337 0.2080 2.7874 -2.2779 1.1330 panda_link0 d455_depth_optical_frame 100" /> -->
-
-  <!-- The rpy in the comment uses the extrinsic XYZ convention, which is the same as is used in a URDF. See
-      http://wiki.ros.org/geometry2/RotationMethods and https://en.wikipedia.org/wiki/Euler_angles for more info. -->
-  <!-- xyz="0.741624 -0.246248 0.18879" rpy="1.16056 -2.2782 2.8125" -->
-
-  <!-- The rpy in the comment uses the extrinsic XYZ convention, which is the same as is used in a URDF. See
-      http://wiki.ros.org/geometry2/RotationMethods and https://en.wikipedia.org/wiki/Euler_angles for more info. -->
-  <!-- xyz="0.0419262 -0.0542951 0.0249049" rpy="3.10617 -3.08343 -2.34866" -->
-
+  <node pkg="tf2_ros" type="static_transform_publisher" name="d455_broadcaster" args="0.7053395536104348  -0.2927681467180985 0.1882288409054835 -0.12550753734878226  0.03698603263908398 0.9370391306004009  0.3237887098578178 panda_link0 d455_link" />
+  <node pkg="tf2_ros" type="static_transform_publisher" name="d405_broadcaster" args="0.0419262 -0.0542951 0.0249049  0.6312052481455493 -0.2611933430046631  0.677071864422379 0.2718384236028734 panda_link8 d405_link" />
 
 </launch>
