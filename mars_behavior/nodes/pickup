@@ -1,0 +1,45 @@
+#!/usr/bin/python3
+
+import rospy
+import tf
+import actionlib
+from mars_control.msg import MoveToAction, MoveToGoal
+from geometry_msgs.msg import Pose
+
+if __name__ == "__main__":
+    rospy.init_node("pickup_node")
+
+    frame_id = rospy.get_param("~frame_id", "/base_frame")
+
+    # Test position
+    pre_pickup_point = Pose()
+    pre_pickup_point.position.x = 0.3194942023785316
+    pre_pickup_point.position.y = -0.21450996643100187
+    pre_pickup_point.position.z = 0.14493926693986264
+    pre_pickup_point.orientation.x = 0.9995615853811902
+    pre_pickup_point.orientation.y = 0.011284110824585929
+    pre_pickup_point.orientation.z = -0.025056854115513002
+    pre_pickup_point.orientation.w = 0.011020886306192794
+
+    # pickup_point = Pose()
+    move_to_client = actionlib.SimpleActionClient("move_to", MoveToAction)
+    move_to_client.wait_for_server()
+
+    listener = tf.TransformListener()
+    rospy.sleep(0.25)
+    pos, orient = listener.lookupTransform("/ee_frame", "/base_frame", rospy.Time(0))
+
+    goal = MoveToGoal()
+    goal.start = Pose()
+    goal.start.position.x = pos[0]
+    goal.start.position.y = pos[1]
+    goal.start.position.z = pos[2]
+    goal.start.orientation.x = orient[0]
+    goal.start.orientation.y = orient[1]
+    goal.start.orientation.z = orient[2]
+    goal.start.orientation.w = orient[3]
+    goal.end = pre_pickup_point
+    move_to_client.send_goal(goal)
+    move_to_client.wait_for_result()
+    print(move_to_client.get_result())
+

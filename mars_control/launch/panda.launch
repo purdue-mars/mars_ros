@@ -1,0 +1,5 @@
+<launch>
+  <node pkg="mars_control" type="panda" name="panda_node" />
+  <!--<node pkg="mars_control" type="frankx_tf_broadcaster" name="frankx_tf_broadcaster" />
+  <node pkg="mars_control" type="move_to" name="move_to_server" /> -->
+</launch>
