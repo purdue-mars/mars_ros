@@ -4,3 +4,6 @@
 [submodule "mars_sim/nist_board_gazebo"]
 	path = mars_sim/nist_board_gazebo
 	url = https://github.com/purdue-mars/nist_board_gazebo 
+[submodule "panda_moveit_config"]
+	path = mars_sim/panda_moveit_config
+	url = https://github.com/ros-planning/panda_moveit_config

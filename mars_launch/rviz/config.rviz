@@ -8,6 +8,7 @@ Panels:
         - /PlanningScene1/Scene Robot1
         - /PointCloud21
         - /PointCloud22
+        - /Axes1
       Splitter Ratio: 0.7425600290298462
     Tree Height: 1172
   - Class: rviz/Help
@@ -494,6 +495,14 @@ Visualization Manager:
         Show Robot Visual: true
       Value: true
       Velocity_Scaling_Factor: 0.1
+    - Alpha: 1
+      Class: rviz/Axes
+      Enabled: true
+      Length: 0.20000000298023224
+      Name: Axes
+      Radius: 0.009999999776482582
+      Reference Frame: <Fixed Frame>
+      Value: true
   Enabled: true
   Global Options:
     Background Color: 48; 48; 48
@@ -507,11 +516,17 @@ Visualization Manager:
     - Class: rviz/MoveCamera
     - Class: rviz/Select
     - Class: rviz_visual_tools/KeyTool
+    - Class: rviz/PublishPoint
+      Single click: true
+      Topic: /clicked_point
+    - Class: rviz/SetGoal
+      Topic: goal
+    - Class: rviz/Measure
   Value: true
   Views:
     Current:
       Class: rviz/XYOrbit
-      Distance: 1.0821669101715088
+      Distance: 1.449844479560852
       Enable Stereo Rendering:
         Stereo Eye Separation: 0.05999999865889549
         Stereo Focal Distance: 1
@@ -527,9 +542,9 @@ Visualization Manager:
       Invert Z Axis: false
       Name: Current View
       Near Clip Distance: 0.009999999776482582
-      Pitch: 0.04479610547423363
+      Pitch: 0.74979567527771
       Target Frame: panda_link0
-      Yaw: 5.97995662689209
+      Yaw: 2.1035919189453125
     Saved: ~
 Window Geometry:
   Displays:

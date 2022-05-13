@@ -3,6 +3,7 @@
 PointsConcatFilter::PointsConcatFilter() : nh_(), tf_listener_(), cloud_concatenated_(new PointCloudT)
 {
   ros::param::get("~input_topics",input_topics_);
+  ros::param::get("~filtered_output",output_topic_);
   ros::param::get("~concat_frame",concat_frame_id_);
 
   if (input_topics_.size() != PC_SIZE)
@@ -22,6 +23,7 @@ PointsConcatFilter::PointsConcatFilter() : nh_(), tf_listener_(), cloud_concaten
       
   cloud_synchronizer_->registerCallback(
       boost::bind(&PointsConcatFilter::pointcloud_callback, this, _1, _2));
+  cloud_publisher_ = nh_.advertise<PointCloudMsgT>(output_topic_, 1);
 }
 
 int PointsConcatFilter::empty() {
@@ -64,4 +66,22 @@ void PointsConcatFilter::pointcloud_callback(const PointCloudMsgT::ConstPtr &msg
   {
     *cloud_concatenated_ += *cloud_sources[i];
   }
+  // Create the filtering object
+  pcl::CropBox<PointT> box_filter;
+  box_filter.setInputCloud (cloud_concatenated_);
+  box_filter.setMin(Eigen::Vector4f(0, -0.4064, 0, 1.0));
+  box_filter.setMax(Eigen::Vector4f(0.9398, 0.4064, 0.20, 1.0));
+  box_filter.filter(*cloud_concatenated_);
+
+
+  pcl::StatisticalOutlierRemoval<PointT> sor;
+  sor.setInputCloud (cloud_concatenated_);
+  sor.setMeanK (50);
+  sor.setStddevMulThresh (1.0);
+  sor.filter (*cloud_concatenated_);
+
+  // Publish
+  cloud_concatenated_->header = pcl_conversions::toPCL(msgs[0]->header);
+  cloud_concatenated_->header.frame_id = concat_frame_id_;
+  cloud_publisher_.publish(cloud_concatenated_);
 }

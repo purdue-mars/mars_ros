@@ -17,6 +17,12 @@ class ICP {
         PointCloudPtr mesh_pc;
         ros::NodeHandle nh_;
         ros::ServiceServer icp_mesh_srv; 
+
+        double max_corresp_dist_;
+        double transf_epsilon;
+        double fitness_epsilon;
+        double max_iter;
+
         void set_mesh_(std::string); 
     public:
         typedef Eigen::Matrix4f TFMatrix; 

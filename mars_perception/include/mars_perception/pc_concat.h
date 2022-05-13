@@ -20,6 +20,9 @@
 #include <pcl/point_types.h>
 #include <pcl_conversions/pcl_conversions.h>
 #include <pcl_ros/point_cloud.h>
+#include <pcl/filters/crop_box.h>
+#include <pcl/filters/statistical_outlier_removal.h>
+
 #include <pcl_ros/transforms.h>
 #include <ros/ros.h>
 #include <sensor_msgs/PointCloud2.h>
@@ -48,6 +51,7 @@ class PointsConcatFilter
     tf::TransformListener tf_listener_;
 
     std::vector<std::string> input_topics_;
+    std::string output_topic_;
     std::string concat_frame_id_;
 
     PointCloudT::Ptr cloud_concatenated_;

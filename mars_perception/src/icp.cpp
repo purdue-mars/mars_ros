@@ -1,9 +1,13 @@
 #include <mars_perception/icp.h>
 
 ICP::ICP() : filter_(), mesh_pc(new PointCloud) {
-    std::cout << "entering set_mesh" << "\n";
+
+    ros::param::get("~max_correspondence_distance", max_corresp_dist_);
+    ros::param::get("~transformation_epsilon", transf_epsilon);
+    ros::param::get("~fitness_epsilon", fitness_epsilon);
+    ros::param::get("~max_iterations", max_iter);
+
     set_mesh_(DEFAULT_MESH);
-    std::cout << "set_mesh" << "\n";
     wait_for_scene_point_cloud();
     icp_mesh_srv = nh_.advertiseService("icp_mesh_tf", &ICP::mesh_icp_srv, this);
 }
@@ -12,7 +16,7 @@ void ICP::set_mesh_(std::string mesh_name) {
     assert(ros::param::has(mesh_name));
     std::string mesh_path;
     nh_.getParam(mesh_name,mesh_path);
-    std::cout << mesh_path << "\n";
+    std::cout << "Mesh: " << mesh_path << "\n";
     pcl::PolygonMesh mesh;
     pcl::io::loadPolygonFileSTL(mesh_path,mesh);
     pcl::fromPCLPointCloud2(mesh.cloud,*mesh_pc);
@@ -22,6 +26,10 @@ void ICP::icp(PointCloudPtr p1, PointCloudPtr p2, ICP::TFMatrix* tf) {
     pcl::IterativeClosestPoint<ICP::Point, ICP::Point> icp;
     icp.setInputSource(p1);
     icp.setInputTarget(p2);
+    icp.setMaxCorrespondenceDistance(max_corresp_dist_);  
+    icp.setTransformationEpsilon(transf_epsilon); 
+    icp.setEuclideanFitnessEpsilon(fitness_epsilon); 
+    icp.setMaximumIterations(max_iter);  
     
     pcl::PointCloud<pcl::PointXYZ> Final;
     icp.align(Final);

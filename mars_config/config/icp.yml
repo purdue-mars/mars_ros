@@ -1,2 +1,7 @@
-  input_topics: ["/d405/camera/depth/color/points","/d455/camera/depth/color/points"]
-  concat_frame: "panda_link0"
+input_topics: ["/d405/camera/depth/color/points","/d455/camera/depth/color/points"]
+concat_frame: "panda_link0"
+filtered_output: "/points"
+max_correspondence_distance: 1000
+transformation_epsilon: 0.00000000001
+fitness_epsilon: 0.001
+max_iterations: 100
