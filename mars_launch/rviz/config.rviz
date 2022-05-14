@@ -9,6 +9,10 @@ Panels:
         - /PointCloud21
         - /PointCloud22
         - /Axes1
+        - /PointCloud23
+        - /PointCloud24
+        - /TF1
+        - /TF1/Tree1
       Splitter Ratio: 0.7425600290298462
     Tree Height: 1172
   - Class: rviz/Help
@@ -241,7 +245,7 @@ Visualization Manager:
       Color: 255; 255; 255
       Color Transformer: RGB8
       Decay Time: 0
-      Enabled: true
+      Enabled: false
       Invert Rainbow: false
       Max Color: 255; 255; 255
       Min Color: 0; 0; 0
@@ -256,7 +260,7 @@ Visualization Manager:
       Unreliable: false
       Use Fixed Frame: true
       Use rainbow: true
-      Value: true
+      Value: false
     - Alpha: 1
       Autocompute Intensity Bounds: true
       Autocompute Value Bounds:
@@ -269,7 +273,7 @@ Visualization Manager:
       Color: 255; 255; 255
       Color Transformer: RGB8
       Decay Time: 0
-      Enabled: true
+      Enabled: false
       Invert Rainbow: false
       Max Color: 255; 255; 255
       Min Color: 0; 0; 0
@@ -284,7 +288,7 @@ Visualization Manager:
       Unreliable: false
       Use Fixed Frame: true
       Use rainbow: true
-      Value: true
+      Value: false
     - Acceleration_Scaling_Factor: 0.1
       Class: moveit_rviz_plugin/MotionPlanning
       Enabled: true
@@ -503,6 +507,169 @@ Visualization Manager:
       Radius: 0.009999999776482582
       Reference Frame: <Fixed Frame>
       Value: true
+    - Alpha: 1
+      Autocompute Intensity Bounds: true
+      Autocompute Value Bounds:
+        Max Value: 10
+        Min Value: -10
+        Value: true
+      Axis: Z
+      Channel Name: intensity
+      Class: rviz/PointCloud2
+      Color: 255; 255; 255
+      Color Transformer: Intensity
+      Decay Time: 0
+      Enabled: false
+      Invert Rainbow: false
+      Max Color: 255; 255; 255
+      Min Color: 0; 0; 0
+      Name: PointCloud2
+      Position Transformer: XYZ
+      Queue Size: 10
+      Selectable: true
+      Size (Pixels): 3
+      Size (m): 0.009999999776482582
+      Style: Points
+      Topic: /points
+      Unreliable: false
+      Use Fixed Frame: true
+      Use rainbow: true
+      Value: false
+    - Alpha: 1
+      Autocompute Intensity Bounds: true
+      Autocompute Value Bounds:
+        Max Value: 10
+        Min Value: -10
+        Value: true
+      Axis: Z
+      Channel Name: intensity
+      Class: rviz/PointCloud2
+      Color: 255; 255; 255
+      Color Transformer: Intensity
+      Decay Time: 0
+      Enabled: true
+      Invert Rainbow: false
+      Max Color: 255; 255; 255
+      Min Color: 0; 0; 0
+      Name: PointCloud2
+      Position Transformer: XYZ
+      Queue Size: 10
+      Selectable: true
+      Size (Pixels): 3
+      Size (m): 0.009999999776482582
+      Style: Points
+      Topic: /object_mesh_pc
+      Unreliable: false
+      Use Fixed Frame: true
+      Use rainbow: true
+      Value: true
+    - Class: rviz/TF
+      Enabled: true
+      Frame Timeout: 60
+      Frames:
+        All Enabled: false
+        circle_peg_frame:
+          Value: true
+        d405_color_frame:
+          Value: false
+        d405_color_optical_frame:
+          Value: false
+        d405_depth_frame:
+          Value: false
+        d405_depth_optical_frame:
+          Value: false
+        d405_link:
+          Value: false
+        d455_color_frame:
+          Value: false
+        d455_color_optical_frame:
+          Value: false
+        d455_depth_frame:
+          Value: false
+        d455_depth_optical_frame:
+          Value: false
+        d455_link:
+          Value: false
+        panda_EE:
+          Value: false
+        panda_K:
+          Value: false
+        panda_NE:
+          Value: false
+        panda_hand:
+          Value: false
+        panda_hand_tcp:
+          Value: false
+        panda_leftfinger:
+          Value: false
+        panda_link0:
+          Value: false
+        panda_link1:
+          Value: false
+        panda_link2:
+          Value: false
+        panda_link3:
+          Value: false
+        panda_link4:
+          Value: false
+        panda_link5:
+          Value: false
+        panda_link6:
+          Value: false
+        panda_link7:
+          Value: false
+        panda_link8:
+          Value: false
+        panda_rightfinger:
+          Value: false
+        world:
+          Value: false
+      Marker Alpha: 1
+      Marker Scale: 0.5
+      Name: TF
+      Show Arrows: true
+      Show Axes: true
+      Show Names: true
+      Tree:
+        world:
+          panda_link0:
+            circle_peg_frame:
+              {}
+            d455_link:
+              d455_color_frame:
+                d455_color_optical_frame:
+                  {}
+              d455_depth_frame:
+                d455_depth_optical_frame:
+                  {}
+            panda_link1:
+              panda_link2:
+                panda_link3:
+                  panda_link4:
+                    panda_link5:
+                      panda_link6:
+                        panda_link7:
+                          panda_link8:
+                            d405_link:
+                              d405_color_frame:
+                                d405_color_optical_frame:
+                                  {}
+                              d405_depth_frame:
+                                d405_depth_optical_frame:
+                                  {}
+                            panda_NE:
+                              panda_EE:
+                                panda_K:
+                                  {}
+                            panda_hand:
+                              panda_hand_tcp:
+                                {}
+                              panda_leftfinger:
+                                {}
+                              panda_rightfinger:
+                                {}
+      Update Interval: 0
+      Value: true
   Enabled: true
   Global Options:
     Background Color: 48; 48; 48
@@ -526,7 +693,7 @@ Visualization Manager:
   Views:
     Current:
       Class: rviz/XYOrbit
-      Distance: 1.449844479560852
+      Distance: 0.6061410903930664
       Enable Stereo Rendering:
         Stereo Eye Separation: 0.05999999865889549
         Stereo Focal Distance: 1
@@ -542,9 +709,9 @@ Visualization Manager:
       Invert Z Axis: false
       Name: Current View
       Near Clip Distance: 0.009999999776482582
-      Pitch: 0.74979567527771
+      Pitch: 0.06979548931121826
       Target Frame: panda_link0
-      Yaw: 2.1035919189453125
+      Yaw: 4.336779594421387
     Saved: ~
 Window Geometry:
   Displays:

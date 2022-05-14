@@ -47,8 +47,6 @@ void PointsConcatFilter::pointcloud_callback(const PointCloudMsgT::ConstPtr &msg
   {
     for (size_t i = 0; i < input_topics_.size(); ++i)
     {
-      // Note: If you use kinetic, you can directly receive messages as
-      // PointCloutT.
       cloud_sources[i] = PointCloudT().makeShared();
       pcl::fromROSMsg(*msgs[i], *cloud_sources[i]);
       tf_listener_.waitForTransform(concat_frame_id_, msgs[i]->header.frame_id, ros::Time(0), ros::Duration(1.0));
@@ -69,15 +67,21 @@ void PointsConcatFilter::pointcloud_callback(const PointCloudMsgT::ConstPtr &msg
   // Create the filtering object
   pcl::CropBox<PointT> box_filter;
   box_filter.setInputCloud (cloud_concatenated_);
-  box_filter.setMin(Eigen::Vector4f(0, -0.4064, 0, 1.0));
-  box_filter.setMax(Eigen::Vector4f(0.9398, 0.4064, 0.20, 1.0));
+
+  std::vector<double> box_min,box_max; 
+  ros::param::get("~box_min",box_min);
+  ros::param::get("~box_max",box_max);
+  box_filter.setMin(Eigen::Vector4f(box_min[0],box_min[1],box_min[2], 1.0));
+  box_filter.setMax(Eigen::Vector4f(box_max[0],box_max[1],box_max[2], 1.0));
   box_filter.filter(*cloud_concatenated_);
 
-
+  double mean, stddev;
+  ros::param::get("~outlier_mean",mean);
+  ros::param::get("~outlier_stddev",stddev);
   pcl::StatisticalOutlierRemoval<PointT> sor;
   sor.setInputCloud (cloud_concatenated_);
-  sor.setMeanK (50);
-  sor.setStddevMulThresh (1.0);
+  sor.setMeanK (mean);
+  sor.setStddevMulThresh (stddev);
   sor.filter (*cloud_concatenated_);
 
   // Publish

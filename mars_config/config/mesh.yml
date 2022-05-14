@@ -1,3 +1,5 @@
 # mesh paths as params
 square_peg: $(find nist_board_gazebo)/models/mesh/KET8-1.STL
-circle_peg: $(find nist_board_gazebo)/models/mesh/RGOCG8-50_8mm-1.STL
+circle_thicc_peg: $(find nist_board_gazebo)/models/mesh/RGOCG16-50_16mm-1.STL
+bolt_rack: $(find nist_board_gazebo)/models/mesh/bolt_rack-1.STL
+plate: $(find nist_board_gazebo)/models/mesh/ICRA2022_Practice_Base-1.STL

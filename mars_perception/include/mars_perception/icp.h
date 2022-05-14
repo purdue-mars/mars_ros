@@ -5,7 +5,11 @@
 #include <Eigen/Geometry>
 #include <pcl/io/vtk_lib_io.h>
 #include <pcl/registration/icp.h>
+#include <tf/transform_broadcaster.h>
+#include <pcl_conversions/pcl_conversions.h>
 #include <mars_msgs/ICPMeshTF.h>
+#include <mars_perception/mesh_sampling.h>
+
 const std::string DEFAULT_MESH = "square_peg";
 
 class ICP {
@@ -17,6 +21,9 @@ class ICP {
         PointCloudPtr mesh_pc;
         ros::NodeHandle nh_;
         ros::ServiceServer icp_mesh_srv; 
+        ros::Publisher mesh_pub;
+        tf::TransformListener tf_listener_;
+        tf::TransformBroadcaster br;
 
         double max_corresp_dist_;
         double transf_epsilon;

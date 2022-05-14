@@ -10,6 +10,7 @@ ICP::ICP() : filter_(), mesh_pc(new PointCloud) {
     set_mesh_(DEFAULT_MESH);
     wait_for_scene_point_cloud();
     icp_mesh_srv = nh_.advertiseService("icp_mesh_tf", &ICP::mesh_icp_srv, this);
+    mesh_pub = nh_.advertise<sensor_msgs::PointCloud2>("object_mesh_pc",10);
 }
 
 void ICP::set_mesh_(std::string mesh_name) {
@@ -19,7 +20,16 @@ void ICP::set_mesh_(std::string mesh_name) {
     std::cout << "Mesh: " << mesh_path << "\n";
     pcl::PolygonMesh mesh;
     pcl::io::loadPolygonFileSTL(mesh_path,mesh);
-    pcl::fromPCLPointCloud2(mesh.cloud,*mesh_pc);
+    polygon_mesh_to_pc(&mesh, mesh_pc);
+    // mm to m
+    for(int i = 0; i < mesh_pc->points.size(); i++) {
+        mesh_pc->points[i].x /= 1000.0;
+        mesh_pc->points[i].y /= 1000.0;
+        mesh_pc->points[i].z /= 1000.0;
+    }
+
+    std::cout << "mesh_frame: " << mesh_pc->header.frame_id << "\n";
+
 }
 
 void ICP::icp(PointCloudPtr p1, PointCloudPtr p2, ICP::TFMatrix* tf) {
@@ -65,5 +75,27 @@ bool ICP::mesh_icp_srv(mars_msgs::ICPMeshTF::Request &req, mars_msgs::ICPMeshTF:
     resp.tf.pose.orientation.y = q.y(); 
     resp.tf.pose.orientation.z = q.z(); 
     resp.tf.pose.orientation.w = q.w(); 
+
+    tf::Transform transform;
+    std::string frame_id = req.mesh_name + "_frame"; 
+    geometry_msgs::TransformStamped tf_;
+
+    transform.setOrigin( tf::Vector3(tf.col(3)(0),tf.col(3)(1),tf.col(3)(2)) );
+    transform.setRotation( tf::Quaternion(q.x(),q.y(),q.z(),q.w()) );
+    tf_.child_frame_id = frame_id; 
+    tf_.header.frame_id = "panda_link0"; 
+    tf_.header.stamp = ros::Time::now();
+    tf_.transform.translation.x = tf.col(3)(0);
+    tf_.transform.translation.y = tf.col(3)(1);
+    tf_.transform.translation.z = tf.col(3)(2);
+    tf_.transform.rotation.x = q.x(); 
+    tf_.transform.rotation.y = q.y(); 
+    tf_.transform.rotation.z = q.z(); 
+    tf_.transform.rotation.w = q.w(); 
+    br.sendTransform(tf_);
+
+    mesh_pc->header.frame_id = frame_id; 
+    mesh_pub.publish(mesh_pc);
+
     return true;
 }

@@ -1,7 +1,23 @@
 input_topics: ["/d405/camera/depth/color/points","/d455/camera/depth/color/points"]
 concat_frame: "panda_link0"
 filtered_output: "/points"
-max_correspondence_distance: 1000
+max_correspondence_distance: 0.5
 transformation_epsilon: 0.00000000001
 fitness_epsilon: 0.001
-max_iterations: 100
+max_iterations: 500
+
+## Filters
+
+# Box Filter
+
+# only cylinder
+# box_min: [0.381, -0.127, 0] 
+# box_max: [0.508, -0.0381, 0.05] 
+
+# entire box
+box_min: [0, -0.4064, 0] 
+box_max: [0.9398, 0.4064, 0.20] 
+
+#Outlier filter 
+outlier_mean: 75
+outlier_stddev: 10
