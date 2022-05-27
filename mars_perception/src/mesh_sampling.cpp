@@ -203,10 +203,27 @@ void polygon_mesh_to_pc(pcl::PolygonMesh* mesh_ptr, pcl::PointCloud<pcl::PointXY
   VoxelGrid<PointXYZRGBNormal> grid_;
   grid_.setInputCloud (cloud_1);
   grid_.setLeafSize (leaf_size, leaf_size, leaf_size);
-
   pcl::PointCloud<pcl::PointXYZRGBNormal>::Ptr voxel_cloud (new pcl::PointCloud<pcl::PointXYZRGBNormal>);
   grid_.filter (*voxel_cloud);
 
+
   // Strip uninitialized normals and colors from cloud:
   pcl::copyPointCloud (*voxel_cloud, *pc_ptr);
+
+  // center pointcloud
+  double av_x,av_y,av_z = 0;
+  for(int i = 0; i < pc_ptr->size(); i++) {
+    av_x += (*pc_ptr)[i].x;
+    av_y += (*pc_ptr)[i].y;
+    av_z += (*pc_ptr)[i].z;
+  }
+  av_x /= pc_ptr->size();
+  av_y /= pc_ptr->size();
+  av_z /= pc_ptr->size();
+
+  for(int i = 0; i < pc_ptr->size(); i++) {
+    (*pc_ptr)[i].x -= av_x;
+    (*pc_ptr)[i].y -= av_y;
+    (*pc_ptr)[i].z -= av_z;
+  }
 }

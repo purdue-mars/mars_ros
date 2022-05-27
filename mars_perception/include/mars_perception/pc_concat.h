@@ -22,6 +22,10 @@
 #include <pcl_ros/point_cloud.h>
 #include <pcl/filters/crop_box.h>
 #include <pcl/filters/statistical_outlier_removal.h>
+#include <pcl/filters/approximate_voxel_grid.h>
+#include <pcl/sample_consensus/method_types.h>
+#include <pcl/sample_consensus/model_types.h>
+#include <pcl/segmentation/sac_segmentation.h>
 
 #include <pcl_ros/transforms.h>
 #include <ros/ros.h>
@@ -32,29 +36,30 @@
 #define PC_SIZE 2
 class PointsConcatFilter
 {
-  public:
-    PointsConcatFilter();
-    pcl::PointCloud<pcl::PointXYZ>::Ptr get_pointcloud_ptr();
-    int empty();
-  private:
-    typedef pcl::PointXYZ PointT;
-    typedef pcl::PointCloud<PointT> PointCloudT;
-    typedef sensor_msgs::PointCloud2 PointCloudMsgT;
-    typedef message_filters::sync_policies::ApproximateTime<PointCloudMsgT, PointCloudMsgT>
-        SyncPolicyT;
+public:
+  PointsConcatFilter();
+  pcl::PointCloud<pcl::PointXYZ>::Ptr get_pointcloud_ptr();
+  int empty();
 
-    ros::NodeHandle nh_;
-    message_filters::Subscriber<PointCloudMsgT> *cloud_subscribers_[PC_SIZE];
-    message_filters::Synchronizer<SyncPolicyT> *cloud_synchronizer_;
-    ros::Subscriber config_subscriber_;
-    ros::Publisher cloud_publisher_;
-    tf::TransformListener tf_listener_;
+private:
+  typedef pcl::PointXYZ PointT;
+  typedef pcl::PointCloud<PointT> PointCloudT;
+  typedef sensor_msgs::PointCloud2 PointCloudMsgT;
+  typedef message_filters::sync_policies::ApproximateTime<PointCloudMsgT, PointCloudMsgT>
+      SyncPolicyT;
 
-    std::vector<std::string> input_topics_;
-    std::string output_topic_;
-    std::string concat_frame_id_;
+  ros::NodeHandle nh_;
+  message_filters::Subscriber<PointCloudMsgT> *cloud_subscribers_[PC_SIZE];
+  message_filters::Synchronizer<SyncPolicyT> *cloud_synchronizer_;
+  ros::Subscriber config_subscriber_;
+  ros::Publisher cloud_publisher_;
+  tf::TransformListener tf_listener_;
 
-    PointCloudT::Ptr cloud_concatenated_;
+  std::vector<std::string> input_topics_;
+  std::string output_topic_;
+  std::string concat_frame_id_;
 
-    void pointcloud_callback(const PointCloudMsgT::ConstPtr &msg1, const PointCloudMsgT::ConstPtr &msg2);
+  PointCloudT::Ptr cloud_concatenated_;
+
+  void pointcloud_callback(const PointCloudMsgT::ConstPtr &msg1, const PointCloudMsgT::ConstPtr &msg2);
 };

@@ -1,4 +1,5 @@
-input_topics: ["/d405/camera/depth/color/points","/d455/camera/depth/color/points"]
+input_topics:
+  ["/d405/camera/depth/color/points", "/d455/camera/depth/color/points"]
 concat_frame: "panda_link0"
 filtered_output: "/points"
 max_correspondence_distance: 0.5
@@ -11,13 +12,13 @@ max_iterations: 500
 # Box Filter
 
 # only cylinder
-# box_min: [0.381, -0.127, 0] 
-# box_max: [0.508, -0.0381, 0.05] 
+box_min: [0.42, -0.127, 0]
+box_max: [0.46, -0.075, 0.05]
 
 # entire box
-box_min: [0, -0.4064, 0] 
-box_max: [0.9398, 0.4064, 0.20] 
+# box_min: [0.2, -0.4064, 0]
+# box_max: [0.9398, 0.4064, 0.20]
 
-#Outlier filter 
-outlier_mean: 75
-outlier_stddev: 10
+#Outlier filter
+outlier_mean: 50
+outlier_stddev: 2
