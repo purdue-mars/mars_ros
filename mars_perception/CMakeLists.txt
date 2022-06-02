@@ -58,14 +58,22 @@ include_directories(
 link_directories(${PCL_LIBRARY_DIRS})
 add_definitions(${PCL_DEFINITIONS})
 
-add_executable(${PROJECT_NAME}_icp_server nodes/icp_server.cpp src/icp.cpp src/pc_concat.cpp src/mesh_sampling.cpp)
-set_target_properties(${PROJECT_NAME}_icp_server PROPERTIES OUTPUT_NAME icp_server PREFIX "")
-add_dependencies(${PROJECT_NAME}_icp_server ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
-target_link_libraries(${PROJECT_NAME}_icp_server
+add_executable(${PROJECT_NAME}_reg nodes/pc_registration_node.cpp src/registration.cpp)
+set_target_properties(${PROJECT_NAME}_reg PROPERTIES OUTPUT_NAME pc_registration PREFIX "")
+add_dependencies(${PROJECT_NAME}_reg ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
+target_link_libraries(${PROJECT_NAME}_reg
   ${catkin_LIBRARIES}
   ${PCL_LIBRARIES}
-  ${Eigen3_LIBRARIES}
 )
+
+# add_executable(${PROJECT_NAME}_icp_server nodes/icp_server.cpp src/icp.cpp src/mesh_sampling.cpp)
+# set_target_properties(${PROJECT_NAME}_icp_server PROPERTIES OUTPUT_NAME icp_server PREFIX "")
+# add_dependencies(${PROJECT_NAME}_icp_server ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
+# target_link_libraries(${PROJECT_NAME}_icp_server
+#   ${catkin_LIBRARIES}
+#   ${PCL_LIBRARIES}
+#   ${Eigen3_LIBRARIES}
+# )
 
 add_executable(${PROJECT_NAME}_icp_client nodes/icp_client_test.cpp)
 set_target_properties(${PROJECT_NAME}_icp_client PROPERTIES OUTPUT_NAME icp_client PREFIX "")

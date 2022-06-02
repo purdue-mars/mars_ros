@@ -22,10 +22,12 @@
 #include <pcl_ros/point_cloud.h>
 #include <pcl/filters/crop_box.h>
 #include <pcl/filters/statistical_outlier_removal.h>
-#include <pcl/filters/approximate_voxel_grid.h>
+#include <pcl/filters/voxel_grid.h>
+#include <pcl/filters/extract_indices.h>
 #include <pcl/sample_consensus/method_types.h>
 #include <pcl/sample_consensus/model_types.h>
 #include <pcl/segmentation/sac_segmentation.h>
+#include <pcl/registration/icp.h>
 
 #include <pcl_ros/transforms.h>
 #include <ros/ros.h>
@@ -33,19 +35,17 @@
 #include <tf/tf.h>
 #include <tf/transform_listener.h>
 #include <yaml-cpp/yaml.h>
-#define PC_SIZE 2
-class PointsConcatFilter
+#define PC_SIZE 3
+class PCRegistration
 {
 public:
-  PointsConcatFilter();
-  pcl::PointCloud<pcl::PointXYZ>::Ptr get_pointcloud_ptr();
-  int empty();
+  PCRegistration();
 
 private:
-  typedef pcl::PointXYZ PointT;
+  typedef pcl::PointXYZRGB PointT;
   typedef pcl::PointCloud<PointT> PointCloudT;
   typedef sensor_msgs::PointCloud2 PointCloudMsgT;
-  typedef message_filters::sync_policies::ApproximateTime<PointCloudMsgT, PointCloudMsgT>
+  typedef message_filters::sync_policies::ApproximateTime<PointCloudMsgT, PointCloudMsgT, PointCloudMsgT>
       SyncPolicyT;
 
   ros::NodeHandle nh_;
@@ -55,11 +55,21 @@ private:
   ros::Publisher cloud_publisher_;
   tf::TransformListener tf_listener_;
 
+  XmlRpc::XmlRpcValue leaf_sizes_;
+  std::vector<double> box_min_, box_max_;
+
+  double max_corresp_dist_;
+  double transf_epsilon_;
+  double fitness_epsilon_;
+  double max_iter_;
+  double reject_thres_;
+
   std::vector<std::string> input_topics_;
   std::string output_topic_;
   std::string concat_frame_id_;
 
   PointCloudT::Ptr cloud_concatenated_;
 
-  void pointcloud_callback(const PointCloudMsgT::ConstPtr &msg1, const PointCloudMsgT::ConstPtr &msg2);
+  void pointcloud_callback(const PointCloudMsgT::ConstPtr &msg1, const PointCloudMsgT::ConstPtr &msg2, const PointCloudMsgT::ConstPtr &msg3);
+
 };

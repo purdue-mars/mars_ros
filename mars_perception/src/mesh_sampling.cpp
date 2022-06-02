@@ -177,7 +177,7 @@ const bool write_normals = true;
 const bool write_colors = false;
 
 /* ---[ */
-void polygon_mesh_to_pc(pcl::PolygonMesh* mesh_ptr, pcl::PointCloud<pcl::PointXYZ>::Ptr pc_ptr) {
+void polygon_mesh_to_pc(pcl::PolygonMesh* mesh_ptr, pcl::PointCloud<pcl::PointXYZRGB>::Ptr pc_ptr) {
 
   // Parse command line arguments
   int SAMPLE_POINTS_ = default_number_samples;

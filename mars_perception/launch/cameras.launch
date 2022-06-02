@@ -1,14 +1,26 @@
 <launch>
-  <arg name="serial_no_d455" default="146222252184" />
+  <arg name="serial_no_d455_0" default="146222252184" />
   <arg name="serial_no_d405" default="126122270852" />
+  <arg name="serial_no_d455_1" default="146222254752" />
+  <arg name="d405_clip_dist" default="0.3" />
   <arg name="initial_reset" default="false" />
   <arg name="sim" default="false" />
 
-  <group ns="d455">
+  <group ns="d455_0">
     <include file="$(find realsense2_camera)/launch/rs_camera.launch">
-      <arg name="serial_no" value="$(arg serial_no_d455)" />
-      <arg name="tf_prefix" value="d455" />
-      <arg name="filters" value="disparity,decimation" />
+      <arg name="serial_no" value="$(arg serial_no_d455_0)" />
+      <arg name="tf_prefix" value="d455_0" />
+      <!-- <arg name="filters" value="disparity,decimation" /> -->
+      <arg name="enable_pointcloud" value="true" />
+      <arg name="initial_reset" value="$(arg initial_reset)" />
+    </include>
+  </group>
+
+  <group ns="d455_1">
+    <include file="$(find realsense2_camera)/launch/rs_camera.launch">
+      <arg name="serial_no" value="$(arg serial_no_d455_1)" />
+      <arg name="tf_prefix" value="d455_1" />
+      <!-- <arg name="filters" value="disparity,hole_filling,decimation" /> -->
       <arg name="enable_pointcloud" value="true" />
       <arg name="initial_reset" value="$(arg initial_reset)" />
     </include>
@@ -18,13 +30,25 @@
     <include file="$(find realsense2_camera)/launch/rs_camera.launch">
       <arg name="serial_no" value="$(arg serial_no_d405)" />
       <arg name="tf_prefix" value="d405" />
-      <arg name="filters" value="disparity,decimation" />
+      <arg name="filters" value="temporal,disparity,decimation,spatial" />
       <arg name="enable_pointcloud" value="true" />
       <arg name="initial_reset" value="$(arg initial_reset)" />
+      <arg name="clip_distance" value="$(arg d405_clip_dist)" />
     </include>
   </group>
 
-  <node pkg="tf2_ros" type="static_transform_publisher" name="d455_broadcaster" args="0.7053395536104348  -0.2927681467180985 0.1882288409054835 -0.12550753734878226  0.03698603263908398 0.9370391306004009  0.3237887098578178 panda_link0 d455_link" />
   <node pkg="tf2_ros" type="static_transform_publisher" name="d405_broadcaster" args="0.0419262 -0.0542951 0.0249049  0.6312052481455493 -0.2611933430046631  0.677071864422379 0.2718384236028734 panda_link8 d405_link" />
+
+  <node pkg="tf2_ros" type="static_transform_publisher" name="d455_0_link_broadcaster"
+    args="0.156430254677913 -0.239078399942304 0.28743956133604803 -0.10207823908436969 0.3881311710857512 0.2662369830079955 0.8763878581226411 panda_link0 d455_0_link" />
+
+
+  <node pkg="tf2_ros" type="static_transform_publisher" name="d455_1_broadcaster"
+    args="0.80709824041362 0.23767440391932998 0.48227646131805197 -0.40710615645697595 -0.135889854293697 0.8570827328140307 -0.2849761945213022 panda_link0 d455_1_link" />
+
+  <node name="pc_registration" type="pc_registration" pkg="mars_perception" output="screen" >
+      <rosparam file="$(find mars_config)/config/registration.yml" command="load"  />
+  </node>
+
 
 </launch>

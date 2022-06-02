@@ -12,18 +12,20 @@ rospy.init_node('camera_link_pose_gen')
 tf_buffer = tf2_ros.Buffer(rospy.Duration(1200.0)) #tf buffer length
 tf_listener = tf2_ros.TransformListener(tf_buffer)
 
+# transform camera_base -> optical_frame
 pose = PoseStamped()
 pose.pose.position.x = -0.059
 pose.pose.position.y = 0
 pose.pose.position.z = 0
-pose.pose.orientation.x = 0.500
-pose.pose.orientation.y = -0.500
+pose.pose.orientation.x = 0.501
+pose.pose.orientation.y = -0.499
 pose.pose.orientation.z = 0.499
 pose.pose.orientation.w = 0.501
 
 transform = tf_buffer.lookup_transform("panda_link0",
-                                   "d455_color_optical_frame", #source frame
+                                   "d455_1_color_optical_frame", #source frame
                                    rospy.Time(0), #get the tf at first available time
                                    rospy.Duration(1.0))
 pose_transformed = tf2_geometry_msgs.do_transform_pose(pose, transform)
-print("pose_transformed",pose_transformed.pose)
+p, o = pose_transformed.pose.position, pose_transformed.pose.orientation 
+print("{} {} {} {} {} {} {}".format(p.x, p.y,p.z,o.x,o.y,o.z,o.w))

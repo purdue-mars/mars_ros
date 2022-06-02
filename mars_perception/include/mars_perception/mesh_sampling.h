@@ -18,4 +18,4 @@
   using vtkCellPtsPtr = vtkIdType*;
 #endif
 
-void polygon_mesh_to_pc(pcl::PolygonMesh *mesh_ptr, pcl::PointCloud<pcl::PointXYZ>::Ptr pc_ptr);
+void polygon_mesh_to_pc(pcl::PolygonMesh *mesh_ptr, pcl::PointCloud<pcl::PointXYZRGB>::Ptr pc_ptr);
