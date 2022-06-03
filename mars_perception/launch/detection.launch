@@ -1,0 +1,38 @@
+<launch>
+
+  <arg name="detection_threshold" default="0.8" />
+  <arg name="config" default="$(find detectron2_ros)/config/peg_config.yaml" />
+  <arg name="model" default="$(find detectron2_ros)/config/peg_model.pth" />
+  <arg name="visualization" default="true" />
+
+  <group ns="d455_0">
+    <include file="$(find detectron2_ros)/launch/detectron2_ros.launch">
+      <arg name="input" value="camera/color/image_raw" />
+      <arg name="detection_threshold" value="$(arg detection_threshold)" />
+      <arg name="config" value="$(arg config)" />
+      <arg name="model" value="$(arg model)" />
+      <arg name="visualization" value="$(arg visualization)" />
+    </include>
+  </group>
+
+  <group ns="d455_1">
+    <include file="$(find detectron2_ros)/launch/detectron2_ros.launch">
+      <arg name="input" value="camera/color/image_raw" />
+      <arg name="detection_threshold" value="$(arg detection_threshold)" />
+      <arg name="config" value="$(arg config)" />
+      <arg name="model" value="$(arg model)" />
+      <arg name="visualization" value="$(arg visualization)" />
+    </include>
+  </group>
+
+  <group ns="d405">
+    <include file="$(find detectron2_ros)/launch/detectron2_ros.launch">
+      <arg name="input" value="camera/color/image_raw" />
+      <arg name="detection_threshold" value="$(arg detection_threshold)" />
+      <arg name="config" value="$(arg config)" />
+      <arg name="model" value="$(arg model)" />
+      <arg name="visualization" value="$(arg visualization)" />
+    </include>
+  </group>
+
+</launch>

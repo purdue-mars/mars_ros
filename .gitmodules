@@ -7,6 +7,6 @@
 [submodule "panda_moveit_config"]
 	path = mars_sim/panda_moveit_config
 	url = https://github.com/purdue-mars/panda_moveit_config 
-[submodule "third_party/mrcnn_ros"]
-	path = third_party/mrcnn_ros
-	url = https://github.com/weigao95/mrcnn_ros
+[submodule "third_party/detectron2_ros"]
+	path = third_party/detectron2_ros
+	url = https://github.com/raghavauppuluri13/detectron2_ros

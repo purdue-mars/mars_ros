@@ -29,6 +29,7 @@
   <exec_depend>rospy</exec_depend>
   <depend>actionlib</depend>
   <depend>actionlib_msgs</depend>
+  <depend>moveit_visual_tools</depend>
 
   <export>
     <!-- Other tools can request additional information be placed here -->
