@@ -12,7 +12,7 @@ from detectron2_ros.msg import Result
 
 class MaskNode:
     def __init__(self):
-        self.bridge = CvBridge()
+        self.br = CvBridge()
         self.W,self.H = 1280,720
         self.mask = None 
         detection_topic =  rospy.get_param("detections", "/d455_0/detectron2_ros/result")
@@ -30,23 +30,21 @@ class MaskNode:
     def detection_cb(self,msg):
         mask = np.zeros((self.H,self.W))
         for m in msg.masks:
-            m = self.bridge.imgmsg_to_cv2(m)
+            m = self.br.imgmsg_to_cv2(m)
             mask = np.logical_or(mask, m)
         
         self.mask = mask 
 
     def depth_callback(self,msg):
-        encoding = msg.encoding
-        im = ros_numpy.numpify(msg)
+        im = self.br.imgmsg_to_cv2(msg) 
         im[self.mask == False] = 0
-        msg = ros_numpy.msgify(Image, im, encoding=encoding)
+        msg.data = self.br.cv2_to_imgmsg(im).data
         self.masked_depth_pub.publish(msg)
 
     def color_callback(self,msg):
-        encoding = msg.encoding
-        im = ros_numpy.numpify(msg)
+        im = self.br.imgmsg_to_cv2(msg) 
         im[self.mask == False] = 0
-        msg = ros_numpy.msgify(Image, im, encoding=encoding)
+        msg.data = self.br.cv2_to_imgmsg(im).data
         self.masked_color_pub.publish(msg)
 
 
