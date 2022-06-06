@@ -35,7 +35,8 @@
 #include <tf/tf.h>
 #include <tf/transform_listener.h>
 #include <yaml-cpp/yaml.h>
-#define PC_SIZE 3
+
+#define CAM_CNT 3
 class PCRegistration
 {
 public:
@@ -49,7 +50,7 @@ private:
       SyncPolicyT;
 
   ros::NodeHandle nh_;
-  message_filters::Subscriber<PointCloudMsgT> *cloud_subscribers_[PC_SIZE];
+  message_filters::Subscriber<PointCloudMsgT> *cloud_subscribers_[CAM_CNT];
   message_filters::Synchronizer<SyncPolicyT> *cloud_synchronizer_;
   ros::Subscriber config_subscriber_;
   ros::Publisher cloud_publisher_;
@@ -64,12 +65,11 @@ private:
   double max_iter_;
   double reject_thres_;
 
-  std::vector<std::string> input_topics_;
+  std::vector<std::string> camera_topics_;
   std::string output_topic_;
-  std::string concat_frame_id_;
+  std::string base_frame_id_;
 
   PointCloudT::Ptr cloud_concatenated_;
 
   void pointcloud_callback(const PointCloudMsgT::ConstPtr &msg1, const PointCloudMsgT::ConstPtr &msg2, const PointCloudMsgT::ConstPtr &msg3);
-
 };

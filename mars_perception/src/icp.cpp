@@ -1,6 +1,6 @@
 #include <mars_perception/icp.h>
 
-ICP::ICP() :  mesh_pc_(new PointCloud), scene_pc_(new PointCloud)
+ICP::ICP() : mesh_pc_(new PointCloud), scene_pc_(new PointCloud)
 {
     ros::param::get("~max_correspondence_distance", max_corresp_dist_);
     ros::param::get("~transformation_epsilon", transf_epsilon_);
@@ -8,7 +8,7 @@ ICP::ICP() :  mesh_pc_(new PointCloud), scene_pc_(new PointCloud)
     ros::param::get("~max_iterations", max_iter_);
 
     std::string scene_pc_topic;
-    ros::param::get("filtered_output", scene_pc_topic);
+    ros::param::get("filtered_points_topic", scene_pc_topic);
 
     set_mesh_(DEFAULT_MESH);
     wait_for_scene_point_cloud();
@@ -17,7 +17,8 @@ ICP::ICP() :  mesh_pc_(new PointCloud), scene_pc_(new PointCloud)
     scene_pc_sub_ = nh_.subscribe(scene_pc_topic, 10, &ICP::scene_pc_cb_, this);
 }
 
-void ICP::scene_pc_cb_(const PointCloudMsg::ConstPtr& msg) {
+void ICP::scene_pc_cb_(const PointCloudMsg::ConstPtr &msg)
+{
     pcl::fromROSMsg(*msg, *scene_pc_);
 }
 

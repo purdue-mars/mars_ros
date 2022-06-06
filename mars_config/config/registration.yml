@@ -1,7 +1,3 @@
-input_topics:
-  ["/d455_0/camera/depth/color/points","/d455_1/camera/depth/color/points","/d405/camera/depth/color/points" ]
-concat_frame: "panda_link0"
-filtered_output: "/points"
 
 ## ICP for final alignment
 max_correspondence_distance: 0.01
@@ -12,10 +8,10 @@ ransac_rejection_threshold: 0.05
 
 ## Filters
 # voxel filter
-leaf_sizes: 
-- [0.001,0.001,0.001]
-- [0.001,0.001,0.001]
-- [0.001,0.001,0.001]
+leaf_sizes:
+  - [0.001, 0.001, 0.001]
+  - [0.001, 0.001, 0.001]
+  - [0.001, 0.001, 0.001]
 
 # Box Filter
 

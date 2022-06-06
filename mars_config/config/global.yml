@@ -1,1 +1,20 @@
-filtered_output: "/points"
+filtered_points_topic: "/points"
+
+cameras_ns: ["d455_0", "d455_1", "d405"]
+mask_topic: "/detectron2_ros/result"
+depth_topic: "/camera/depth/image_rect_raw"
+pc_topic: "/camera/depth/color/points"
+
+camera_topics:
+  [
+    "/d455_0/camera/depth/color/points",
+    "/d455_1/camera/depth/color/points",
+    "/d405/camera/depth/color/points",
+  ]
+
+# [width,height]
+camera_image_size:
+  - [1280, 720]
+  - [1280, 720]
+  - [848, 480]
+base_frame: "panda_link0"

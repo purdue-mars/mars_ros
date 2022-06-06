@@ -2,30 +2,33 @@
 
 PCRegistration::PCRegistration() : nh_(), tf_listener_(), cloud_concatenated_(new PointCloudT)
 {
-  ros::param::get("/filtered_output", output_topic_);
+  // global
+  ros::param::get("/filtered_points_topic", output_topic_);
+  ros::param::get("/camera_topics", camera_topics_);
+  ros::param::get("/base_frame", base_frame_id_);
 
-  ros::param::get("~input_topics", input_topics_);
-  ros::param::get("~concat_frame", concat_frame_id_);
+  // box filter params
   ros::param::get("~box_min", box_min_);
   ros::param::get("~box_max", box_max_);
   ros::param::get("~leaf_sizes", leaf_sizes_);
 
+  // ICP params
   ros::param::get("~max_correspondence_distance", max_corresp_dist_);
   ros::param::get("~transformation_epsilon", transf_epsilon_);
   ros::param::get("~fitness_epsilon", fitness_epsilon_);
   ros::param::get("~max_iterations", max_iter_);
   ros::param::get("~ransac_rejection_threshold", reject_thres_);
 
-  if (input_topics_.size() != PC_SIZE)
+  if (camera_topics_.size() != CAM_CNT)
   {
-    ROS_ERROR("The size of input_topics must be between 2");
+    ROS_ERROR("The size of camera_topics must be between 2");
     ros::shutdown();
   }
 
-  for (size_t i = 0; i < PC_SIZE; ++i)
+  for (size_t i = 0; i < CAM_CNT; ++i)
   {
     cloud_subscribers_[i] =
-        new message_filters::Subscriber<PointCloudMsgT>(nh_, input_topics_[i], 10);
+        new message_filters::Subscriber<PointCloudMsgT>(nh_, camera_topics_[i], 10);
   }
 
   cloud_synchronizer_ = new message_filters::Synchronizer<SyncPolicyT>(
@@ -39,20 +42,20 @@ PCRegistration::PCRegistration() : nh_(), tf_listener_(), cloud_concatenated_(ne
 void PCRegistration::pointcloud_callback(const PointCloudMsgT::ConstPtr &msg1, const PointCloudMsgT::ConstPtr &msg2, const PointCloudMsgT::ConstPtr &msg3)
 {
 
-  PointCloudMsgT::ConstPtr msgs[PC_SIZE] = {msg1, msg2, msg3};
-  PointCloudT::Ptr cloud_sources[PC_SIZE];
+  PointCloudMsgT::ConstPtr msgs[CAM_CNT] = {msg1, msg2, msg3};
+  PointCloudT::Ptr cloud_sources[CAM_CNT];
 
   cloud_concatenated_ = PointCloudT::Ptr(new PointCloudT);
 
   // transform points
   try
   {
-    for (size_t i = 0; i < input_topics_.size(); ++i)
+    for (size_t i = 0; i < camera_topics_.size(); ++i)
     {
       cloud_sources[i] = PointCloudT().makeShared();
       pcl::fromROSMsg(*msgs[i], *cloud_sources[i]);
-      tf_listener_.waitForTransform(concat_frame_id_, msgs[i]->header.frame_id, ros::Time(0), ros::Duration(1.0));
-      pcl_ros::transformPointCloud(concat_frame_id_, ros::Time(0), *cloud_sources[i], msgs[i]->header.frame_id, *cloud_sources[i], tf_listener_);
+      tf_listener_.waitForTransform(base_frame_id_, msgs[i]->header.frame_id, ros::Time(0), ros::Duration(1.0));
+      pcl_ros::transformPointCloud(base_frame_id_, ros::Time(0), *cloud_sources[i], msgs[i]->header.frame_id, *cloud_sources[i], tf_listener_);
 
       if (cloud_sources[i]->size() != 0)
       {
@@ -86,7 +89,7 @@ void PCRegistration::pointcloud_callback(const PointCloudMsgT::ConstPtr &msg1, c
   }
 
   // merge points
-  for (size_t i = 0; i < input_topics_.size(); ++i)
+  for (size_t i = 0; i < camera_topics_.size(); ++i)
   {
     if (cloud_sources[i]->size() != 0)
     {
@@ -155,6 +158,6 @@ void PCRegistration::pointcloud_callback(const PointCloudMsgT::ConstPtr &msg1, c
 
   // Publish
   cloud_concatenated_->header = pcl_conversions::toPCL(msgs[0]->header);
-  cloud_concatenated_->header.frame_id = concat_frame_id_;
+  cloud_concatenated_->header.frame_id = base_frame_id_;
   cloud_publisher_.publish(cloud_concatenated_);
 }

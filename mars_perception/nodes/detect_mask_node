@@ -1,0 +1,58 @@
+#!/usr/bin/env python3
+import rospy
+import numpy as np
+import pcl
+from sensor_msgs.msg import PointCloud2,Image
+import sensor_msgs.point_cloud2 as pc2
+import ros_numpy
+
+from cv_bridge import CvBridge, CvBridgeError
+
+from detectron2_ros.msg import Result
+
+class MaskNode:
+    def __init__(self):
+        self.bridge = CvBridge()
+        self.W,self.H = 1280,720
+        self.mask = None 
+        detection_topic =  rospy.get_param("detections", "/d455_0/detectron2_ros/result")
+        depth_topic =  rospy.get_param("points", "/d455_0/camera/aligned_depth_to_color/image_raw")
+        color_topic =  rospy.get_param("points", "/d455_0/camera/color/image_raw")
+        masked_depth_topic =  rospy.get_param("points", "/d455_0/camera/depth/masked")
+        masked_color_topic =  rospy.get_param("points", "/d455_0/camera/color/masked")
+        self.detect_sub = rospy.Subscriber(detection_topic,Result, self.detection_cb, queue_size=10)
+        self.depth_sub = rospy.Subscriber(depth_topic, Image, self.depth_callback, queue_size=10)
+        self.color_sub = rospy.Subscriber(color_topic, Image, self.color_callback, queue_size=10)
+
+        self.masked_color_pub = rospy.Publisher(masked_color_topic, Image, queue_size=10)
+        self.masked_depth_pub = rospy.Publisher(masked_depth_topic, Image, queue_size=10)
+
+    def detection_cb(self,msg):
+        mask = np.zeros((self.H,self.W))
+        for m in msg.masks:
+            m = self.bridge.imgmsg_to_cv2(m)
+            mask = np.logical_or(mask, m)
+        
+        self.mask = mask 
+
+    def depth_callback(self,msg):
+        encoding = msg.encoding
+        im = ros_numpy.numpify(msg)
+        im[self.mask == False] = 0
+        msg = ros_numpy.msgify(Image, im, encoding=encoding)
+        self.masked_depth_pub.publish(msg)
+
+    def color_callback(self,msg):
+        encoding = msg.encoding
+        im = ros_numpy.numpify(msg)
+        im[self.mask == False] = 0
+        msg = ros_numpy.msgify(Image, im, encoding=encoding)
+        self.masked_color_pub.publish(msg)
+
+
+if __name__ == '__main__':
+    rospy.init_node('detect_mask_node')
+
+    mask = MaskNode()
+
+    rospy.spin()

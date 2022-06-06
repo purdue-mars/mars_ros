@@ -6,12 +6,14 @@
   <arg name="initial_reset" default="false" />
   <arg name="sim" default="false" />
 
+
   <group ns="d455_0">
     <include file="$(find realsense2_camera)/launch/rs_camera.launch">
       <arg name="serial_no" value="$(arg serial_no_d455_0)" />
       <arg name="tf_prefix" value="d455_0" />
       <!-- <arg name="filters" value="disparity,decimation" /> -->
       <arg name="enable_pointcloud" value="true" />
+      <arg name="align_depth" value="true" />
       <arg name="initial_reset" value="$(arg initial_reset)" />
     </include>
   </group>
@@ -22,6 +24,7 @@
       <arg name="tf_prefix" value="d455_1" />
       <!-- <arg name="filters" value="disparity,hole_filling,decimation" /> -->
       <arg name="enable_pointcloud" value="true" />
+      <arg name="align_depth" value="true" />
       <arg name="initial_reset" value="$(arg initial_reset)" />
     </include>
   </group>
@@ -31,6 +34,7 @@
       <arg name="serial_no" value="$(arg serial_no_d405)" />
       <arg name="tf_prefix" value="d405" />
       <arg name="filters" value="temporal,disparity,decimation,spatial" />
+      <arg name="align_depth" value="true" />
       <arg name="enable_pointcloud" value="true" />
       <arg name="initial_reset" value="$(arg initial_reset)" />
       <arg name="clip_distance" value="$(arg d405_clip_dist)" />
