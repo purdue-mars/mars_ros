@@ -18,8 +18,8 @@ class MaskNode:
         detection_topic =  rospy.get_param("detections", "/d455_0/detectron2_ros/result")
         depth_topic =  rospy.get_param("points", "/d455_0/camera/aligned_depth_to_color/image_raw")
         color_topic =  rospy.get_param("points", "/d455_0/camera/color/image_raw")
-        masked_depth_topic =  rospy.get_param("points", "/d455_0/camera/depth/masked")
-        masked_color_topic =  rospy.get_param("points", "/d455_0/camera/color/masked")
+        masked_depth_topic =  rospy.get_param("points", "/d455_0/camera/aligned_depth_to_color/masked_image")
+        masked_color_topic =  rospy.get_param("points", "/d455_0/camera/color/masked_image")
         self.detect_sub = rospy.Subscriber(detection_topic,Result, self.detection_cb, queue_size=10)
         self.depth_sub = rospy.Subscriber(depth_topic, Image, self.depth_callback, queue_size=10)
         self.color_sub = rospy.Subscriber(color_topic, Image, self.color_callback, queue_size=10)
@@ -36,13 +36,13 @@ class MaskNode:
         self.mask = mask 
 
     def depth_callback(self,msg):
-        im = self.br.imgmsg_to_cv2(msg) 
+        im = np.array(self.br.imgmsg_to_cv2(msg))
         im[self.mask == False] = 0
         msg.data = self.br.cv2_to_imgmsg(im).data
         self.masked_depth_pub.publish(msg)
 
     def color_callback(self,msg):
-        im = self.br.imgmsg_to_cv2(msg) 
+        im = np.array(self.br.imgmsg_to_cv2(msg))
         im[self.mask == False] = 0
         msg.data = self.br.cv2_to_imgmsg(im).data
         self.masked_color_pub.publish(msg)
