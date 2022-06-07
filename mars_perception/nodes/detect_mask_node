@@ -2,28 +2,33 @@
 import rospy
 import numpy as np
 import pcl
-from sensor_msgs.msg import PointCloud2,Image
+from sensor_msgs.msg import PointCloud2,Image, CameraInfo
 import sensor_msgs.point_cloud2 as pc2
 import ros_numpy
+import cv2
 
 from cv_bridge import CvBridge, CvBridgeError
 
 from detectron2_ros.msg import Result
 
+
 class MaskNode:
     def __init__(self):
         self.br = CvBridge()
-        self.W = rospy.get_param("realsense2_camera/infra_width")
-        self.H = rospy.get_param("realsense2_camera/infra_height")
-        self.mask = np.zeros((self.H,self.W)) 
+        self.W = None
+        self.H = None 
+        self.depth_mask = None 
+        self.color_mask = None 
 
         mask_topic = rospy.get_param("/mask_topic")
-        color_topic = rospy.get_param("/color_topic")
+        color_topic = str(rospy.get_param("/color_topic"))
+        color_info_topic = color_topic.split('/')[0] + '/' + 'camera_info' 
         depth_topic = rospy.get_param("/depth_topic")
         masked_out_topic = rospy.get_param("/masked_out_topic")
 
-        masked_depth_topic = depth_topic.split()[0] + '/' + masked_out_topic 
-        masked_color_topic = color_topic.split()[0] + '/' + masked_out_topic 
+        masked_depth_topic = depth_topic.split('/')[0] + '/' + masked_out_topic 
+        masked_color_topic = color_topic.split('/')[0] + '/' + masked_out_topic 
+        self.color_info = rospy.Subscriber(color_info_topic, CameraInfo, self.color_info_cb, queue_size=10)
         self.detect_sub = rospy.Subscriber(mask_topic, Result, self.detection_cb, queue_size=10)
         self.depth_sub = rospy.Subscriber(depth_topic, Image, self.depth_callback, queue_size=10)
         self.color_sub = rospy.Subscriber(color_topic, Image, self.color_callback, queue_size=10)
@@ -31,24 +36,32 @@ class MaskNode:
         self.masked_color_pub = rospy.Publisher(masked_color_topic, Image, queue_size=10)
         self.masked_depth_pub = rospy.Publisher(masked_depth_topic, Image, queue_size=10)
 
+    def color_info_cb(self,msg : CameraInfo):
+        self.W = msg.width
+        self.H = msg.height
+
     def detection_cb(self,msg):
-        mask = np.zeros((self.H,self.W))
-        for m in msg.masks:
-            m = self.br.imgmsg_to_cv2(m)
-            mask = np.bitwise_or(mask, m)
-        self.mask = mask 
+        if self.W is not None and self.H is not None:
+            mask = np.zeros((self.H,self.W),dtype=np.uint8)
+            for m in msg.masks:
+                cv_mask = np.array(self.br.imgmsg_to_cv2(m))
+                mask = cv2.bitwise_or(mask, cv_mask)
+            self.depth_mask = mask.astype(np.uint16)
+            self.color_mask = np.zeros((self.H,self.W,3),dtype=np.uint8) | np.expand_dims(mask,axis=-1)
 
     def depth_callback(self,msg):
-        im = np.array(self.br.imgmsg_to_cv2(msg))
-        im = np.bitwise_and(im,mask)
-        msg.data = self.br.cv2_to_imgmsg(im).data
-        self.masked_depth_pub.publish(msg)
+        if self.depth_mask is not None:
+            im = np.array(self.br.imgmsg_to_cv2(msg))
+            im[self.depth_mask == 0] = 0
+            msg.data = self.br.cv2_to_imgmsg(im).data
+            self.masked_depth_pub.publish(msg)
 
     def color_callback(self,msg):
-        im = np.array(self.br.imgmsg_to_cv2(msg))
-        im = np.bitwise_and(im,mask)
-        msg.data = self.br.cv2_to_imgmsg(im).data
-        self.masked_color_pub.publish(msg)
+        if self.color_mask is not None:
+            im = np.array(self.br.imgmsg_to_cv2(msg,'rgb8'))
+            im = cv2.bitwise_and(im,self.color_mask)
+            msg.data = self.br.cv2_to_imgmsg(im).data
+            self.masked_color_pub.publish(msg)
 
 
 if __name__ == '__main__':

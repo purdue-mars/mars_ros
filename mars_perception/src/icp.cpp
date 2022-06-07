@@ -2,7 +2,6 @@
 
 ICP::ICP() : mesh_pc_(new PointCloud), scene_pc_(new PointCloud)
 {
-
     ros::param::get("~max_correspondence_distance", max_corresp_dist_);
     ros::param::get("~transformation_epsilon", transf_epsilon_);
     ros::param::get("~fitness_epsilon", fitness_epsilon_);
@@ -11,11 +10,12 @@ ICP::ICP() : mesh_pc_(new PointCloud), scene_pc_(new PointCloud)
     std::string scene_pc_topic;
     ros::param::get("~filtered_points_topic", scene_pc_topic);
 
-    set_mesh_(DEFAULT_MESH);
-    wait_for_scene_point_cloud();
     icp_mesh_srv_ = nh_.advertiseService("icp_mesh_tf", &ICP::mesh_icp_srv, this);
     mesh_pub_ = nh_.advertise<sensor_msgs::PointCloud2>("object_mesh_pc", 10);
     scene_pc_sub_ = nh_.subscribe(scene_pc_topic, 10, &ICP::scene_pc_cb_, this);
+
+    set_mesh_(DEFAULT_MESH);
+    wait_for_scene_point_cloud();
 }
 
 void ICP::scene_pc_cb_(const PointCloudMsg::ConstPtr &msg)
@@ -46,6 +46,13 @@ void ICP::set_mesh_(std::string mesh_name)
         mesh_pc_->points[i].z -= centroid_z;
     }
 
+    for (int i = 0; i < mesh_pc_->points.size(); i++)
+    {
+        mesh_pc_->points[i].x /= 1000;
+        mesh_pc_->points[i].y /= 1000;
+        mesh_pc_->points[i].z /= 1000;
+    }
+
     std::cout << "mesh_frame: " << mesh_pc_->header.frame_id << "\n";
 }
 
@@ -54,10 +61,10 @@ void ICP::icp(PointCloudPtr p1, PointCloudPtr p2, ICP::TFMatrix *tf)
     pcl::IterativeClosestPoint<ICP::Point, ICP::Point> icp;
     icp.setInputSource(p1);
     icp.setInputTarget(p2);
-    icp.setMaxCorrespondenceDistance(max_corresp_dist_);
-    icp.setTransformationEpsilon(transf_epsilon_);
-    icp.setEuclideanFitnessEpsilon(fitness_epsilon_);
-    icp.setMaximumIterations(max_iter_);
+    // icp.setMaxCorrespondenceDistance(max_corresp_dist_);
+    // icp.setTransformationEpsilon(transf_epsilon_);
+    // icp.setEuclideanFitnessEpsilon(fitness_epsilon_);
+    // icp.setMaximumIterations(max_iter_);
 
     pcl::PointCloud<Point> Final;
     icp.align(Final);
@@ -118,8 +125,9 @@ bool ICP::mesh_icp_srv(mars_msgs::ICPMeshTF::Request &req, mars_msgs::ICPMeshTF:
     tf_.transform.rotation.w = q.w();
     br_.sendTransform(tf_);
 
-    // mesh_pc_->header.frame_id = frame_id;
-    // mesh_pub_.publish(*mesh_pc_);
+
+    mesh_pc_->header.frame_id = frame_id;
+    mesh_pub_.publish(mesh_pc_);
 
     return true;
 }

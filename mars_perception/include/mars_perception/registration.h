@@ -57,7 +57,10 @@ private:
   ros::Publisher cloud_publisher_;
   tf::TransformListener tf_listener_;
 
+  bool voxel_enabled_;
   XmlRpc::XmlRpcValue leaf_sizes_;
+
+  bool box_enabled_;
   std::vector<double> box_min_, box_max_;
 
   double max_corresp_dist_;
@@ -65,6 +68,7 @@ private:
   double fitness_epsilon_;
   double max_iter_;
   double reject_thres_;
+  bool icp_enabled_;
 
   std::string base_frame_id_;
 
