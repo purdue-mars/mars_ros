@@ -1,6 +1,6 @@
 #include <mars_perception/icp.h>
 
-ICP::ICP() : mesh_pc_(new PointCloud), scene_pc_(new PointCloud)
+ICP::ICP() : mesh_nh_("/meshes"), mesh_pc_(new PointCloud), scene_pc_(new PointCloud)
 {
 
     ros::param::get("~max_correspondence_distance", max_corresp_dist_);
@@ -27,7 +27,7 @@ void ICP::set_mesh_(std::string mesh_name)
 {
     assert(ros::param::has(mesh_name));
     std::string mesh_path;
-    nh_.getParam(mesh_name, mesh_path);
+    mesh_nh_.getParam(mesh_name, mesh_path);
     std::cout << "Mesh: " << mesh_path << "\n";
     pcl::PolygonMesh mesh;
     pcl::io::loadPolygonFileSTL(mesh_path, mesh);

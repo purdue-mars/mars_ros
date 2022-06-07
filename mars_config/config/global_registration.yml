@@ -7,6 +7,7 @@ point_cloud_topics:
 filtered_points_topic: "/filtered_points"
 
 ## ICP for final alignment
+icp_enabled: true
 max_correspondence_distance: 0.01
 transformation_epsilon: 0.000000001
 fitness_epsilon: 1

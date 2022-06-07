@@ -22,6 +22,7 @@ private:
     PointCloudPtr mesh_pc_;
     PointCloudPtr scene_pc_;
     ros::NodeHandle nh_;
+    ros::NodeHandle mesh_nh_;
     ros::ServiceServer icp_mesh_srv_;
     ros::Publisher mesh_pub_;
     ros::Subscriber scene_pc_sub_;

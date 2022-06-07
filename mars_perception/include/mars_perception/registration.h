@@ -65,6 +65,7 @@ private:
   double fitness_epsilon_;
   double max_iter_;
   double reject_thres_;
+  bool icp_enabled_;
 
   std::string base_frame_id_;
 

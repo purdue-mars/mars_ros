@@ -4,6 +4,7 @@
     <arg name="rviz" default="true"/>
 
     <rosparam file="$(find mars_config)/config/global.yml" command="load" subst_value="true"/>
+    <rosparam file="$(find mars_config)/config/mesh.yml" command="load" subst_value="true"/>
 
     <node pkg="tf2_ros" type="static_transform_publisher" name="virtual_joint_broadcaster_zero" args="0 0 0 0 0 0 world panda_link0" /> 
     <include file="$(find franka_control)/launch/franka_control.launch" >

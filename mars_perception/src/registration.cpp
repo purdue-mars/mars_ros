@@ -17,6 +17,7 @@ PCRegistration::PCRegistration() : nh_(), tf_listener_(), cloud_concatenated(new
   ros::param::get("~leaf_sizes", leaf_sizes_);
 
   // ICP params
+  ros::param::get("~icp_enabled", icp_enabled_);
   ros::param::get("~max_correspondence_distance", max_corresp_dist_);
   ros::param::get("~transformation_epsilon", transf_epsilon_);
   ros::param::get("~fitness_epsilon", fitness_epsilon_);
@@ -97,7 +98,7 @@ void PCRegistration::pointcloud_callback(const PointCloudMsgT::ConstPtr &msg1, c
   {
     if (cloud_sources[i]->size() != 0)
     {
-      if (i != 0)
+      if (i != 0 && icp_enabled_)
       {
         pcl::IterativeClosestPoint<PointT, PointT> icp;
         icp.setInputSource(cloud_sources[i]);
