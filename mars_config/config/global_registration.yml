@@ -16,12 +16,14 @@ ransac_rejection_threshold: 0.05
 
 ## Filters
 # voxel filter
+voxel_enabled: true
 leaf_sizes:
   - [0.001, 0.001, 0.001]
   - [0.001, 0.001, 0.001]
   - [0.001, 0.001, 0.001]
 
 # Box Filter
+box_enabled: true
 
 # only cylinder
 # box_min: [0.42, -0.127, 0]

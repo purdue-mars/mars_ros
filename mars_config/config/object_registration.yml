@@ -8,21 +8,23 @@ filtered_points_topic: "/filtered_masked_points"
 
 
 ## ICP for final alignment
-icp_enabled: false
+icp_enabled: true
 max_correspondence_distance: 0.01
 transformation_epsilon: 0.000000001
 fitness_epsilon: 1
-max_iterations: 10
+max_iterations: 20
 ransac_rejection_threshold: 0.05
 
 ## Filters
 # voxel filter
+voxel_enabled: false
 leaf_sizes:
   - [0.001, 0.001, 0.001]
   - [0.001, 0.001, 0.001]
   - [0.001, 0.001, 0.001]
 
 # Box Filter
+box_enabled: false
 
 # only cylinder
 # box_min: [0.42, -0.127, 0]

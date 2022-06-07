@@ -15,8 +15,9 @@
       <rosparam file="$(find mars_config)/config/object_registration.yml" command="load"  />
   </node>
 
-  <node name="object_icp" type="icp_server" pkg="mars_perception" output="screen" >
+  <node name="icp_server" type="icp_server" pkg="mars_perception" output="screen" >
       <rosparam file="$(find mars_config)/config/object_registration.yml" command="load"  />
+      <param name="max_iterations" value="100" />
   </node>
 
   <group ns="/d455_0/camera">

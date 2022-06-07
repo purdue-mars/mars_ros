@@ -1,4 +1,8 @@
 #pragma once
+
+#include <pcl/point_types.h>
+#include <pcl_ros/point_cloud.h>
+#include <sensor_msgs/PointCloud2.h>
 #include <bits/stdc++.h>
 #include <Eigen/Dense>
 #include <Eigen/Geometry>
@@ -19,10 +23,9 @@ private:
     typedef pcl::PointCloud<Point> PointCloud;
     typedef pcl::PointCloud<Point>::Ptr PointCloudPtr;
     typedef sensor_msgs::PointCloud2 PointCloudMsg;
-    PointCloudPtr mesh_pc_;
+    PointCloud::Ptr mesh_pc_;
     PointCloudPtr scene_pc_;
     ros::NodeHandle nh_;
-    ros::NodeHandle mesh_nh_;
     ros::ServiceServer icp_mesh_srv_;
     ros::Publisher mesh_pub_;
     ros::Subscriber scene_pc_sub_;

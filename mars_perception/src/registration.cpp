@@ -12,8 +12,12 @@ PCRegistration::PCRegistration() : nh_(), tf_listener_(), cloud_concatenated(new
   ros::param::get("~point_cloud_topics", point_cloud_topics);
 
   // box filter params
+  ros::param::get("~box_enabled", box_enabled_);
   ros::param::get("~box_min", box_min_);
   ros::param::get("~box_max", box_max_);
+
+  // voxel filter params
+  ros::param::get("~voxel_enabled", voxel_enabled_);
   ros::param::get("~leaf_sizes", leaf_sizes_);
 
   // ICP params
@@ -64,27 +68,17 @@ void PCRegistration::pointcloud_callback(const PointCloudMsgT::ConstPtr &msg1, c
 
       if (cloud_sources[i]->size() != 0)
       {
-        pcl::VoxelGrid<PointT> voxel_filter;
-        pcl::CropBox<PointT> box_filter;
-        box_filter.setInputCloud(cloud_sources[i]);
+          pcl::CropBox<PointT> box_filter;
+          box_filter.setInputCloud(cloud_sources[i]);
+          box_filter.setMin(Eigen::Vector4f(box_min_[0], box_min_[1], box_min_[2], 1.0));
+          box_filter.setMax(Eigen::Vector4f(box_max_[0], box_max_[1], box_max_[2], 1.0));
+          box_filter.filter(*cloud_sources[i]);
 
-        box_filter.setMin(Eigen::Vector4f(box_min_[0], box_min_[1], box_min_[2], 1.0));
-        box_filter.setMax(Eigen::Vector4f(box_max_[0], box_max_[1], box_max_[2], 1.0));
-        box_filter.filter(*cloud_sources[i]);
-
-        voxel_filter.setInputCloud(cloud_sources[i]);
-        voxel_filter.setLeafSize((double)leaf_sizes_[i][0], (double)leaf_sizes_[i][1], (double)leaf_sizes_[i][2]);
-        voxel_filter.filter(*cloud_sources[i]);
+          pcl::VoxelGrid<PointT> voxel_filter;
+          voxel_filter.setInputCloud(cloud_sources[i]);
+          voxel_filter.setLeafSize((double)leaf_sizes_[i][0], (double)leaf_sizes_[i][1], (double)leaf_sizes_[i][2]);
+          voxel_filter.filter(*cloud_sources[i]);
       }
-
-      // double mean, stddev;
-      // ros::param::get("~outlier_mean", mean);
-      // ros::param::get("~outlier_stddev", stddev);
-      // pcl::StatisticalOutlierRemoval<PointT> sor;
-      // sor.setInputCloud(cloud_sources[i]);
-      // sor.setMeanK(mean);
-      // sor.setStddevMulThresh(stddev);
-      // sor.filter(*cloud_sources[i]);
     }
   }
   catch (tf::TransformException &ex)
@@ -98,7 +92,7 @@ void PCRegistration::pointcloud_callback(const PointCloudMsgT::ConstPtr &msg1, c
   {
     if (cloud_sources[i]->size() != 0)
     {
-      if (i != 0 && icp_enabled_)
+      if (i != 0)
       {
         pcl::IterativeClosestPoint<PointT, PointT> icp;
         icp.setInputSource(cloud_sources[i]);

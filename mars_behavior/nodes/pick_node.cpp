@@ -15,11 +15,12 @@ int main(int argc, char** argv) {
     client.waitForExistence();
 
     mars_msgs::ICPMeshTF srv;
-    std::vector<std::string> mesh_names({"large_round_peg"});
+    std::string mesh_name = "large_round_peg";
     geometry_msgs::PoseStamped p;
 
     std::string base_name;
     ros::param::get("/base_name",base_name);
+    srv.request.mesh_name = mesh_name;
 
     if (client.call(srv))
     {
