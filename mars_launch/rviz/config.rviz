@@ -9,6 +9,7 @@ Panels:
         - /Axes1
         - /TF1/Tree1
         - /PointCloud21
+        - /PointCloud22
       Splitter Ratio: 0.7425600290298462
     Tree Height: 1172
   - Class: rviz/Help
@@ -50,7 +51,10 @@ Visualization Manager:
       Marker Topic: /rviz_visual_tools
       Name: MarkerArray
       Namespaces:
-        {}
+        Path: true
+        Sphere: true
+        Text: true
+        goal: true
       Queue Size: 100
       Value: true
     - Class: moveit_rviz_plugin/Trajectory
@@ -452,6 +456,8 @@ Visualization Manager:
       Frame Timeout: 60
       Frames:
         All Enabled: false
+        d405_aligned_depth_to_color_frame:
+          Value: true
         d405_color_frame:
           Value: false
         d405_color_optical_frame:
@@ -461,6 +467,8 @@ Visualization Manager:
         d405_depth_optical_frame:
           Value: false
         d405_link:
+          Value: true
+        d455_0_aligned_depth_to_color_frame:
           Value: true
         d455_0_color_frame:
           Value: false
@@ -472,6 +480,8 @@ Visualization Manager:
           Value: false
         d455_0_link:
           Value: true
+        d455_1_aligned_depth_to_color_frame:
+          Value: true
         d455_1_color_frame:
           Value: false
         d455_1_color_optical_frame:
@@ -481,6 +491,8 @@ Visualization Manager:
         d455_1_depth_optical_frame:
           Value: false
         d455_1_link:
+          Value: true
+        large_round_peg_frame:
           Value: true
         panda_EE:
           Value: false
@@ -526,19 +538,25 @@ Visualization Manager:
         world:
           panda_link0:
             d455_0_link:
-              d455_0_color_frame:
+              d455_0_aligned_depth_to_color_frame:
                 d455_0_color_optical_frame:
                   {}
+              d455_0_color_frame:
+                {}
               d455_0_depth_frame:
                 d455_0_depth_optical_frame:
                   {}
             d455_1_link:
-              d455_1_color_frame:
+              d455_1_aligned_depth_to_color_frame:
                 d455_1_color_optical_frame:
                   {}
+              d455_1_color_frame:
+                {}
               d455_1_depth_frame:
                 d455_1_depth_optical_frame:
                   {}
+            large_round_peg_frame:
+              {}
             panda_link1:
               panda_link2:
                 panda_link3:
@@ -548,9 +566,11 @@ Visualization Manager:
                         panda_link7:
                           panda_link8:
                             d405_link:
-                              d405_color_frame:
+                              d405_aligned_depth_to_color_frame:
                                 d405_color_optical_frame:
                                   {}
+                              d405_color_frame:
+                                {}
                               d405_depth_frame:
                                 d405_depth_optical_frame:
                                   {}
@@ -590,7 +610,35 @@ Visualization Manager:
       Size (Pixels): 3
       Size (m): 0.009999999776482582
       Style: Points
-      Topic: /points
+      Topic: /filtered_masked_points
+      Unreliable: false
+      Use Fixed Frame: true
+      Use rainbow: true
+      Value: true
+    - Alpha: 1
+      Autocompute Intensity Bounds: true
+      Autocompute Value Bounds:
+        Max Value: 10
+        Min Value: -10
+        Value: true
+      Axis: Z
+      Channel Name: intensity
+      Class: rviz/PointCloud2
+      Color: 255; 255; 255
+      Color Transformer: ""
+      Decay Time: 0
+      Enabled: true
+      Invert Rainbow: false
+      Max Color: 255; 255; 255
+      Min Color: 0; 0; 0
+      Name: PointCloud2
+      Position Transformer: ""
+      Queue Size: 10
+      Selectable: true
+      Size (Pixels): 3
+      Size (m): 0.009999999776482582
+      Style: Flat Squares
+      Topic: /object_mesh_pc
       Unreliable: false
       Use Fixed Frame: true
       Use rainbow: true
@@ -634,9 +682,9 @@ Visualization Manager:
       Invert Z Axis: false
       Name: Current View
       Near Clip Distance: 0.009999999776482582
-      Pitch: 0.42979490756988525
+      Pitch: -0.08020512014627457
       Target Frame: panda_link0
-      Yaw: 0.21859224140644073
+      Yaw: 5.381777763366699
     Saved: ~
 Window Geometry:
   Displays:

@@ -42,8 +42,8 @@ void execute(const mars_msgs::MoveToGoalConstPtr &goal, Server *as)
 
   visual_tools.publishAxisLabeled(goal->target, "goal");
   visual_tools.publishTrajectoryLine(m_plan.trajectory_, joint_model_group);
-  visual_tools.trigger();
-  visual_tools.prompt("next step");
+  // visual_tools.trigger();
+  // visual_tools.prompt("next step");
 
   move_group_interface.execute(m_plan);
 
