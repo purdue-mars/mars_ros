@@ -1,0 +1,35 @@
+point_cloud_topics:
+  [
+    "/d455_0/camera/aligned_depth_to_color/color/masked_points",
+    "/d455_1/camera/aligned_depth_to_color/color/masked_points",
+    "/d405/camera/aligned_depth_to_color/color/masked_points",
+  ]
+filtered_points_topic: "/filtered_points"
+
+## ICP for final alignment
+max_correspondence_distance: 0.01
+transformation_epsilon: 0.000000001
+fitness_epsilon: 1
+max_iterations: 10
+ransac_rejection_threshold: 0.05
+
+## Filters
+# voxel filter
+leaf_sizes:
+  - [0.001, 0.001, 0.001]
+  - [0.001, 0.001, 0.001]
+  - [0.001, 0.001, 0.001]
+
+# Box Filter
+
+# only cylinder
+# box_min: [0.42, -0.127, 0]
+# box_max: [0.46, -0.075, 0.05]
+
+# entire box
+box_min: [0.2, -0.4064, -0.01]
+box_max: [0.9398, 0.4064, 0.20]
+
+# Outlier filter
+outlier_mean: 10
+outlier_stddev: 5

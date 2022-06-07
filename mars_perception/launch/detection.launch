@@ -5,48 +5,66 @@
   <arg name="model" default="$(find detectron2_ros)/config/peg_model.pth" />
   <arg name="visualization" default="true" />
 
-  <node pkg="mars_perception" name="detect_mask" type="detect_mask_node" output="screen"/>
+  <arg name="masked_info_topic" default="color/camera_info"/>
+  <arg name="masked_color_topic" default="color/masked_image"/>
+  <arg name="masked_depth_topic" default="aligned_depth_to_color/masked_image"/>
+  <arg name="masked_points_topic" default="aligned_depth_to_color/depth/color/masked_points"/>
+
 
   <node pkg="nodelet" type="nodelet" args="manager" name="detect_nodelet" output="screen"/>
-  <node pkg="nodelet" type="nodelet" name="nodelet1"
-        args="load depth_image_proc/point_cloud_xyzrgb detect_nodelet --no-bond">
-    <remap from="rgb/camera_info" to="/d455_0/camera/color/camera_info"/>
-    <remap from="rgb/image_rect_color" to="/d455_0/camera/color/masked_image"/>
-    <remap from="depth_registered/image_rect" to="/d455_0/camera/aligned_depth_to_color/masked_image"/>
-    <remap from="depth_registered/points" to="/d455_0/camera/aligned_depth_to_color/depth/masked_points"/>
-  </node>
 
-  <group ns="d455_0">
+  <group ns="d455_0/camera">
     <include file="$(find detectron2_ros)/launch/detectron2_ros.launch">
-      <arg name="input" value="camera/color/image_raw" />
+      <arg name="input" value="color/image_raw" />
       <arg name="detection_threshold" value="$(arg detection_threshold)" />
       <arg name="config" value="$(arg config)" />
       <arg name="model" value="$(arg model)" />
       <arg name="visualization" value="$(arg visualization)" />
     </include>
-    <group ns="camera/color">
-        <node pkg="image_proc" type="image_proc" name="proc_node" />
-    </group>
+    <node pkg="mars_perception" name="detect_mask" type="detect_mask_node" output="screen"/>
+
+    <node pkg="nodelet" type="nodelet" name="d455_0_depth_proc_nodelet"
+          args="load depth_image_proc/point_cloud_xyzrgb detect_nodelet">
+      <remap from="rgb/camera_info" to="$(arg masked_info_topic)"/>
+      <remap from="rgb/image_rect_color" to="$(arg masked_color_topic)"/>
+      <remap from="depth_registered/image_rect" to="$(arg masked_depth_topic)"/>
+      <remap from="depth_registered/points" to="$(arg masked_points_topic)"/>
+    </node>
   </group>
 
-  <group ns="d455_1">
+  <group ns="d455_1/camera">
     <include file="$(find detectron2_ros)/launch/detectron2_ros.launch">
-      <arg name="input" value="camera/color/image_raw" />
+      <arg name="input" value="color/image_raw" />
       <arg name="detection_threshold" value="$(arg detection_threshold)" />
       <arg name="config" value="$(arg config)" />
       <arg name="model" value="$(arg model)" />
       <arg name="visualization" value="$(arg visualization)" />
     </include>
+
+    <node pkg="nodelet" type="nodelet" name="d455_1_depth_proc_nodelet"
+          args="load depth_image_proc/point_cloud_xyzrgb detect_nodelet">
+      <remap from="rgb/camera_info" to="$(arg masked_info_topic)"/>
+      <remap from="rgb/image_rect_color" to="$(arg masked_color_topic)"/>
+      <remap from="depth_registered/image_rect" to="$(arg masked_depth_topic)"/>
+      <remap from="depth_registered/points" to="$(arg masked_points_topic)"/>
+    </node>
   </group>
 
-  <group ns="d405">
+  <group ns="d405/camera">
     <include file="$(find detectron2_ros)/launch/detectron2_ros.launch">
-      <arg name="input" value="camera/color/image_raw" />
+      <arg name="input" value="color/image_raw" />
       <arg name="detection_threshold" value="$(arg detection_threshold)" />
       <arg name="config" value="$(arg config)" />
       <arg name="model" value="$(arg model)" />
       <arg name="visualization" value="$(arg visualization)" />
     </include>
+    <node pkg="nodelet" type="nodelet" name="d405_depth_proc_nodelet"
+          args="load depth_image_proc/point_cloud_xyzrgb detect_nodelet">
+      <remap from="rgb/camera_info" to="$(arg masked_info_topic)"/>
+      <remap from="rgb/image_rect_color" to="$(arg masked_color_topic)"/>
+      <remap from="depth_registered/image_rect" to="$(arg masked_depth_topic)"/>
+      <remap from="depth_registered/points" to="$(arg masked_points_topic)"/>
+    </node>
   </group>
 
 </launch>

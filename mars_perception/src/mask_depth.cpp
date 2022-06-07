@@ -2,17 +2,22 @@
 
 MaskDepth::MaskDepth() : nh_(), tf_listener_(), concat_masked_cloud_(new PointCloudT)
 {
-
-    std::vector<std::string> depth_topics, cameras_ns;
-    std::string masked_points_topic, depth_topic;
     // global
     ros::param::get("/base_frame", base_frame_id_);
+
+    std::vector<std::string> cameras_ns;
     ros::param::get("/camera_ns", cameras_ns);
+
+    std::string depth_topic;
+    std::vector<std::string> depth_topics;
     ros::param::get("/depth_topic", depth_topic);
     for (std::string t : cameras_ns)
         depth_topics.push_back(t + depth_topic);
 
-    ros::param::get("/camera_image_sizes", img_sizes_);
+    std::string color_topic;
+    ros::param::get("/color_topic", color_topic);
+    for (std::string t : cameras_ns)
+        depth_topics.push_back(t + color_topic);
 
     std::string mask_topic;
     std::vector<std::string> mask_topics;
@@ -20,7 +25,9 @@ MaskDepth::MaskDepth() : nh_(), tf_listener_(), concat_masked_cloud_(new PointCl
     for (std::string t : cameras_ns)
         mask_topics.push_back(t + mask_topic);
 
+    std::string masked_points_topic; 
     ros::param::get("/masked_points_topic", masked_points_topic);
+    ros::param::get("/camera_image_sizes", img_sizes_);
 
     // box filter params
     ros::param::get("~box_min", box_min_);
@@ -45,7 +52,6 @@ MaskDepth::MaskDepth() : nh_(), tf_listener_(), concat_masked_cloud_(new PointCl
         depth_subs_[i] =
             new message_filters::Subscriber<ImageT>(nh_, depth_topics[i], 10);
     }
-
     depth_sync_ = new message_filters::Synchronizer<SyncPolicyT>(
         SyncPolicyT(10), *depth_subs_[0], *depth_subs_[1], *depth_subs_[2]);
     depth_sync_->registerCallback(
@@ -53,10 +59,29 @@ MaskDepth::MaskDepth() : nh_(), tf_listener_(), concat_masked_cloud_(new PointCl
 
     for (size_t i = 0; i < CAM_CNT; ++i)
     {
+        color_subs_[i] =
+            new message_filters::Subscriber<ImageT>(nh_, color_topics[i], 10);
+    }
+    color_sync_ = new message_filters::Synchronizer<SyncPolicyT>(
+        SyncPolicyT(10), *color_subs_[0], *color_subs_[1], *color_subs_[2]);
+    color_sync_->registerCallback(
+        boost::bind(&MaskDepth::color_image_cb, this, _1, _2, _3));
+
+    for (size_t i = 0; i < CAM_CNT; ++i)
+    {
+        info_subs_[i] =
+            new message_filters::Subscriber<ImageT>(nh_, color_topics[i], 10);
+    }
+    color_sync_ = new message_filters::Synchronizer<SyncPolicyT>(
+        SyncPolicyT(10), *color_subs_[0], *color_subs_[1], *color_subs_[2]);
+    color_sync_->registerCallback(
+        boost::bind(&MaskDepth::color_image_cb, this, _1, _2, _3));
+
+    for (size_t i = 0; i < CAM_CNT; ++i)
+    {
         mask_subs_[i] =
             new message_filters::Subscriber<Result>(nh_, mask_topics[i], 10);
     }
-
     mask_sync_ = new message_filters::Synchronizer<SyncPolicyT>(
         SyncPolicyT(10), *mask_subs_[0], *mask_subs_[1], *mask_subs_[2]);
     mask_sync_->registerCallback(
@@ -87,48 +112,96 @@ void MaskDepth::mask_cb(const Result::ConstPtr &msg1, const Result::ConstPtr &ms
     } 
 }
 
-void MaskDepth::depth_image_cb(const ImageT::ConstPtr &msg1, const ImageT::ConstPtr &msg2, const ImageT::ConstPtr &msg3)
+void MaskDepth::info_cb(const InfoT::ConstPtr &msg1, const InfoT::ConstPtr &msg2, const InfoT::ConstPtr &msg3)
 {
+    std::vector<ImageT> masks[CAM_CNT] = {msg1->masks, msg2->masks, msg3->masks};
+    for(int i = 0; i < masks.size(); i++) {
+        masks_[i] = cv::Mat::zeros(cv::Size((double)img_sizes_[i][0],(double)img_sizes_[i][1]), CV_8UC3);
 
-    ImageT::ConstPtr msgs[CAM_CNT] = {msg1, msg2, msg3};
-    PointCloudT::Ptr masked_clouds[CAM_CNT];
-
-    concat_masked_cloud_ = PointCloudT::Ptr(new PointCloudT);
-
-    // masks
-    try
-    {
-        for (size_t i = 0; i < camera_topics_.size(); ++i)
-        {
+        for(int j = 0; i < masks[i].size(); j++) {
             cv_bridge::CvImagePtr cv_ptr;
             try
             {
-                cv_ptr = cv_bridge::toCvCopy(msg);
+                cv_ptr = cv_bridge::toCvCopy(masks[i][j]);
             }
-                catch (cv_bridge::Exception& e)
+            catch (cv_bridge::Exception& e)
             {
+                ROS_ERROR("cv_bridge exception: %s", e.what());
+                return;
+            }
+            masks_[i] = cv::bitwise_or(cv_ptr->image,masks_[i]);
+        }
+    } 
+}
+
+void MaskDepth::depth_image_cb(const Result::ConstPtr &msg1, const Result::ConstPtr &msg2, const Result::ConstPtr &msg3)
+{
+    ImageT depth[CAM_CNT] = {msg1->masks, msg2->masks, msg3->masks};
+    for(int i = 0; i < depth.size(); i++) {
+        cv_bridge::CvImagePtr cv_ptr;
+        try
+        {
+            cv_ptr = cv_bridge::toCvCopy(depth[i][j]);
+        }
+        catch (cv_bridge::Exception& e)
+        {
             ROS_ERROR("cv_bridge exception: %s", e.what());
             return;
-            }
-            cloud_sources[i] = PointCloudT().makeShared();
-            pcl::fromROSMsg(*msgs[i], *cloud_sources[i]);
-            tf_listener_.waitForTransform(base_frame_id_, msgs[i]->header.frame_id, ros::Time(0), ros::Duration(1.0));
-            pcl_ros::transformPointCloud(base_frame_id_, ros::Time(0), *cloud_sources[i], msgs[i]->header.frame_id, *cloud_sources[i], tf_listener_);
+        }
+        cv::bitwise_and(cv_ptr->image,masks_[i]);
+        masked_depth_[i] = cv_ptr->toImageMsg();
+    } 
+}
 
-            if (cloud_sources[i]->size() != 0)
-            {
-                pcl::VoxelGrid<PointT> voxel_filter;
-                pcl::CropBox<PointT> box_filter;
-                box_filter.setInputCloud(cloud_sources[i]);
+void MaskDepth::color_image_cb(const Result::ConstPtr &msg1, const Result::ConstPtr &msg2, const Result::ConstPtr &msg3)
+{
+    ImageT color[CAM_CNT] = {msg1->masks, msg2->masks, msg3->masks};
+    for(int i = 0; i < color.size(); i++) {
+        cv_bridge::CvImagePtr cv_ptr;
+        try
+        {
+            cv_ptr = cv_bridge::toCvCopy(color[i][j]);
+        }
+        catch (cv_bridge::Exception& e)
+        {
+            ROS_ERROR("cv_bridge exception: %s", e.what());
+            return;
+        }
+        cv::bitwise_and(cv_ptr->image, masks_[i]);
+        masked_color_[i] = cv_ptr->toImageMsg();
+    } 
+}
 
-                box_filter.setMin(Eigen::Vector4f(box_min_[0], box_min_[1], box_min_[2], 1.0));
-                box_filter.setMax(Eigen::Vector4f(box_max_[0], box_max_[1], box_max_[2], 1.0));
-                box_filter.filter(*cloud_sources[i]);
+void MaskDepth::convert()
+{
+    PointCloudT::Ptr masked_clouds[CAM_CNT];
+    concat_masked_cloud_ = PointCloudT::Ptr(new PointCloudT);
 
-                voxel_filter.setInputCloud(cloud_sources[i]);
-                voxel_filter.setLeafSize((double)leaf_sizes_[i][0], (double)leaf_sizes_[i][1], (double)leaf_sizes_[i][2]);
-                voxel_filter.filter(*cloud_sources[i]);
-            }
+    // to point cloud 
+    try
+    {
+        for (size_t i = 0; i < CAM_CNT; ++i)
+        {
+            masked_clouds[i] = PointCloudT().makeShared();
+            depth_to_pointcloud(masked_depth_[i], masked_color_[i], masked_clouds[i])
+
+            tf_listener_.waitForTransform(base_frame_id_, masked_depth_[i].header.frame_id, ros::Time(0), ros::Duration(1.0));
+            pcl_ros::transformPointCloud(base_frame_id_, ros::Time(0), *masked_clouds[i], msgs[i]->header.frame_id, *masked_clouds[i], tf_listener_);
+
+            // if (masked_clouds[i]->size() != 0)
+            // {
+            //     pcl::VoxelGrid<PointT> voxel_filter;
+            //     pcl::CropBox<PointT> box_filter;
+            //     box_filter.setInputCloud(masked_clouds[i]);
+
+            //     box_filter.setMin(Eigen::Vector4f(box_min_[0], box_min_[1], box_min_[2], 1.0));
+            //     box_filter.setMax(Eigen::Vector4f(box_max_[0], box_max_[1], box_max_[2], 1.0));
+            //     box_filter.filter(*masked_clouds[i]);
+
+            //     voxel_filter.setInputCloud(masked_clouds[i]);
+            //     voxel_filter.setLeafSize((double)leaf_sizes_[i][0], (double)leaf_sizes_[i][1], (double)leaf_sizes_[i][2]);
+            //     voxel_filter.filter(*masked_clouds[i]);
+            // }
 
         }
     }
@@ -139,42 +212,44 @@ void MaskDepth::depth_image_cb(const ImageT::ConstPtr &msg1, const ImageT::Const
     }
 
     // merge points
-    for (size_t i = 0; i < camera_topics_.size(); ++i)
+    for (size_t i = 0; i < CAM_CNT; ++i)
     {
-        if (cloud_sources[i]->size() != 0)
+        if (masked_clouds_[i]->size() != 0)
         {
             if (i != 0)
             {
                 pcl::IterativeClosestPoint<PointT, PointT> icp;
-                icp.setInputSource(cloud_sources[i]);
-                icp.setInputTarget(cloud_sources[0]);
+                icp.setInputSource(masked_clouds[i]);
+                icp.setInputTarget(masked_clouds[0]);
                 icp.setMaxCorrespondenceDistance(max_corresp_dist_);
                 icp.setMaximumIterations(max_iter_);
                 icp.setTransformationEpsilon(transf_epsilon_);
                 icp.setRANSACOutlierRejectionThreshold(reject_thres_);
                 icp.setEuclideanFitnessEpsilon(fitness_epsilon_);
-                icp.align(*cloud_sources[i]);
+                icp.align(*masked_clouds[i]);
             }
-            *cloud_concatenated_ += *cloud_sources[i];
+            *concat_masked_cloud_ += *masked_clouds[i];
         }
     }
     // Publish
-    cloud_concatenated_->header = pcl_conversions::toPCL(msgs[0]->header);
-    cloud_concatenated_->header.frame_id = base_frame_id_;
-    cloud_publisher_.publish(cloud_concatenated_);
+    concat_masked_cloud_->header = pcl_conversions::toPCL(masked_depth_[0].header);
+    concat_masked_cloud_->header.frame_id = base_frame_id_;
+    cloud_publisher_.publish(concat_masked_cloud_);
 }
+
 
 void MaskDepth::depth_to_pointcloud(const sensor_msgs::ImageConstPtr& depth_msg,
                                       const sensor_msgs::ImageConstPtr& rgb_msg,
-                                      const PointCloudT::Ptr& cloud_msg) {
+                                      const PointCloudT::Ptr& cloud_msg, 
+                                      const image_geometry::PinholeModel& model) {
                                            // Use correct principal point from calibration
-  float center_x = model_.cx();
-  float center_y = model_.cy();
+  float center_x = model.cx();
+  float center_y = model.cy();
 
   // Combine unit conversion (if necessary) with scaling by focal length for computing (X,Y)
   double unit_scaling = DepthTraits<T>::toMeters( T(1) );
-  float constant_x = unit_scaling / model_.fx();
-  float constant_y = unit_scaling / model_.fy();
+  float constant_x = unit_scaling / model.fx();
+  float constant_y = unit_scaling / model.fy();
   float bad_point = std::numeric_limits<float>::quiet_NaN ();
   
   const T* depth_row = reinterpret_cast<const T*>(&depth_msg->data[0]);
@@ -190,7 +265,7 @@ void MaskDepth::depth_to_pointcloud(const sensor_msgs::ImageConstPtr& depth_msg,
   sensor_msgs::PointCloud2Iterator<uint8_t> iter_b(*cloud_msg, "b");
   sensor_msgs::PointCloud2Iterator<uint8_t> iter_a(*cloud_msg, "a");
 
-  for (int v = 0; v < int(cloud_msg->height); ++v, depth_row += row_step, rgb += rgb_skip)
+  for (int v = 0; v < int(cloud_msg->height); ++v, depth_row += row_step, rgb += RGB8_COLOR_STEP)
   {
     for (int u = 0; u < int(cloud_msg->width); ++u, rgb += color_step, ++iter_x, ++iter_y, ++iter_z, ++iter_a, ++iter_r, ++iter_g, ++iter_b)
     {
@@ -211,9 +286,9 @@ void MaskDepth::depth_to_pointcloud(const sensor_msgs::ImageConstPtr& depth_msg,
 
       // Fill in color
       *iter_a = 255;
-      *iter_r = rgb[red_offset];
-      *iter_g = rgb[green_offset];
-      *iter_b = rgb[blue_offset];
+      *iter_r = rgb[RGB8_RED_OFFSET];
+      *iter_g = rgb[RGB8_GREEN_OFFSET];
+      *iter_b = rgb[RGB8_BLUE_OFFSET];
     }
   }
 }

@@ -65,8 +65,6 @@ private:
   double max_iter_;
   double reject_thres_;
 
-  std::vector<std::string> camera_topics_;
-  std::string output_topic_;
   std::string base_frame_id_;
 
   PointCloudT::Ptr cloud_concatenated_;

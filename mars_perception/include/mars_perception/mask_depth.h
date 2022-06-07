@@ -18,25 +18,37 @@
 #include <ros/ros.h>
 #include <sensor_msgs/PointCloud2.h>
 #include <sensor_msgs/Image.h>
+#include <sensor_msgs/CameraInfo.h>
 #include <tf/tf.h>
 #include <tf/transform_listener.h>
 #include <yaml-cpp/yaml.h>
 #include <detectron2_ros/Result.h>
 #include <cv_bridge/cv_bridge.h>
 #include <depth_image_proc/depth_traits.h>
+#include <image_geometry/pinhole_camera_model.h>
+
 
 #define CAM_CNT 3
+
+// for "rgb8"
+#define RGB8_RED_OFFSET 0
+#define RGB8_GREEN_OFFSET 1
+#define RGB8_BLUE_OFFSET 2
+#define RGB8_COLOR_STEP 3
+
 class MaskDepth
 {
 
 public:
     MaskDepth();
+    void convert();
 
 private:
     typedef pcl::PointXYZRGB PointT;
     typedef sensor_msgs::Image ImageT;
     typedef pcl::PointCloud<PointT> PointCloudT;
     typedef sensor_msgs::PointCloud2 PointCloudMsgT;
+    typedef sensor_msgs::CameraInfo InfoT;
     typedef detectron2_ros::Result Result;
     typedef message_filters::sync_policies::ApproximateTime<ImageT, ImageT, ImageT>
         SyncPolicyT;
@@ -45,10 +57,20 @@ private:
     message_filters::Subscriber<ImageT> *depth_subs_[CAM_CNT];
     message_filters::Synchronizer<SyncPolicyT> *depth_sync_;
 
+    message_filters::Subscriber<Result> *color_subs_[CAM_CNT];
+    message_filters::Synchronizer<SyncPolicyT> *color_sync_;
+
+    message_filters::Subscriber<CameraInfo> *info_subs_[CAM_CNT];
+    message_filters::Synchronizer<SyncPolicyT> *info_sync_;
+
     message_filters::Subscriber<Result> *mask_subs_[CAM_CNT];
     message_filters::Synchronizer<SyncPolicyT> *mask_sync_;
 
     cv::Mat masks_[CAM_CNT];
+    ImageT masked_depth_[CAM_CNT];
+    ImageT masked_color_[CAM_CNT];
+    image_geometry::PinholeCameraModel models_[CAM_CNT];
+
     XmlRpc::XmlRpcValue img_sizes_;
 
     ros::Subscriber config_subscriber_;
@@ -69,9 +91,11 @@ private:
     PointCloudT::Ptr concat_masked_cloud_;
 
     void depth_image_cb(const ImageT::ConstPtr &msg1, const ImageT::ConstPtr &msg2, const ImageT::ConstPtr &msg3);
+    void color_image_cb(const ImageT::ConstPtr &msg1, const ImageT::ConstPtr &msg2, const ImageT::ConstPtr &msg3);
+    void info_cb(const InfoT::ConstPtr &msg1, const InfoT::ConstPtr &msg2, const InfoT::ConstPtr &msg3);
     void mask_cb(const Result::ConstPtr &msg1, const Result::ConstPtr &msg2, const Result::ConstPtr &msg3);
-
     void depth_to_pointcloud(const sensor_msgs::ImageConstPtr& depth_msg,
                                         const sensor_msgs::ImageConstPtr& rgb_msg,
-                                        const PointCloud::Ptr& cloud_msg);
+                                        const PointCloud::Ptr& cloud_msg,
+                                        const image_geometry::PinholeModel&);
 };

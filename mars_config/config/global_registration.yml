@@ -1,3 +1,10 @@
+point_cloud_topics:
+  [
+    "/d455_0/camera/depth/color/points",
+    "/d455_1/camera/depth/color/points",
+    "/d405/camera/depth/color/points",
+  ]
+filtered_points_topic: "/filtered_points"
 
 ## ICP for final alignment
 max_correspondence_distance: 0.01

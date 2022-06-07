@@ -2,10 +2,14 @@
 
 PCRegistration::PCRegistration() : nh_(), tf_listener_(), cloud_concatenated_(new PointCloudT)
 {
-  // global
-  ros::param::get("/filtered_points_topic", output_topic_);
-  ros::param::get("/camera_topics", camera_topics_);
+  std::vector<std::string> point_cloud_topics;
+  std::string output_topic;
+
   ros::param::get("/base_frame", base_frame_id_);
+
+  // global
+  ros::param::get("~filtered_points_topic", output_topic);
+  ros::param::get("~point_cloud_topics", point_cloud_topics);
 
   // box filter params
   ros::param::get("~box_min", box_min_);
@@ -19,7 +23,7 @@ PCRegistration::PCRegistration() : nh_(), tf_listener_(), cloud_concatenated_(ne
   ros::param::get("~max_iterations", max_iter_);
   ros::param::get("~ransac_rejection_threshold", reject_thres_);
 
-  if (camera_topics_.size() != CAM_CNT)
+  if (point_cloud_topics.size() != CAM_CNT)
   {
     ROS_ERROR("The size of camera_topics must be between 2");
     ros::shutdown();
@@ -28,7 +32,7 @@ PCRegistration::PCRegistration() : nh_(), tf_listener_(), cloud_concatenated_(ne
   for (size_t i = 0; i < CAM_CNT; ++i)
   {
     cloud_subscribers_[i] =
-        new message_filters::Subscriber<PointCloudMsgT>(nh_, camera_topics_[i], 10);
+        new message_filters::Subscriber<PointCloudMsgT>(nh_, point_cloud_topics[i], 10);
   }
 
   cloud_synchronizer_ = new message_filters::Synchronizer<SyncPolicyT>(
@@ -36,7 +40,7 @@ PCRegistration::PCRegistration() : nh_(), tf_listener_(), cloud_concatenated_(ne
 
   cloud_synchronizer_->registerCallback(
       boost::bind(&PCRegistration::pointcloud_callback, this, _1, _2, _3));
-  cloud_publisher_ = nh_.advertise<PointCloudMsgT>(output_topic_, 1);
+  cloud_publisher_ = nh_.advertise<PointCloudMsgT>(output_topic, 1);
 }
 
 void PCRegistration::pointcloud_callback(const PointCloudMsgT::ConstPtr &msg1, const PointCloudMsgT::ConstPtr &msg2, const PointCloudMsgT::ConstPtr &msg3)
@@ -50,7 +54,7 @@ void PCRegistration::pointcloud_callback(const PointCloudMsgT::ConstPtr &msg1, c
   // transform points
   try
   {
-    for (size_t i = 0; i < camera_topics_.size(); ++i)
+    for (size_t i = 0; i < CAM_CNT; ++i)
     {
       cloud_sources[i] = PointCloudT().makeShared();
       pcl::fromROSMsg(*msgs[i], *cloud_sources[i]);
@@ -89,7 +93,7 @@ void PCRegistration::pointcloud_callback(const PointCloudMsgT::ConstPtr &msg1, c
   }
 
   // merge points
-  for (size_t i = 0; i < camera_topics_.size(); ++i)
+  for (size_t i = 0; i < CAM_CNT; ++i)
   {
     if (cloud_sources[i]->size() != 0)
     {
