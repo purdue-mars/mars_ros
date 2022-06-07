@@ -60,6 +60,7 @@
   <exec_depend>actionlib</exec_depend>
   <build_depend>actionlib_msgs</build_depend>
   <exec_depend>actionlib_msgs</exec_depend>
+  <depend>mars_msgs</depend>
 
 
   <!-- The export tag contains other, unspecified, tags -->

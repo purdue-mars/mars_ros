@@ -1,6 +1,6 @@
 #include <mars_perception/registration.h>
 
-PCRegistration::PCRegistration() : nh_(), tf_listener_(), cloud_concatenated_(new PointCloudT)
+PCRegistration::PCRegistration() : nh_(), tf_listener_(), cloud_concatenated(new PointCloudT)
 {
   std::vector<std::string> point_cloud_topics;
   std::string output_topic;
@@ -49,7 +49,7 @@ void PCRegistration::pointcloud_callback(const PointCloudMsgT::ConstPtr &msg1, c
   PointCloudMsgT::ConstPtr msgs[CAM_CNT] = {msg1, msg2, msg3};
   PointCloudT::Ptr cloud_sources[CAM_CNT];
 
-  cloud_concatenated_ = PointCloudT::Ptr(new PointCloudT);
+  cloud_concatenated = PointCloudT::Ptr(new PointCloudT);
 
   // transform points
   try
@@ -109,7 +109,7 @@ void PCRegistration::pointcloud_callback(const PointCloudMsgT::ConstPtr &msg1, c
         icp.setEuclideanFitnessEpsilon(fitness_epsilon_);
         icp.align(*cloud_sources[i]);
       }
-      *cloud_concatenated_ += *cloud_sources[i];
+      *cloud_concatenated += *cloud_sources[i];
     }
   }
   // Create the filtering object
@@ -161,7 +161,7 @@ void PCRegistration::pointcloud_callback(const PointCloudMsgT::ConstPtr &msg1, c
   // extract.filter (* cloud_concatenated_);
 
   // Publish
-  cloud_concatenated_->header = pcl_conversions::toPCL(msgs[0]->header);
-  cloud_concatenated_->header.frame_id = base_frame_id_;
-  cloud_publisher_.publish(cloud_concatenated_);
+  cloud_concatenated->header = pcl_conversions::toPCL(msgs[0]->header);
+  cloud_concatenated->header.frame_id = base_frame_id_;
+  cloud_publisher_.publish(cloud_concatenated);
 }

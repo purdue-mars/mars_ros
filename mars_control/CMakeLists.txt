@@ -12,13 +12,11 @@ find_package(catkin REQUIRED COMPONENTS
   moveit_visual_tools
   geometry_msgs
   actionlib_msgs
+  mars_msgs
 )
 
 find_package(Eigen3 REQUIRED)
 
-add_action_files(DIRECTORY action FILES MoveTo.action)
-
-generate_messages(DEPENDENCIES geometry_msgs actionlib_msgs)
 
 # Declare a catkin package
 catkin_package(
@@ -26,6 +24,7 @@ catkin_package(
       hardware_interface
       roscpp
       controller_interface
+      mars_msgs
     INCLUDE_DIRS include
     LIBRARIES ${PROJECT_NAME}
 )

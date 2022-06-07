@@ -50,9 +50,9 @@
   <node pkg="tf2_ros" type="static_transform_publisher" name="d455_1_broadcaster"
     args="0.80709824041362 0.23767440391932998 0.48227646131805197 -0.40710615645697595 -0.135889854293697 0.8570827328140307 -0.2849761945213022 panda_link0 d455_1_link" />
 
-  <node name="pc_registration" type="pc_registration" pkg="mars_perception" output="screen" >
+  <!-- <node name="pc_registration" type="pc_registration" pkg="mars_perception" output="screen" >
       <rosparam file="$(find mars_config)/config/registration.yml" command="load"  />
-  </node>
+  </node> -->
 
 
 </launch>

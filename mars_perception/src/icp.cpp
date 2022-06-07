@@ -2,13 +2,14 @@
 
 ICP::ICP() : mesh_pc_(new PointCloud), scene_pc_(new PointCloud)
 {
+
     ros::param::get("~max_correspondence_distance", max_corresp_dist_);
     ros::param::get("~transformation_epsilon", transf_epsilon_);
     ros::param::get("~fitness_epsilon", fitness_epsilon_);
     ros::param::get("~max_iterations", max_iter_);
 
     std::string scene_pc_topic;
-    ros::param::get("filtered_points_topic", scene_pc_topic);
+    ros::param::get("~filtered_points_topic", scene_pc_topic);
 
     set_mesh_(DEFAULT_MESH);
     wait_for_scene_point_cloud();
@@ -86,7 +87,9 @@ bool ICP::mesh_icp_srv(mars_msgs::ICPMeshTF::Request &req, mars_msgs::ICPMeshTF:
     std::cout << "running icp"
               << "\n";
     icp(mesh_pc_, scene_pc_, &tf);
-    resp.tf.header.frame_id = "panda_link0";
+    std::string base_frame;
+    ros::param::get("/base_frame", base_frame);
+    resp.tf.header.frame_id = base_frame;
     resp.tf.header.stamp = ros::Time::now();
     Eigen::Quaternionf q(tf.topLeftCorner<3, 3>());
     resp.tf.pose.position.x = tf.col(3)(0);
@@ -104,7 +107,7 @@ bool ICP::mesh_icp_srv(mars_msgs::ICPMeshTF::Request &req, mars_msgs::ICPMeshTF:
     transform.setOrigin(tf::Vector3(tf.col(3)(0), tf.col(3)(1), tf.col(3)(2)));
     transform.setRotation(tf::Quaternion(q.x(), q.y(), q.z(), q.w()));
     tf_.child_frame_id = frame_id;
-    tf_.header.frame_id = "panda_link0";
+    tf_.header.frame_id = base_frame;
     tf_.header.stamp = ros::Time::now();
     tf_.transform.translation.x = tf.col(3)(0);
     tf_.transform.translation.y = tf.col(3)(1);
@@ -115,8 +118,8 @@ bool ICP::mesh_icp_srv(mars_msgs::ICPMeshTF::Request &req, mars_msgs::ICPMeshTF:
     tf_.transform.rotation.w = q.w();
     br_.sendTransform(tf_);
 
-    mesh_pc_->header.frame_id = frame_id;
-    mesh_pub_.publish(*mesh_pc_);
+    // mesh_pc_->header.frame_id = frame_id;
+    // mesh_pub_.publish(*mesh_pc_);
 
     return true;
 }

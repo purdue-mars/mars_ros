@@ -1,13 +1,13 @@
-#include <mars_control/MoveToAction.h>
+#include <mars_msgs/MoveToAction.h>
 #include <actionlib/server/simple_action_server.h>
 #include <moveit/move_group_interface/move_group_interface.h>
 #include <moveit/planning_scene_interface/planning_scene_interface.h>
 #include <moveit_visual_tools/moveit_visual_tools.h>
 
-typedef actionlib::SimpleActionServer<mars_control::MoveToAction> Server;
+typedef actionlib::SimpleActionServer<mars_msgs::MoveToAction> Server;
 static const std::string PLANNING_GROUP = "panda_arm";
 
-void execute(const mars_control::MoveToGoalConstPtr &goal, Server *as)
+void execute(const mars_msgs::MoveToGoalConstPtr &goal, Server *as)
 {
   namespace rvt = rviz_visual_tools;
   moveit_visual_tools::MoveItVisualTools visual_tools("panda_link0");
@@ -21,7 +21,7 @@ void execute(const mars_control::MoveToGoalConstPtr &goal, Server *as)
   // start_state.setFromIK(joint_model_group, goal->start);
   move_group_interface.setStartState(start_state);
 
-  move_group_interface.setPoseTarget(goal->end);
+  move_group_interface.setPoseTarget(goal->target);
   move_group_interface.setPlanningTime(10.0);
 
   // moveit_msgs::OrientationConstraint ocm;
@@ -40,7 +40,7 @@ void execute(const mars_control::MoveToGoalConstPtr &goal, Server *as)
   moveit::planning_interface::MoveGroupInterface::Plan m_plan;
   bool success = (move_group_interface.plan(m_plan) == moveit::planning_interface::MoveItErrorCode::SUCCESS);
 
-  visual_tools.publishAxisLabeled(goal->end, "goal");
+  visual_tools.publishAxisLabeled(goal->target, "goal");
   visual_tools.publishTrajectoryLine(m_plan.trajectory_, joint_model_group);
   visual_tools.trigger();
   visual_tools.prompt("next step");

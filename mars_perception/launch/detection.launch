@@ -10,8 +10,15 @@
   <arg name="masked_depth_topic" default="aligned_depth_to_color/masked_image"/>
   <arg name="masked_points_topic" default="aligned_depth_to_color/depth/color/masked_points"/>
 
-
   <node pkg="nodelet" type="nodelet" args="manager" name="detect_nodelet" output="screen"/>
+
+  <node name="pc_registration" type="pc_registration" pkg="mars_perception" output="screen" >
+      <rosparam file="$(find mars_config)/config/object_registration.yml" command="load"  />
+  </node>
+
+  <node name="object_icp" type="icp_server" pkg="mars_perception" output="screen" >
+      <rosparam file="$(find mars_config)/config/object_registration.yml" command="load"  />
+  </node>
 
   <group ns="d455_0/camera">
     <include file="$(find detectron2_ros)/launch/detectron2_ros.launch">

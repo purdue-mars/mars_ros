@@ -40,15 +40,16 @@
 class PCRegistration
 {
 public:
-  PCRegistration();
-
-private:
   typedef pcl::PointXYZRGB PointT;
   typedef pcl::PointCloud<PointT> PointCloudT;
   typedef sensor_msgs::PointCloud2 PointCloudMsgT;
   typedef message_filters::sync_policies::ApproximateTime<PointCloudMsgT, PointCloudMsgT, PointCloudMsgT>
       SyncPolicyT;
+  PCRegistration();
 
+  PointCloudT::Ptr cloud_concatenated;
+
+private:
   ros::NodeHandle nh_;
   message_filters::Subscriber<PointCloudMsgT> *cloud_subscribers_[CAM_CNT];
   message_filters::Synchronizer<SyncPolicyT> *cloud_synchronizer_;
@@ -66,8 +67,6 @@ private:
   double reject_thres_;
 
   std::string base_frame_id_;
-
-  PointCloudT::Ptr cloud_concatenated_;
 
   void pointcloud_callback(const PointCloudMsgT::ConstPtr &msg1, const PointCloudMsgT::ConstPtr &msg2, const PointCloudMsgT::ConstPtr &msg3);
 };
