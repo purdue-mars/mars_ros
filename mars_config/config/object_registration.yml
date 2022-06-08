@@ -12,7 +12,7 @@ icp_enabled: true
 max_correspondence_distance: 0.01
 transformation_epsilon: 0.000000001
 fitness_epsilon: 1
-max_iterations: 20
+max_iterations: 50
 ransac_rejection_threshold: 0.05
 
 ## Filters

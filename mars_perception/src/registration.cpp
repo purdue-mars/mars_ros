@@ -92,7 +92,7 @@ void PCRegistration::pointcloud_callback(const PointCloudMsgT::ConstPtr &msg1, c
   {
     if (cloud_sources[i]->size() != 0)
     {
-      if (i != 0)
+      if (icp_enabled_ && i != 0)
       {
         pcl::IterativeClosestPoint<PointT, PointT> icp;
         icp.setInputSource(cloud_sources[i]);
@@ -107,53 +107,6 @@ void PCRegistration::pointcloud_callback(const PointCloudMsgT::ConstPtr &msg1, c
       *cloud_concatenated += *cloud_sources[i];
     }
   }
-  // Create the filtering object
-  // pcl::CropBox<PointT> box_filter;
-  // box_filter.setInputCloud(cloud_concatenated_);
-
-  // std::vector<double> box_min, box_max;
-  // ros::param::get("~box_min", box_min);
-  // ros::param::get("~box_max", box_max);
-  // box_filter.setMin(Eigen::Vector4f(box_min[0], box_min[1], box_min[2], 1.0));
-  // box_filter.setMax(Eigen::Vector4f(box_max[0], box_max[1], box_max[2], 1.0));
-  // box_filter.filter(*cloud_concatenated_);
-
-  // double mean, stddev;
-  // ros::param::get("~outlier_mean", mean);
-  // ros::param::get("~outlier_stddev", stddev);
-  // pcl::StatisticalOutlierRemoval<PointT> sor;
-  // sor.setInputCloud(cloud_concatenated_);
-  // sor.setMeanK(mean);
-  // sor.setStddevMulThresh(stddev);
-  // sor.filter(*cloud_concatenated_);
-
-  // Voxel grid filter
-  // pcl::ApproximateVoxelGrid<PointT> voxel_filter;
-  // voxel_filter.setInputCloud(cloud_concatenated_);
-  // voxel_filter.setLeafSize(0.01f, 0.01f, 0.01f);
-  // voxel_filter.filter(*cloud_concatenated_);
-
-  // pcl::ModelCoefficients::Ptr coefficients(new pcl::ModelCoefficients);
-  // pcl::PointIndices::Ptr inliers(new pcl::PointIndices);
-  // // Create the segmentation object
-  // pcl::SACSegmentation<PointT> seg;
-  // // Optional
-  // seg.setOptimizeCoefficients (true);
-  // // Mandatory
-  // seg.setModelType (pcl::SACMODEL_PLANE);
-  // seg.setMethodType (pcl::SAC_RANSAC);
-  // seg.setDistanceThreshold (0.011);
-
-  // seg.setInputCloud (cloud_concatenated_);
-  // seg.segment (*inliers, *coefficients);
-
-  // // Create the filtering object
-  // pcl::ExtractIndices<pcl::PointXYZRGB> extract;
-
-  // extract.setInputCloud (cloud_concatenated_);
-  // extract.setIndices (inliers);
-  // extract.setNegative (true);
-  // extract.filter (* cloud_concatenated_);
 
   // Publish
   cloud_concatenated->header = pcl_conversions::toPCL(msgs[0]->header);

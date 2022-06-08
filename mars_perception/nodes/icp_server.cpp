@@ -3,5 +3,8 @@
 int main(int argc, char** argv) {
     ros::init(argc,argv, "icp_server");
     ICP icp;
-    ros::spin();
+    while(ros::ok()) {
+        ros::spinOnce();
+        icp.run();
+    }
 }

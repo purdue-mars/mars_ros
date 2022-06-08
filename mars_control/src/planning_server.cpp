@@ -19,13 +19,11 @@ void execute(const mars_msgs::MoveToGoalConstPtr &goal, Server *as)
 
   moveit::core::RobotState start_state(*move_group_interface.getCurrentState());
   // start_state.setFromIK(joint_model_group, goal->start);
-  move_group_interface.setStartState(start_state);
+  // move_group_interface.setStartState(start_state);
+  // move_group_interface.setPoseTarget(goal->target);
+  //move_group_interface.setPlanningTime(10.0);
 
-  move_group_interface.setPoseTarget(goal->target);
-  move_group_interface.setPlanningTime(10.0);
 
-  // moveit_msgs::OrientationConstraint ocm;
-  // ocm.link_name = "panda_link7";
   // ocm.header.frame_id = "panda_link0";
   // ocm.orientation.w = 1.0;
   // ocm.absolute_x_axis_tolerance = 0.1;
@@ -39,6 +37,17 @@ void execute(const mars_msgs::MoveToGoalConstPtr &goal, Server *as)
 
   moveit::planning_interface::MoveGroupInterface::Plan m_plan;
   bool success = (move_group_interface.plan(m_plan) == moveit::planning_interface::MoveItErrorCode::SUCCESS);
+
+  std::vector<geometry_msgs::Pose> waypoints;
+  waypoints.push_back(move_group_interface.getCurrentPose().pose);
+  waypoints.push_back(goal->target);
+
+  moveit_msgs::RobotTrajectory trajectory;
+  double fraction = move_group_interface.computeCartesianPath(waypoints,
+                                                              0.01, // eef_step
+                                                              0.0,  // jump_threshold
+                                                              trajectory);
+  m_plan.trajectory_ = trajectory;
 
   visual_tools.publishAxisLabeled(goal->target, "goal");
   visual_tools.publishTrajectoryLine(m_plan.trajectory_, joint_model_group);

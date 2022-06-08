@@ -6,12 +6,10 @@
   <arg name="initial_reset" default="false" />
   <arg name="sim" default="false" />
 
-
   <group ns="d455_0">
     <include file="$(find realsense2_camera)/launch/rs_camera.launch">
       <arg name="serial_no" value="$(arg serial_no_d455_0)" />
       <arg name="tf_prefix" value="d455_0" />
-      <!-- <arg name="filters" value="disparity,decimation" /> -->
       <arg name="enable_pointcloud" value="true" />
       <arg name="align_depth" value="true" />
       <arg name="initial_reset" value="$(arg initial_reset)" />
@@ -22,7 +20,6 @@
     <include file="$(find realsense2_camera)/launch/rs_camera.launch">
       <arg name="serial_no" value="$(arg serial_no_d455_1)" />
       <arg name="tf_prefix" value="d455_1" />
-      <!-- <arg name="filters" value="disparity,hole_filling,decimation" /> -->
       <arg name="enable_pointcloud" value="true" />
       <arg name="align_depth" value="true" />
       <arg name="initial_reset" value="$(arg initial_reset)" />
@@ -43,16 +40,15 @@
 
   <node pkg="tf2_ros" type="static_transform_publisher" name="d405_broadcaster" args="0.0419262 -0.0542951 0.0249049  0.6312052481455493 -0.2611933430046631  0.677071864422379 0.2718384236028734 panda_link8 d405_link" />
 
-  <node pkg="tf2_ros" type="static_transform_publisher" name="d455_0_link_broadcaster"
-    args="0.156430254677913 -0.239078399942304 0.28743956133604803 -0.10207823908436969 0.3881311710857512 0.2662369830079955 0.8763878581226411 panda_link0 d455_0_link" />
-
-
-  <node pkg="tf2_ros" type="static_transform_publisher" name="d455_1_broadcaster"
-    args="0.80709824041362 0.23767440391932998 0.48227646131805197 -0.40710615645697595 -0.135889854293697 0.8570827328140307 -0.2849761945213022 panda_link0 d455_1_link" />
-
   <!-- <node name="pc_registration" type="pc_registration" pkg="mars_perception" output="screen" >
       <rosparam file="$(find mars_config)/config/registration.yml" command="load"  />
   </node> -->
 
+
+  <node pkg="tf2_ros" type="static_transform_publisher" name="d455_0_broad"
+    args="0.14920791195950264 -0.24468079160915554 0.2661905924670789 -0.1091336001416634 0.3721667609345948 0.28487836048578946 0.8766010383647533 panda_link0 d455_0_link" />
+
+  <node pkg="tf2_ros" type="static_transform_publisher" name="d455_1_broad"
+    args="0.8175863931033199 0.25702932306461 0.48049229461672 -0.39566308267346856 -0.13387794417220533 0.8573474921572588 -0.30080870761926926 panda_link0 d455_1_link" />
 
 </launch>

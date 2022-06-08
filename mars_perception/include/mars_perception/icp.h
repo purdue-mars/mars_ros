@@ -14,15 +14,19 @@
 #include <mars_msgs/ICPMeshTF.h>
 #include <mars_perception/mesh_sampling.h>
 
-const std::string DEFAULT_MESH = "square_peg";
-
 class ICP
 {
-private:
+public:
     typedef pcl::PointXYZRGB Point;
     typedef pcl::PointCloud<Point> PointCloud;
     typedef pcl::PointCloud<Point>::Ptr PointCloudPtr;
     typedef sensor_msgs::PointCloud2 PointCloudMsg;
+    typedef Eigen::Matrix4f TFMatrix;
+    ICP();
+    bool mesh_icp_srv(mars_msgs::ICPMeshTF::Request &req, mars_msgs::ICPMeshTF::Response &resp);
+    void icp(PointCloudPtr p1, PointCloudPtr p2, ICP::TFMatrix *tf);
+    void run();
+private:
     PointCloud::Ptr mesh_pc_;
     PointCloudPtr scene_pc_;
     ros::NodeHandle nh_;
@@ -32,6 +36,10 @@ private:
     tf::TransformListener tf_listener_;
     tf::TransformBroadcaster br_;
 
+    bool icp_done_;
+    std::string mesh_name_;
+    std::string base_frame_;
+    TFMatrix tf_;
     double max_corresp_dist_;
     double transf_epsilon_;
     double fitness_epsilon_;
@@ -40,10 +48,4 @@ private:
     void set_mesh_(std::string);
     void scene_pc_cb_(const PointCloudMsg::ConstPtr& msg);
 
-public:
-    typedef Eigen::Matrix4f TFMatrix;
-    ICP();
-    bool mesh_icp_srv(mars_msgs::ICPMeshTF::Request &req, mars_msgs::ICPMeshTF::Response &resp);
-    void icp(PointCloudPtr p1, PointCloudPtr p2, ICP::TFMatrix *tf);
-    void wait_for_scene_point_cloud();
 };
