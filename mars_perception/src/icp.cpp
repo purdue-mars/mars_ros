@@ -1,6 +1,6 @@
 #include <mars_perception/icp.h>
 
-ICP::ICP() : mesh_pc_(new PointCloud), scene_pc_(new PointCloud), icp_done_(true)
+ICP::ICP() : mesh_pc_(new PointCloud), scene_pc_(new PointCloud)
 {
     ros::param::get("~max_correspondence_distance", max_corresp_dist_);
     ros::param::get("~transformation_epsilon", transf_epsilon_);
@@ -54,11 +54,18 @@ void ICP::set_mesh_(std::string mesh_name)
     std::cout << "mesh_frame: " << mesh_pc_->header.frame_id << "\n";
 }
 
-void ICP::icp(PointCloudPtr p1, PointCloudPtr p2, ICP::TFMatrix *tf)
-{
+void ICP::run() {
+    std::cout << "hqwer" << "\n";
+    if (scene_pc_->empty() || mesh_pc_->empty())
+    {
+        std::cout << "icp: not init" << "\n";
+        return; 
+    }
+    std::cout << "running icp"
+              << "\n";
     pcl::IterativeClosestPoint<ICP::Point, ICP::Point> icp;
-    icp.setInputSource(p1);
-    icp.setInputTarget(p2);
+    icp.setInputSource(scene_pc_);
+    icp.setInputTarget(mesh_pc_);
     // icp.setMaxCorrespondenceDistance(max_corresp_dist_);
     // icp.setTransformationEpsilon(transf_epsilon_);
     // icp.setEuclideanFitnessEpsilon(fitness_epsilon_);
@@ -68,19 +75,7 @@ void ICP::icp(PointCloudPtr p1, PointCloudPtr p2, ICP::TFMatrix *tf)
     icp.align(Final);
 
     std::cout << "has converged: " << icp.hasConverged() << " score: " << icp.getFitnessScore() << std::endl;
-    *tf = icp.getFinalTransformation();
-}
-
-void ICP::run() {
-    std::string mesh_name = mesh_name_;
-    if (scene_pc_->empty() || mesh_pc_->empty())
-    {
-        return; 
-    }
-    std::cout << "running icp"
-              << "\n";
-    icp(mesh_pc_, scene_pc_, &tf_);
-    std::string base_frame;
+    tf_ = icp.getFinalTransformation();
 
     tf::Transform transform;
     std::string frame_id = mesh_name_ + "_frame";
@@ -89,7 +84,7 @@ void ICP::run() {
     transform.setOrigin(tf::Vector3(tf_.col(3)(0), tf_.col(3)(1), tf_.col(3)(2)));
     transform.setRotation(tf::Quaternion(q.x(), q.y(), q.z(), q.w()));
     tf.child_frame_id = frame_id;
-    tf.header.frame_id = base_frame;
+    tf.header.frame_id = base_frame_;
     tf.header.stamp = ros::Time::now();
     tf.transform.translation.x = tf_.col(3)(0);
     tf.transform.translation.y = tf_.col(3)(1);
@@ -102,17 +97,13 @@ void ICP::run() {
 
     mesh_pc_->header.frame_id = frame_id;
     mesh_pub_.publish(mesh_pc_);
-    if(mesh_name == mesh_name_) {
-        icp_done_ = true;
-    }
 }
 
 bool ICP::mesh_icp_srv(mars_msgs::ICPMeshTF::Request &req, mars_msgs::ICPMeshTF::Response &resp)
 {
     set_mesh_(req.mesh_name);
     mesh_name_ = req.mesh_name;
-    icp_done_ = false;
-    while(!icp_done_);
+    run();
     resp.tf.header.frame_id = base_frame_;
     resp.tf.header.stamp = ros::Time::now();
     Eigen::Quaternionf q(tf_.topLeftCorner<3, 3>());
