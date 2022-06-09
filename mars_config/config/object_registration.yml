@@ -12,8 +12,8 @@ icp_enabled: false
 max_correspondence_distance: 0.01
 transformation_epsilon: 0.000000001
 fitness_epsilon: 1
-max_iterations: 20
-ransac_rejection_threshold: 0.05
+max_iterations: 100
+ransac_rejection_threshold: 0.08
 
 ## Filters
 # voxel filter

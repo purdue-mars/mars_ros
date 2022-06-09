@@ -14,6 +14,12 @@ find_package(catkin REQUIRED COMPONENTS
   actionlib_msgs
 )
 
+add_service_files(
+  DIRECTORY srv
+  FILES
+  ICPMeshTF.srv
+)
+
 add_action_files(DIRECTORY action FILES MoveTo.action)
 generate_messages(DEPENDENCIES geometry_msgs actionlib_msgs)
 
