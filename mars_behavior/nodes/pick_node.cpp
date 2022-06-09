@@ -1,6 +1,7 @@
 #include <ros/ros.h>
 #include <actionlib/client/simple_action_client.h>
-
+#include <tf/tf.h>
+#include <tf/transform_listener.h>
 #include <mars_msgs/ICPMeshTF.h>
 #include <mars_msgs/MoveToAction.h>
 
@@ -10,6 +11,8 @@ int main(int argc, char** argv) {
     ros::NodeHandle n;
     ros::ServiceClient client = n.serviceClient<mars_msgs::ICPMeshTF>("icp_mesh_tf");
     actionlib::SimpleActionClient<mars_msgs::MoveToAction> move_to_serv("move_to", true);
+
+    tf::TransformListener tf_listener;
 
     // Get pose of object
     client.waitForExistence();
@@ -22,21 +25,22 @@ int main(int argc, char** argv) {
     ros::param::get("/base_name",base_name);
     srv.request.mesh_name = mesh_name;
 
-    if (client.call(srv))
-    {
-        p.pose = srv.response.tf.pose;
-        p.header.stamp = ros::Time::now(); 
-        p.header.frame_id = base_name; 
-        ROS_INFO("pos: x,y,z: %f,%f,%f", p.pose.position.x, p.pose.position.y, p.pose.position.z);
-        ROS_INFO("ori:x,y,z,w: %f,%f,%f,%f", p.pose.orientation.x, p.pose.orientation.y, p.pose.orientation.z, p.pose.orientation.w);
-    }
-    else
+    if (!client.call(srv))
     {
         std::cout << "here" << "\n";
         ROS_ERROR("Failed to call service icp_mesh_tf");
         return 0;
     }
 
+    tf::StampedTransform transform;
+
+    try {
+        tf_listener.lookupTransform(base_name, srv.response.tf.header.frame_id, ros::Time(0), transform);
+    }
+    catch (tf::TransformException ex){
+      ROS_ERROR("%s",ex.what());
+      ros::Duration(1.0).sleep();
+    }
 
     // Move to object
     ROS_INFO("Waiting for action server to start.");
@@ -47,7 +51,9 @@ int main(int argc, char** argv) {
     // send a goal to the action
     mars_msgs::MoveToGoal goal;
 
-    goal.target.position = p.pose.position; 
+    goal.target.position.x = transform.getOrigin().x(); 
+    goal.target.position.y = transform.getOrigin().y(); 
+    goal.target.position.z = transform.getOrigin().z(); 
     move_to_serv.sendGoal(goal);
 
     ros::spin();

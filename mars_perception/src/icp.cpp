@@ -115,7 +115,7 @@ bool ICP::mesh_icp_srv(mars_msgs::ICPMeshTF::Request &req, mars_msgs::ICPMeshTF:
     mesh_name_ = req.mesh_name;
     std::cout << mesh_name_ << "\n"; 
     ros::Duration(ICP_CONVERGE_SLEEP_TIME).sleep(); // wait for icp to converge
-    resp.tf.header.frame_id = base_frame_;
+    resp.tf.header.frame_id = mesh_name_ + "_frame";
     resp.tf.header.stamp = ros::Time::now();
     Eigen::Quaternionf q(tf_.topLeftCorner<3, 3>());
     resp.tf.pose.position.x = tf_.col(3)(0);
