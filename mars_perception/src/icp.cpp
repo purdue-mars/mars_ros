@@ -98,7 +98,7 @@ void ICP::run() {
     tf.transform.rotation.w = q.w();
     br_.sendTransform(tf);
 
-    mesh_pc_->header.frame_id = frame_id;
+    mesh_pc_->header.frame_id = base_frame_;
     mesh_pub_.publish(mesh_pc_);
 }
 
