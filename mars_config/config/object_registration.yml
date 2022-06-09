@@ -8,11 +8,11 @@ filtered_points_topic: "/filtered_masked_points"
 
 
 ## ICP for final alignment
-icp_enabled: true
+icp_enabled: false
 max_correspondence_distance: 0.01
 transformation_epsilon: 0.000000001
 fitness_epsilon: 1
-max_iterations: 50
+max_iterations: 20
 ransac_rejection_threshold: 0.05
 
 ## Filters

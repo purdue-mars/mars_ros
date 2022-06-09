@@ -26,7 +26,7 @@ public:
     bool mesh_icp_srv(mars_msgs::ICPMeshTF::Request &req, mars_msgs::ICPMeshTF::Response &resp);
     void run();
 private:
-    PointCloud::Ptr mesh_pc_;
+    PointCloudPtr mesh_pc_;
     PointCloudPtr scene_pc_;
     ros::NodeHandle nh_;
     ros::ServiceServer icp_mesh_srv_;

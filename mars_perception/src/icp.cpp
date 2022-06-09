@@ -1,6 +1,7 @@
 #include <mars_perception/icp.h>
 
-ICP::ICP() : mesh_pc_(new PointCloud), scene_pc_(new PointCloud)
+
+ICP::ICP() : mesh_pc_(new PointCloud), scene_pc_(new PointCloud), tf_(TFMatrix::Identity())
 {
     ros::param::get("~max_correspondence_distance", max_corresp_dist_);
     ros::param::get("~transformation_epsilon", transf_epsilon_);
@@ -31,11 +32,29 @@ void ICP::set_mesh_(std::string mesh_name)
     pcl::io::loadPolygonFileSTL(mesh_path, mesh);
     polygon_mesh_to_pc(&mesh, mesh_pc_);
 
-    float centroid_x, centroid_y, centroid_z;
+    for (int i = 0; i < mesh_pc_->points.size(); i++)
+    {
+        mesh_pc_->points[i].x /= 1000;
+        mesh_pc_->points[i].y /= 1000;
+        mesh_pc_->points[i].z /= 1000;
+    }
+
+    float centroid_x = 0.0;
+    float centroid_y = 0.0;
+    float centroid_z = 0.0;
+
+    for (int i = 0; i < mesh_pc_->points.size(); i++)
+    {
+       centroid_x += mesh_pc_->points[i].x;
+       centroid_y += mesh_pc_->points[i].y;
+       centroid_z += mesh_pc_->points[i].z;
+    }
 
     centroid_x /= mesh_pc_->points.size();
     centroid_y /= mesh_pc_->points.size();
     centroid_z /= mesh_pc_->points.size();
+
+    std::cout << centroid_x << " " << centroid_y << " " << centroid_z << "\n";
 
     for (int i = 0; i < mesh_pc_->points.size(); i++)
     {
@@ -44,38 +63,22 @@ void ICP::set_mesh_(std::string mesh_name)
         mesh_pc_->points[i].z -= centroid_z;
     }
 
-    for (int i = 0; i < mesh_pc_->points.size(); i++)
-    {
-        mesh_pc_->points[i].x /= 1000;
-        mesh_pc_->points[i].y /= 1000;
-        mesh_pc_->points[i].z /= 1000;
-    }
 
     std::cout << "mesh_frame: " << mesh_pc_->header.frame_id << "\n";
 }
 
 void ICP::run() {
-    std::cout << "hqwer" << "\n";
     if (scene_pc_->empty() || mesh_pc_->empty())
     {
-        std::cout << "icp: not init" << "\n";
         return; 
     }
-    std::cout << "running icp"
-              << "\n";
     pcl::IterativeClosestPoint<ICP::Point, ICP::Point> icp;
-    icp.setInputSource(scene_pc_);
-    icp.setInputTarget(mesh_pc_);
-    // icp.setMaxCorrespondenceDistance(max_corresp_dist_);
-    // icp.setTransformationEpsilon(transf_epsilon_);
-    // icp.setEuclideanFitnessEpsilon(fitness_epsilon_);
-    // icp.setMaximumIterations(max_iter_);
+    icp.setInputSource(mesh_pc_);
+    icp.setInputTarget(scene_pc_);
 
-    pcl::PointCloud<Point> Final;
-    icp.align(Final);
+    icp.align(*mesh_pc_);
 
-    std::cout << "has converged: " << icp.hasConverged() << " score: " << icp.getFitnessScore() << std::endl;
-    tf_ = icp.getFinalTransformation();
+    tf_ = icp.getFinalTransformation() * tf_;
 
     tf::Transform transform;
     std::string frame_id = mesh_name_ + "_frame";
@@ -103,6 +106,7 @@ bool ICP::mesh_icp_srv(mars_msgs::ICPMeshTF::Request &req, mars_msgs::ICPMeshTF:
 {
     set_mesh_(req.mesh_name);
     mesh_name_ = req.mesh_name;
+    std::cout << mesh_name_ << "\n"; 
     run();
     resp.tf.header.frame_id = base_frame_;
     resp.tf.header.stamp = ros::Time::now();
