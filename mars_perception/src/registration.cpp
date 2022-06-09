@@ -98,15 +98,22 @@ void PCRegistration::pointcloud_callback(const PointCloudMsgT::ConstPtr &msg1, c
     {
       if (icp_enabled_ && i != 0)
       {
-        pcl::IterativeClosestPoint<PointT, PointT> icp;
-        icp.setInputSource(cloud_sources[i]);
-        icp.setInputTarget(cloud_sources[0]);
-        icp.setMaxCorrespondenceDistance(max_corresp_dist_);
-        icp.setMaximumIterations(max_iter_);
-        icp.setTransformationEpsilon(transf_epsilon_);
-        icp.setRANSACOutlierRejectionThreshold(reject_thres_);
-        icp.setEuclideanFitnessEpsilon(fitness_epsilon_);
-        icp.align(*cloud_sources[i]);
+        try
+        {
+          pcl::IterativeClosestPoint<PointT, PointT> icp;
+          icp.setInputSource(cloud_sources[i]);
+          icp.setInputTarget(cloud_sources[0]);
+          icp.setMaxCorrespondenceDistance(max_corresp_dist_);
+          icp.setMaximumIterations(max_iter_);
+          icp.setTransformationEpsilon(transf_epsilon_);
+          icp.setRANSACOutlierRejectionThreshold(reject_thres_);
+          icp.setEuclideanFitnessEpsilon(fitness_epsilon_);
+          icp.align(*cloud_sources[i]);
+        }
+        catch(const std::exception& e)
+        {
+          std::cerr << e.what() << '\n';
+        }
       }
       *cloud_concatenated += *cloud_sources[i];
     }

@@ -46,7 +46,8 @@ int main(int argc, char** argv) {
     ROS_INFO("Action server started, sending goal.");
     // send a goal to the action
     mars_msgs::MoveToGoal goal;
-    goal.target = p.pose; 
+
+    goal.target.position = p.pose.position; 
     move_to_serv.sendGoal(goal);
 
     ros::spin();
