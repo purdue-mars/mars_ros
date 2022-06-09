@@ -68,38 +68,45 @@ void ICP::set_mesh_(std::string mesh_name)
 }
 
 void ICP::run() {
-    if (scene_pc_->empty() || mesh_pc_->empty())
+    try
     {
-        return; 
+        if (scene_pc_->empty() || mesh_pc_->empty())
+        {
+            return; 
+        }
+        pcl::IterativeClosestPoint<ICP::Point, ICP::Point> icp;
+        icp.setInputSource(mesh_pc_);
+        icp.setInputTarget(scene_pc_);
+
+        icp.align(*mesh_pc_);
+
+        tf_ = icp.getFinalTransformation() * tf_;
+
+        tf::Transform transform;
+        std::string frame_id = mesh_name_ + "_frame";
+        geometry_msgs::TransformStamped tf;
+        Eigen::Quaternionf q(tf_.topLeftCorner<3, 3>());
+        transform.setOrigin(tf::Vector3(tf_.col(3)(0), tf_.col(3)(1), tf_.col(3)(2)));
+        transform.setRotation(tf::Quaternion(q.x(), q.y(), q.z(), q.w()));
+        tf.child_frame_id = frame_id;
+        tf.header.frame_id = base_frame_;
+        tf.header.stamp = ros::Time::now();
+        tf.transform.translation.x = tf_.col(3)(0);
+        tf.transform.translation.y = tf_.col(3)(1);
+        tf.transform.translation.z = tf_.col(3)(2);
+        tf.transform.rotation.x = q.x();
+        tf.transform.rotation.y = q.y();
+        tf.transform.rotation.z = q.z();
+        tf.transform.rotation.w = q.w();
+        br_.sendTransform(tf);
+
+        mesh_pc_->header.frame_id = base_frame_;
+        mesh_pub_.publish(mesh_pc_);
     }
-    pcl::IterativeClosestPoint<ICP::Point, ICP::Point> icp;
-    icp.setInputSource(mesh_pc_);
-    icp.setInputTarget(scene_pc_);
-
-    icp.align(*mesh_pc_);
-
-    tf_ = icp.getFinalTransformation() * tf_;
-
-    tf::Transform transform;
-    std::string frame_id = mesh_name_ + "_frame";
-    geometry_msgs::TransformStamped tf;
-    Eigen::Quaternionf q(tf_.topLeftCorner<3, 3>());
-    transform.setOrigin(tf::Vector3(tf_.col(3)(0), tf_.col(3)(1), tf_.col(3)(2)));
-    transform.setRotation(tf::Quaternion(q.x(), q.y(), q.z(), q.w()));
-    tf.child_frame_id = frame_id;
-    tf.header.frame_id = base_frame_;
-    tf.header.stamp = ros::Time::now();
-    tf.transform.translation.x = tf_.col(3)(0);
-    tf.transform.translation.y = tf_.col(3)(1);
-    tf.transform.translation.z = tf_.col(3)(2);
-    tf.transform.rotation.x = q.x();
-    tf.transform.rotation.y = q.y();
-    tf.transform.rotation.z = q.z();
-    tf.transform.rotation.w = q.w();
-    br_.sendTransform(tf);
-
-    mesh_pc_->header.frame_id = base_frame_;
-    mesh_pub_.publish(mesh_pc_);
+    catch(const std::exception& e)
+    {
+        std::cerr << e.what() << '\n';
+    }
 }
 
 bool ICP::mesh_icp_srv(mars_msgs::ICPMeshTF::Request &req, mars_msgs::ICPMeshTF::Response &resp)
@@ -107,7 +114,7 @@ bool ICP::mesh_icp_srv(mars_msgs::ICPMeshTF::Request &req, mars_msgs::ICPMeshTF:
     set_mesh_(req.mesh_name);
     mesh_name_ = req.mesh_name;
     std::cout << mesh_name_ << "\n"; 
-    run();
+    ros::Duration(ICP_CONVERGE_SLEEP_TIME).sleep(); // wait for icp to converge
     resp.tf.header.frame_id = base_frame_;
     resp.tf.header.stamp = ros::Time::now();
     Eigen::Quaternionf q(tf_.topLeftCorner<3, 3>());

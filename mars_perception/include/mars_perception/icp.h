@@ -14,6 +14,8 @@
 #include <mars_msgs/ICPMeshTF.h>
 #include <mars_perception/mesh_sampling.h>
 
+#define ICP_CONVERGE_SLEEP_TIME 1.5
+
 class ICP
 {
 public:
