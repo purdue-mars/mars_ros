@@ -1,0 +1,1547 @@
+base_frame: panda_link0
+bolt_rack: /home/ruppulur/catkin_ws/src/icra_2022_mars/mars_sim/nist_board_gazebo/models/mesh/bolt_rack-1.STL
+camera_image_size:
+- - 1280
+  - 720
+- - 1280
+  - 720
+- - 848
+  - 480
+camera_topics:
+- /d455_0/camera/depth/color/points
+- /d455_1/camera/depth/color/points
+- /d405/camera/depth/color/points
+cameras_ns:
+- d455_0
+- d455_1
+- d405
+color_topic: color/image_raw
+d405:
+  camera:
+    aligned_depth_to_color:
+      image_raw:
+        compressed:
+          format: jpeg
+          jpeg_optimize: false
+          jpeg_progressive: false
+          jpeg_quality: 80
+          jpeg_restart_interval: 0
+          png_level: 9
+        compressedDepth:
+          depth_max: 10.0
+          depth_quantization: 100.0
+          format: png
+          png_level: 9
+        theora:
+          keyframe_frequency: 64
+          optimize_for: 1
+          quality: 31
+          target_bitrate: 800000
+    color:
+      image_raw:
+        compressed:
+          format: jpeg
+          jpeg_optimize: false
+          jpeg_progressive: false
+          jpeg_quality: 80
+          jpeg_restart_interval: 0
+          png_level: 9
+        compressedDepth:
+          depth_max: 10.0
+          depth_quantization: 100.0
+          format: png
+          png_level: 9
+        theora:
+          keyframe_frequency: 64
+          optimize_for: 1
+          quality: 31
+          target_bitrate: 800000
+    d405_depth_proc_nodelet:
+      queue_size: 100
+    depth:
+      image_rect_raw:
+        compressed:
+          format: jpeg
+          jpeg_optimize: false
+          jpeg_progressive: false
+          jpeg_quality: 80
+          jpeg_restart_interval: 0
+          png_level: 9
+        compressedDepth:
+          depth_max: 10.0
+          depth_quantization: 100.0
+          format: png
+          png_level: 9
+        theora:
+          keyframe_frequency: 64
+          optimize_for: 1
+          quality: 31
+          target_bitrate: 800000
+    detectron2_ros:
+      config: /home/ruppulur/catkin_ws/src/icra_2022_mars/third_party/detectron2_ros/config/peg_config.yaml
+      detection_threshold: 0.9
+      input: color/image_raw
+      model: /home/ruppulur/catkin_ws/src/icra_2022_mars/third_party/detectron2_ros/config/peg_model.pth
+      visualization: true
+    realsense2_camera:
+      accel_fps: -1
+      accel_frame_id: d405_accel_frame
+      accel_optical_frame_id: d405_accel_optical_frame
+      align_depth: true
+      aligned_depth_to_color_frame_id: d405_aligned_depth_to_color_frame
+      aligned_depth_to_fisheye1_frame_id: d405_aligned_depth_to_fisheye1_frame
+      aligned_depth_to_fisheye2_frame_id: d405_aligned_depth_to_fisheye2_frame
+      aligned_depth_to_fisheye_frame_id: d405_aligned_depth_to_fisheye_frame
+      aligned_depth_to_infra1_frame_id: d405_aligned_depth_to_infra1_frame
+      aligned_depth_to_infra2_frame_id: d405_aligned_depth_to_infra2_frame
+      allow_no_texture_points: false
+      base_frame_id: d405_link
+      calib_odom_file: ''
+      clip_distance: 0.3
+      color_fps: -1
+      color_frame_id: d405_color_frame
+      color_height: -1
+      color_optical_frame_id: d405_color_optical_frame
+      color_width: -1
+      confidence_fps: -1
+      confidence_height: -1
+      confidence_width: -1
+      depth_fps: -1
+      depth_frame_id: d405_depth_frame
+      depth_height: -1
+      depth_optical_frame_id: d405_depth_optical_frame
+      depth_width: -1
+      device_type: ''
+      enable_accel: false
+      enable_color: true
+      enable_confidence: true
+      enable_depth: true
+      enable_fisheye: false
+      enable_fisheye1: false
+      enable_fisheye2: false
+      enable_gyro: false
+      enable_infra: false
+      enable_infra1: false
+      enable_infra2: false
+      enable_pointcloud: true
+      enable_pose: false
+      enable_sync: false
+      filters: temporal,disparity,decimation,spatial
+      fisheye1_frame_id: d405_fisheye1_frame
+      fisheye1_optical_frame_id: d405_fisheye1_optical_frame
+      fisheye2_frame_id: d405_fisheye2_frame
+      fisheye2_optical_frame_id: d405_fisheye2_optical_frame
+      fisheye_fps: -1
+      fisheye_frame_id: d405_fisheye_frame
+      fisheye_height: -1
+      fisheye_optical_frame_id: d405_fisheye_optical_frame
+      fisheye_width: -1
+      gyro_fps: -1
+      gyro_frame_id: d405_gyro_frame
+      gyro_optical_frame_id: d405_gyro_optical_frame
+      imu_optical_frame_id: d405_imu_optical_frame
+      infra1_frame_id: d405_infra1_frame
+      infra1_optical_frame_id: d405_infra1_optical_frame
+      infra2_frame_id: d405_infra2_frame
+      infra2_optical_frame_id: d405_infra2_optical_frame
+      infra_fps: 30
+      infra_height: 480
+      infra_rgb: false
+      infra_width: 848
+      initial_reset: false
+      json_file_path: ''
+      linear_accel_cov: 0.01
+      odom_frame_id: d405_odom_frame
+      ordered_pc: false
+      pointcloud_texture_index: 0
+      pointcloud_texture_stream: RS2_STREAM_COLOR
+      pose_frame_id: d405_pose_frame
+      pose_optical_frame_id: d405_pose_optical_frame
+      publish_odom_tf: true
+      publish_tf: true
+      reconnect_timeout: 6.0
+      rosbag_filename: ''
+      serial_no: '126122270852'
+      stereo_module:
+        exposure:
+          '1': 7500
+          '2': 1
+        gain:
+          '1': 16
+          '2': 16
+      tf_publish_rate: 0.0
+      topic_odom_in: odom_in
+      unite_imu_method: ''
+      usb_port_id: ''
+      wait_for_device_timeout: -1.0
+d455_0:
+  camera:
+    aligned_depth_to_color:
+      image_raw:
+        compressed:
+          format: jpeg
+          jpeg_optimize: false
+          jpeg_progressive: false
+          jpeg_quality: 80
+          jpeg_restart_interval: 0
+          png_level: 9
+        compressedDepth:
+          depth_max: 10.0
+          depth_quantization: 100.0
+          format: png
+          png_level: 9
+        theora:
+          keyframe_frequency: 64
+          optimize_for: 1
+          quality: 31
+          target_bitrate: 800000
+    color:
+      image_raw:
+        compressed:
+          format: jpeg
+          jpeg_optimize: false
+          jpeg_progressive: false
+          jpeg_quality: 80
+          jpeg_restart_interval: 0
+          png_level: 9
+        compressedDepth:
+          depth_max: 10.0
+          depth_quantization: 100.0
+          format: png
+          png_level: 9
+        theora:
+          keyframe_frequency: 64
+          optimize_for: 1
+          quality: 31
+          target_bitrate: 800000
+    d455_0_depth_proc_nodelet:
+      queue_size: 100
+    depth:
+      image_rect_raw:
+        compressed:
+          format: jpeg
+          jpeg_optimize: false
+          jpeg_progressive: false
+          jpeg_quality: 80
+          jpeg_restart_interval: 0
+          png_level: 9
+        compressedDepth:
+          depth_max: 10.0
+          depth_quantization: 100.0
+          format: png
+          png_level: 9
+        theora:
+          keyframe_frequency: 64
+          optimize_for: 1
+          quality: 31
+          target_bitrate: 800000
+    detectron2_ros:
+      config: /home/ruppulur/catkin_ws/src/icra_2022_mars/third_party/detectron2_ros/config/peg_config.yaml
+      detection_threshold: 0.9
+      input: color/image_raw
+      model: /home/ruppulur/catkin_ws/src/icra_2022_mars/third_party/detectron2_ros/config/peg_model.pth
+      visualization: true
+    realsense2_camera:
+      accel_fps: -1
+      accel_frame_id: d455_0_accel_frame
+      accel_optical_frame_id: d455_0_accel_optical_frame
+      align_depth: true
+      aligned_depth_to_color_frame_id: d455_0_aligned_depth_to_color_frame
+      aligned_depth_to_fisheye1_frame_id: d455_0_aligned_depth_to_fisheye1_frame
+      aligned_depth_to_fisheye2_frame_id: d455_0_aligned_depth_to_fisheye2_frame
+      aligned_depth_to_fisheye_frame_id: d455_0_aligned_depth_to_fisheye_frame
+      aligned_depth_to_infra1_frame_id: d455_0_aligned_depth_to_infra1_frame
+      aligned_depth_to_infra2_frame_id: d455_0_aligned_depth_to_infra2_frame
+      allow_no_texture_points: false
+      base_frame_id: d455_0_link
+      calib_odom_file: ''
+      clip_distance: -2.0
+      color_fps: -1
+      color_frame_id: d455_0_color_frame
+      color_height: -1
+      color_optical_frame_id: d455_0_color_optical_frame
+      color_width: -1
+      confidence_fps: -1
+      confidence_height: -1
+      confidence_width: -1
+      depth_fps: -1
+      depth_frame_id: d455_0_depth_frame
+      depth_height: -1
+      depth_optical_frame_id: d455_0_depth_optical_frame
+      depth_width: -1
+      device_type: ''
+      enable_accel: false
+      enable_color: true
+      enable_confidence: true
+      enable_depth: true
+      enable_fisheye: false
+      enable_fisheye1: false
+      enable_fisheye2: false
+      enable_gyro: false
+      enable_infra: false
+      enable_infra1: false
+      enable_infra2: false
+      enable_pointcloud: true
+      enable_pose: false
+      enable_sync: false
+      filters: ''
+      fisheye1_frame_id: d455_0_fisheye1_frame
+      fisheye1_optical_frame_id: d455_0_fisheye1_optical_frame
+      fisheye2_frame_id: d455_0_fisheye2_frame
+      fisheye2_optical_frame_id: d455_0_fisheye2_optical_frame
+      fisheye_fps: -1
+      fisheye_frame_id: d455_0_fisheye_frame
+      fisheye_height: -1
+      fisheye_optical_frame_id: d455_0_fisheye_optical_frame
+      fisheye_width: -1
+      gyro_fps: -1
+      gyro_frame_id: d455_0_gyro_frame
+      gyro_optical_frame_id: d455_0_gyro_optical_frame
+      imu_optical_frame_id: d455_0_imu_optical_frame
+      infra1_frame_id: d455_0_infra1_frame
+      infra1_optical_frame_id: d455_0_infra1_optical_frame
+      infra2_frame_id: d455_0_infra2_frame
+      infra2_optical_frame_id: d455_0_infra2_optical_frame
+      infra_fps: 30
+      infra_height: 480
+      infra_rgb: false
+      infra_width: 848
+      initial_reset: false
+      json_file_path: ''
+      linear_accel_cov: 0.01
+      odom_frame_id: d455_0_odom_frame
+      ordered_pc: false
+      pointcloud_texture_index: 0
+      pointcloud_texture_stream: RS2_STREAM_COLOR
+      pose_frame_id: d455_0_pose_frame
+      pose_optical_frame_id: d455_0_pose_optical_frame
+      publish_odom_tf: true
+      publish_tf: true
+      reconnect_timeout: 6.0
+      rosbag_filename: ''
+      serial_no: '146222252184'
+      stereo_module:
+        exposure:
+          '1': 7500
+          '2': 1
+        gain:
+          '1': 16
+          '2': 16
+      tf_publish_rate: 0.0
+      topic_odom_in: odom_in
+      unite_imu_method: ''
+      usb_port_id: ''
+      wait_for_device_timeout: -1.0
+d455_1:
+  camera:
+    aligned_depth_to_color:
+      image_raw:
+        compressed:
+          format: jpeg
+          jpeg_optimize: false
+          jpeg_progressive: false
+          jpeg_quality: 80
+          jpeg_restart_interval: 0
+          png_level: 9
+        compressedDepth:
+          depth_max: 10.0
+          depth_quantization: 100.0
+          format: png
+          png_level: 9
+        theora:
+          keyframe_frequency: 64
+          optimize_for: 1
+          quality: 31
+          target_bitrate: 800000
+    color:
+      image_raw:
+        compressed:
+          format: jpeg
+          jpeg_optimize: false
+          jpeg_progressive: false
+          jpeg_quality: 80
+          jpeg_restart_interval: 0
+          png_level: 9
+        compressedDepth:
+          depth_max: 10.0
+          depth_quantization: 100.0
+          format: png
+          png_level: 9
+        theora:
+          keyframe_frequency: 64
+          optimize_for: 1
+          quality: 31
+          target_bitrate: 800000
+    d455_1_depth_proc_nodelet:
+      queue_size: 100
+    depth:
+      image_rect_raw:
+        compressed:
+          format: jpeg
+          jpeg_optimize: false
+          jpeg_progressive: false
+          jpeg_quality: 80
+          jpeg_restart_interval: 0
+          png_level: 9
+        compressedDepth:
+          depth_max: 10.0
+          depth_quantization: 100.0
+          format: png
+          png_level: 9
+        theora:
+          keyframe_frequency: 64
+          optimize_for: 1
+          quality: 31
+          target_bitrate: 800000
+    detectron2_ros:
+      config: /home/ruppulur/catkin_ws/src/icra_2022_mars/third_party/detectron2_ros/config/peg_config.yaml
+      detection_threshold: 0.9
+      input: color/image_raw
+      model: /home/ruppulur/catkin_ws/src/icra_2022_mars/third_party/detectron2_ros/config/peg_model.pth
+      visualization: true
+    realsense2_camera:
+      accel_fps: -1
+      accel_frame_id: d455_1_accel_frame
+      accel_optical_frame_id: d455_1_accel_optical_frame
+      align_depth: true
+      aligned_depth_to_color_frame_id: d455_1_aligned_depth_to_color_frame
+      aligned_depth_to_fisheye1_frame_id: d455_1_aligned_depth_to_fisheye1_frame
+      aligned_depth_to_fisheye2_frame_id: d455_1_aligned_depth_to_fisheye2_frame
+      aligned_depth_to_fisheye_frame_id: d455_1_aligned_depth_to_fisheye_frame
+      aligned_depth_to_infra1_frame_id: d455_1_aligned_depth_to_infra1_frame
+      aligned_depth_to_infra2_frame_id: d455_1_aligned_depth_to_infra2_frame
+      allow_no_texture_points: false
+      base_frame_id: d455_1_link
+      calib_odom_file: ''
+      clip_distance: -2.0
+      color_fps: -1
+      color_frame_id: d455_1_color_frame
+      color_height: -1
+      color_optical_frame_id: d455_1_color_optical_frame
+      color_width: -1
+      confidence_fps: -1
+      confidence_height: -1
+      confidence_width: -1
+      depth_fps: -1
+      depth_frame_id: d455_1_depth_frame
+      depth_height: -1
+      depth_optical_frame_id: d455_1_depth_optical_frame
+      depth_width: -1
+      device_type: ''
+      enable_accel: false
+      enable_color: true
+      enable_confidence: true
+      enable_depth: true
+      enable_fisheye: false
+      enable_fisheye1: false
+      enable_fisheye2: false
+      enable_gyro: false
+      enable_infra: false
+      enable_infra1: false
+      enable_infra2: false
+      enable_pointcloud: true
+      enable_pose: false
+      enable_sync: false
+      filters: ''
+      fisheye1_frame_id: d455_1_fisheye1_frame
+      fisheye1_optical_frame_id: d455_1_fisheye1_optical_frame
+      fisheye2_frame_id: d455_1_fisheye2_frame
+      fisheye2_optical_frame_id: d455_1_fisheye2_optical_frame
+      fisheye_fps: -1
+      fisheye_frame_id: d455_1_fisheye_frame
+      fisheye_height: -1
+      fisheye_optical_frame_id: d455_1_fisheye_optical_frame
+      fisheye_width: -1
+      gyro_fps: -1
+      gyro_frame_id: d455_1_gyro_frame
+      gyro_optical_frame_id: d455_1_gyro_optical_frame
+      imu_optical_frame_id: d455_1_imu_optical_frame
+      infra1_frame_id: d455_1_infra1_frame
+      infra1_optical_frame_id: d455_1_infra1_optical_frame
+      infra2_frame_id: d455_1_infra2_frame
+      infra2_optical_frame_id: d455_1_infra2_optical_frame
+      infra_fps: 30
+      infra_height: 480
+      infra_rgb: false
+      infra_width: 848
+      initial_reset: false
+      json_file_path: ''
+      linear_accel_cov: 0.01
+      odom_frame_id: d455_1_odom_frame
+      ordered_pc: false
+      pointcloud_texture_index: 0
+      pointcloud_texture_stream: RS2_STREAM_COLOR
+      pose_frame_id: d455_1_pose_frame
+      pose_optical_frame_id: d455_1_pose_optical_frame
+      publish_odom_tf: true
+      publish_tf: true
+      reconnect_timeout: 6.0
+      rosbag_filename: ''
+      serial_no: '146222254752'
+      stereo_module:
+        exposure:
+          '1': 7500
+          '2': 1
+        gain:
+          '1': 16
+          '2': 16
+      tf_publish_rate: 0.0
+      topic_odom_in: odom_in
+      unite_imu_method: ''
+      usb_port_id: ''
+      wait_for_device_timeout: -1.0
+depth_topic: aligned_depth_to_color/image_raw
+effort_joint_trajectory_controller:
+  constraints:
+    goal_time: 0.5
+    panda_joint1:
+      goal: 0.05
+    panda_joint2:
+      goal: 0.05
+    panda_joint3:
+      goal: 0.05
+    panda_joint4:
+      goal: 0.05
+    panda_joint5:
+      goal: 0.05
+    panda_joint6:
+      goal: 0.05
+    panda_joint7:
+      goal: 0.05
+  gains:
+    panda_joint1:
+      d: 30
+      i: 0
+      p: 600
+    panda_joint2:
+      d: 30
+      i: 0
+      p: 600
+    panda_joint3:
+      d: 30
+      i: 0
+      p: 600
+    panda_joint4:
+      d: 30
+      i: 0
+      p: 600
+    panda_joint5:
+      d: 10
+      i: 0
+      p: 250
+    panda_joint6:
+      d: 10
+      i: 0
+      p: 150
+    panda_joint7:
+      d: 5
+      i: 0
+      p: 50
+  joints:
+  - panda_joint1
+  - panda_joint2
+  - panda_joint3
+  - panda_joint4
+  - panda_joint5
+  - panda_joint6
+  - panda_joint7
+  type: effort_controllers/JointTrajectoryController
+filtered_points_topic: /points
+franka_control:
+  arm_id: panda
+  collision_config:
+    lower_force_thresholds_acceleration:
+    - 20.0
+    - 20.0
+    - 20.0
+    - 25.0
+    - 25.0
+    - 25.0
+    lower_force_thresholds_nominal:
+    - 20.0
+    - 20.0
+    - 20.0
+    - 25.0
+    - 25.0
+    - 25.0
+    lower_torque_thresholds_acceleration:
+    - 20.0
+    - 20.0
+    - 18.0
+    - 18.0
+    - 16.0
+    - 14.0
+    - 12.0
+    lower_torque_thresholds_nominal:
+    - 20.0
+    - 20.0
+    - 18.0
+    - 18.0
+    - 16.0
+    - 14.0
+    - 12.0
+    upper_force_thresholds_acceleration:
+    - 20.0
+    - 20.0
+    - 20.0
+    - 25.0
+    - 25.0
+    - 25.0
+    upper_force_thresholds_nominal:
+    - 20.0
+    - 20.0
+    - 20.0
+    - 25.0
+    - 25.0
+    - 25.0
+    upper_torque_thresholds_acceleration:
+    - 20.0
+    - 20.0
+    - 18.0
+    - 18.0
+    - 16.0
+    - 14.0
+    - 12.0
+    upper_torque_thresholds_nominal:
+    - 20.0
+    - 20.0
+    - 18.0
+    - 18.0
+    - 16.0
+    - 14.0
+    - 12.0
+  cutoff_frequency: 100
+  internal_controller: joint_impedance
+  joint_limit_warning_threshold: 0.1
+  joint_names:
+  - panda_joint1
+  - panda_joint2
+  - panda_joint3
+  - panda_joint4
+  - panda_joint5
+  - panda_joint6
+  - panda_joint7
+  rate_limiting: true
+  realtime_config: enforce
+  robot_ip: 192.168.0.144
+franka_gripper:
+  default_grasp_epsilon:
+    inner: 0.005
+    outer: 0.005
+  default_speed: 0.1
+  joint_names:
+  - panda_finger_joint1
+  - panda_finger_joint2
+  publish_rate: 30
+  robot_ip: 192.168.0.144
+  stop_at_shutdown: false
+franka_state_controller:
+  arm_id: panda
+  joint_names:
+  - panda_joint1
+  - panda_joint2
+  - panda_joint3
+  - panda_joint4
+  - panda_joint5
+  - panda_joint6
+  - panda_joint7
+  publish_rate: 30
+  type: franka_control/FrankaStateController
+handeye_calibration:
+  target_detection:
+    compressed:
+      format: jpeg
+      jpeg_optimize: false
+      jpeg_progressive: false
+      jpeg_quality: 80
+      jpeg_restart_interval: 0
+      png_level: 9
+    compressedDepth:
+      depth_max: 10.0
+      depth_quantization: 100.0
+      format: png
+      png_level: 9
+    theora:
+      keyframe_frequency: 64
+      optimize_for: 1
+      quality: 31
+      target_bitrate: 800000
+icp_server:
+  box_enabled: false
+  box_max:
+  - 0.9398
+  - 0.4064
+  - 0.2
+  box_min:
+  - 0.2
+  - -0.4064
+  - -0.01
+  filtered_points_topic: /filtered_masked_points
+  fitness_epsilon: 1
+  icp_enabled: false
+  leaf_sizes:
+  - - 0.001
+    - 0.001
+    - 0.001
+  - - 0.001
+    - 0.001
+    - 0.001
+  - - 0.001
+    - 0.001
+    - 0.001
+  max_correspondence_distance: 0.01
+  max_iterations: 100
+  outlier_mean: 10
+  outlier_stddev: 5
+  point_cloud_topics:
+  - /d455_0/camera/aligned_depth_to_color/color/masked_points
+  - /d455_1/camera/aligned_depth_to_color/color/masked_points
+  - /d455_0/camera/aligned_depth_to_color/color/masked_points
+  ransac_rejection_threshold: 0.05
+  transformation_epsilon: 1.0e-09
+  voxel_enabled: false
+joint_state_publisher:
+  rate: 30
+  source_list:
+  - franka_state_controller/joint_states
+  - franka_gripper/joint_states
+large_round_peg: /home/ruppulur/catkin_ws/src/icra_2022_mars/mars_sim/nist_board_gazebo/models/mesh/RGOCG16-50_16mm-1.STL
+mask_topic: detectron2_ros/result
+masked_out_topic: masked_image
+move_group:
+  allow_trajectory_execution: true
+  controller_list:
+  - action_ns: follow_joint_trajectory
+    default: true
+    joints:
+    - panda_joint1
+    - panda_joint2
+    - panda_joint3
+    - panda_joint4
+    - panda_joint5
+    - panda_joint6
+    - panda_joint7
+    name: position_joint_trajectory_controller
+    type: FollowJointTrajectory
+  - action_ns: gripper_action
+    default: true
+    joints:
+    - panda_finger_joint1
+    - panda_finger_joint2
+    name: franka_gripper
+    type: GripperCommand
+  default_planning_pipeline: ''
+  hand:
+    planner_configs:
+    - SBLkConfigDefault
+    - ESTkConfigDefault
+    - LBKPIECEkConfigDefault
+    - BKPIECEkConfigDefault
+    - KPIECEkConfigDefault
+    - RRTkConfigDefault
+    - RRTConnectkConfigDefault
+    - RRTstarkConfigDefault
+    - TRRTkConfigDefault
+    - PRMkConfigDefault
+    - PRMstarkConfigDefault
+    - FMTkConfigDefault
+    - BFMTkConfigDefault
+    - PDSTkConfigDefault
+    - STRIDEkConfigDefault
+    - BiTRRTkConfigDefault
+    - LBTRRTkConfigDefault
+    - BiESTkConfigDefault
+    - ProjESTkConfigDefault
+    - LazyPRMkConfigDefault
+    - LazyPRMstarkConfigDefault
+    - SPARSkConfigDefault
+    - SPARStwokConfigDefault
+    - TrajOptDefault
+  jiggle_fraction: 0.1
+  max_range: 5.0
+  max_safe_path_cost: 1
+  moveit_controller_manager: moveit_simple_controller_manager/MoveItSimpleControllerManager
+  moveit_manage_controllers: true
+  octomap_frame: camera_rgb_optical_frame
+  octomap_resolution: 0.05
+  ompl:
+    display_random_valid_states: false
+    link_for_exploration_tree: ''
+    maximum_waypoint_distance: 0.0
+    minimum_waypoint_count: 2
+    simplify_solutions: true
+  panda_arm:
+    planner_configs:
+    - SBLkConfigDefault
+    - ESTkConfigDefault
+    - LBKPIECEkConfigDefault
+    - BKPIECEkConfigDefault
+    - KPIECEkConfigDefault
+    - RRTkConfigDefault
+    - RRTConnectkConfigDefault
+    - RRTstarkConfigDefault
+    - TRRTkConfigDefault
+    - PRMkConfigDefault
+    - PRMstarkConfigDefault
+    - FMTkConfigDefault
+    - BFMTkConfigDefault
+    - PDSTkConfigDefault
+    - STRIDEkConfigDefault
+    - BiTRRTkConfigDefault
+    - LBTRRTkConfigDefault
+    - BiESTkConfigDefault
+    - ProjESTkConfigDefault
+    - LazyPRMkConfigDefault
+    - LazyPRMstarkConfigDefault
+    - SPARSkConfigDefault
+    - SPARStwokConfigDefault
+    - TrajOptDefault
+  panda_arm_hand:
+    planner_configs:
+    - SBLkConfigDefault
+    - ESTkConfigDefault
+    - LBKPIECEkConfigDefault
+    - BKPIECEkConfigDefault
+    - KPIECEkConfigDefault
+    - RRTkConfigDefault
+    - RRTConnectkConfigDefault
+    - RRTstarkConfigDefault
+    - TRRTkConfigDefault
+    - PRMkConfigDefault
+    - PRMstarkConfigDefault
+    - FMTkConfigDefault
+    - BFMTkConfigDefault
+    - PDSTkConfigDefault
+    - STRIDEkConfigDefault
+    - BiTRRTkConfigDefault
+    - LBTRRTkConfigDefault
+    - BiESTkConfigDefault
+    - ProjESTkConfigDefault
+    - LazyPRMkConfigDefault
+    - LazyPRMstarkConfigDefault
+    - SPARSkConfigDefault
+    - SPARStwokConfigDefault
+    - TrajOptDefault
+  plan_execution:
+    max_replan_attempts: 5
+    record_trajectory_state_frequency: 0.0
+  planner_configs:
+    BFMTkConfigDefault:
+      balanced: 0
+      cache_cc: 1
+      extended_fmt: 1
+      heuristics: 1
+      nearest_k: 1
+      num_samples: 1000
+      optimality: 1
+      radius_multiplier: 1.0
+      type: geometric::BFMT
+    BKPIECEkConfigDefault:
+      border_fraction: 0.9
+      failed_expansion_score_factor: 0.5
+      min_valid_path_fraction: 0.5
+      range: 0.0
+      type: geometric::BKPIECE
+    BiESTkConfigDefault:
+      range: 0.0
+      type: geometric::BiEST
+    BiTRRTkConfigDefault:
+      cost_threshold: 1e300
+      frountier_node_ratio: 0.1
+      frountier_threshold: 0.0
+      init_temperature: 100
+      range: 0.0
+      temp_change_factor: 0.1
+      type: geometric::BiTRRT
+    ESTkConfigDefault:
+      goal_bias: 0.05
+      range: 0.0
+      type: geometric::EST
+    FMTkConfigDefault:
+      cache_cc: 1
+      extended_fmt: 1
+      heuristics: 0
+      nearest_k: 1
+      num_samples: 1000
+      radius_multiplier: 1.1
+      type: geometric::FMT
+    KPIECEkConfigDefault:
+      border_fraction: 0.9
+      failed_expansion_score_factor: 0.5
+      goal_bias: 0.05
+      min_valid_path_fraction: 0.5
+      range: 0.0
+      type: geometric::KPIECE
+    LBKPIECEkConfigDefault:
+      border_fraction: 0.9
+      min_valid_path_fraction: 0.5
+      range: 0.0
+      type: geometric::LBKPIECE
+    LBTRRTkConfigDefault:
+      epsilon: 0.4
+      goal_bias: 0.05
+      range: 0.0
+      type: geometric::LBTRRT
+    LazyPRMkConfigDefault:
+      range: 0.0
+      type: geometric::LazyPRM
+    LazyPRMstarkConfigDefault:
+      type: geometric::LazyPRMstar
+    PDSTkConfigDefault:
+      type: geometric::PDST
+    PRMkConfigDefault:
+      max_nearest_neighbors: 10
+      type: geometric::PRM
+    PRMstarkConfigDefault:
+      type: geometric::PRMstar
+    ProjESTkConfigDefault:
+      goal_bias: 0.05
+      range: 0.0
+      type: geometric::ProjEST
+    RRTConnectkConfigDefault:
+      range: 0.0
+      type: geometric::RRTConnect
+    RRTkConfigDefault:
+      goal_bias: 0.05
+      range: 0.0
+      type: geometric::RRT
+    RRTstarkConfigDefault:
+      delay_collision_checking: 1
+      goal_bias: 0.05
+      range: 0.0
+      type: geometric::RRTstar
+    SBLkConfigDefault:
+      range: 0.0
+      type: geometric::SBL
+    SPARSkConfigDefault:
+      dense_delta_fraction: 0.001
+      max_failures: 1000
+      sparse_delta_fraction: 0.25
+      stretch_factor: 3.0
+      type: geometric::SPARS
+    SPARStwokConfigDefault:
+      dense_delta_fraction: 0.001
+      max_failures: 5000
+      sparse_delta_fraction: 0.25
+      stretch_factor: 3.0
+      type: geometric::SPARStwo
+    STRIDEkConfigDefault:
+      degree: 16
+      estimated_dimension: 0.0
+      goal_bias: 0.05
+      max_degree: 18
+      max_pts_per_leaf: 6
+      min_degree: 12
+      min_valid_path_fraction: 0.2
+      range: 0.0
+      type: geometric::STRIDE
+      use_projected_distance: 0
+    TRRTkConfigDefault:
+      frountierNodeRatio: 0.1
+      frountier_threshold: 0.0
+      goal_bias: 0.05
+      init_temperature: 10e-6
+      k_constant: 0.0
+      max_states_failed: 10
+      min_temperature: 10e-10
+      range: 0.0
+      temp_change_factor: 2.0
+      type: geometric::TRRT
+    TrajOptDefault:
+      type: geometric::TrajOpt
+  planning_plugin: ompl_interface/OMPLPlanner
+  planning_scene_monitor:
+    publish_geometry_updates: true
+    publish_planning_scene: true
+    publish_planning_scene_hz: 4.0
+    publish_state_updates: true
+    publish_transforms_updates: true
+  request_adapters: default_planner_request_adapters/AddTimeParameterization        default_planner_request_adapters/ResolveConstraintFrames        default_planner_request_adapters/FixWorkspaceBounds        default_planner_request_adapters/FixStartStateBounds        default_planner_request_adapters/FixStartStateCollision        default_planner_request_adapters/FixStartStatePathConstraints
+  sense_for_plan:
+    discard_overlapping_cost_sources: 0.8
+    max_cost_sources: 100
+    max_look_attempts: 3
+    max_safe_path_cost: 0.01
+  sensors:
+  - filtered_cloud_topic: filtered_cloud
+    max_range: 5.0
+    max_update_rate: 1.0
+    padding_offset: 0.1
+    padding_scale: 1.0
+    point_cloud_topic: /camera/depth_registered/points
+    point_subsample: 1
+    sensor_plugin: occupancy_map_monitor/PointCloudOctomapUpdater
+  start_state_max_bounds_error: 0.1
+  trajectory_execution:
+    allowed_execution_duration_scaling: 1.2
+    allowed_goal_duration_margin: 0.5
+    allowed_start_tolerance: 0.01
+    execution_duration_monitoring: true
+    execution_velocity_scaling: 1.0
+    wait_for_trajectory_completion: true
+panda_planning_server:
+  visual_tools_scene:
+    publish_geometry_updates: true
+    publish_planning_scene: false
+    publish_planning_scene_hz: 4.0
+    publish_state_updates: false
+    publish_transforms_updates: false
+pc_registration:
+  box_enabled: false
+  box_max:
+  - 0.9398
+  - 0.4064
+  - 0.2
+  box_min:
+  - 0.2
+  - -0.4064
+  - -0.01
+  filtered_points_topic: /filtered_masked_points
+  fitness_epsilon: 1
+  icp_enabled: false
+  leaf_sizes:
+  - - 0.001
+    - 0.001
+    - 0.001
+  - - 0.001
+    - 0.001
+    - 0.001
+  - - 0.001
+    - 0.001
+    - 0.001
+  max_correspondence_distance: 0.01
+  max_iterations: 20
+  outlier_mean: 10
+  outlier_stddev: 5
+  point_cloud_topics:
+  - /d455_0/camera/aligned_depth_to_color/color/masked_points
+  - /d455_1/camera/aligned_depth_to_color/color/masked_points
+  - /d455_0/camera/aligned_depth_to_color/color/masked_points
+  ransac_rejection_threshold: 0.05
+  transformation_epsilon: 1.0e-09
+  voxel_enabled: false
+pc_topic: /camera/depth/color/points
+plate: /home/ruppulur/catkin_ws/src/icra_2022_mars/mars_sim/nist_board_gazebo/models/mesh/ICRA2022_Practice_Base-1.STL
+position_joint_trajectory_controller:
+  constraints:
+    goal_time: 0.5
+    panda_joint1:
+      goal: 0.05
+    panda_joint2:
+      goal: 0.05
+    panda_joint3:
+      goal: 0.05
+    panda_joint4:
+      goal: 0.05
+    panda_joint5:
+      goal: 0.05
+    panda_joint6:
+      goal: 0.05
+    panda_joint7:
+      goal: 0.05
+  joints:
+  - panda_joint1
+  - panda_joint2
+  - panda_joint3
+  - panda_joint4
+  - panda_joint5
+  - panda_joint6
+  - panda_joint7
+  type: position_controllers/JointTrajectoryController
+robot_description: "<?xml version=\"1.0\" ?>\n<!-- ===================================================================================\
+  \ -->\n<!-- |    This document was autogenerated by xacro from /opt/ros/noetic/share/franka_description/robots/panda_arm.urdf.xacro\
+  \ | -->\n<!-- |    EDITING THIS FILE BY HAND IS NOT RECOMMENDED                \
+  \                 | -->\n<!-- ===================================================================================\
+  \ -->\n<robot name=\"panda\">\n  <link name=\"panda_link0\">\n    <visual>\n   \
+  \   <geometry>\n        <mesh filename=\"package://franka_description/meshes/visual/link0.dae\"\
+  />\n      </geometry>\n    </visual>\n    <collision>\n      <origin rpy=\"0 1.5707963267948966\
+  \ 0\" xyz=\"-0.075 0 0.06\"/>\n      <geometry>\n        <cylinder length=\"0.03\"\
+  \ radius=\"0.09\"/>\n      </geometry>\n    </collision>\n    <collision>\n    \
+  \  <origin rpy=\"0 0 0\" xyz=\"-0.06 0 0.06\"/>\n      <geometry>\n        <sphere\
+  \ radius=\"0.09\"/>\n      </geometry>\n    </collision>\n    <collision>\n    \
+  \  <origin rpy=\"0 0 0\" xyz=\"-0.09 0 0.06\"/>\n      <geometry>\n        <sphere\
+  \ radius=\"0.09\"/>\n      </geometry>\n    </collision>\n  </link>\n  <link name=\"\
+  panda_link1\">\n    <visual>\n      <geometry>\n        <mesh filename=\"package://franka_description/meshes/visual/link1.dae\"\
+  />\n      </geometry>\n    </visual>\n    <collision>\n      <origin rpy=\"0 0 0\"\
+  \ xyz=\"0 0 -0.1915\"/>\n      <geometry>\n        <cylinder length=\"0.2830\" radius=\"\
+  0.09\"/>\n      </geometry>\n    </collision>\n    <collision>\n      <origin rpy=\"\
+  0 0 0\" xyz=\"0 0 -0.333\"/>\n      <geometry>\n        <sphere radius=\"0.09\"\
+  />\n      </geometry>\n    </collision>\n    <collision>\n      <origin rpy=\"0\
+  \ 0 0\" xyz=\"0 0 -0.05\"/>\n      <geometry>\n        <sphere radius=\"0.09\"/>\n\
+  \      </geometry>\n    </collision>\n  </link>\n  <joint name=\"panda_joint1\"\
+  \ type=\"revolute\">\n    <safety_controller k_position=\"100.0\" k_velocity=\"\
+  40.0\" soft_lower_limit=\"-2.8973\" soft_upper_limit=\"2.8973\"/>\n    <origin rpy=\"\
+  0 0 0\" xyz=\"0 0 0.333\"/>\n    <parent link=\"panda_link0\"/>\n    <child link=\"\
+  panda_link1\"/>\n    <axis xyz=\"0 0 1\"/>\n    <limit effort=\"87\" lower=\"-2.8973\"\
+  \ upper=\"2.8973\" velocity=\"2.1750\"/>\n  </joint>\n  <link name=\"panda_link2\"\
+  >\n    <visual>\n      <geometry>\n        <mesh filename=\"package://franka_description/meshes/visual/link2.dae\"\
+  />\n      </geometry>\n    </visual>\n    <collision>\n      <origin rpy=\"0 0 0\"\
+  \ xyz=\"0 0 0\"/>\n      <geometry>\n        <cylinder length=\"0.12\" radius=\"\
+  0.09\"/>\n      </geometry>\n    </collision>\n    <collision>\n      <origin rpy=\"\
+  0 0 0\" xyz=\"0 0 -0.06\"/>\n      <geometry>\n        <sphere radius=\"0.09\"/>\n\
+  \      </geometry>\n    </collision>\n    <collision>\n      <origin rpy=\"0 0 0\"\
+  \ xyz=\"0 0 0.06\"/>\n      <geometry>\n        <sphere radius=\"0.09\"/>\n    \
+  \  </geometry>\n    </collision>\n  </link>\n  <joint name=\"panda_joint2\" type=\"\
+  revolute\">\n    <safety_controller k_position=\"100.0\" k_velocity=\"40.0\" soft_lower_limit=\"\
+  -1.7628\" soft_upper_limit=\"1.7628\"/>\n    <origin rpy=\"-1.5707963267948966 0\
+  \ 0\" xyz=\"0 0 0\"/>\n    <parent link=\"panda_link1\"/>\n    <child link=\"panda_link2\"\
+  />\n    <axis xyz=\"0 0 1\"/>\n    <limit effort=\"87\" lower=\"-1.7628\" upper=\"\
+  1.7628\" velocity=\"2.1750\"/>\n  </joint>\n  <link name=\"panda_link3\">\n    <visual>\n\
+  \      <geometry>\n        <mesh filename=\"package://franka_description/meshes/visual/link3.dae\"\
+  />\n      </geometry>\n    </visual>\n    <collision>\n      <origin rpy=\"0 0 0\"\
+  \ xyz=\"0 0 -0.145\"/>\n      <geometry>\n        <cylinder length=\"0.15\" radius=\"\
+  0.09\"/>\n      </geometry>\n    </collision>\n    <collision>\n      <origin rpy=\"\
+  0 0 0\" xyz=\"0 0 -0.22\"/>\n      <geometry>\n        <sphere radius=\"0.09\"/>\n\
+  \      </geometry>\n    </collision>\n    <collision>\n      <origin rpy=\"0 0 0\"\
+  \ xyz=\"0 0 -0.07\"/>\n      <geometry>\n        <sphere radius=\"0.09\"/>\n   \
+  \   </geometry>\n    </collision>\n  </link>\n  <joint name=\"panda_joint3\" type=\"\
+  revolute\">\n    <safety_controller k_position=\"100.0\" k_velocity=\"40.0\" soft_lower_limit=\"\
+  -2.8973\" soft_upper_limit=\"2.8973\"/>\n    <origin rpy=\"1.5707963267948966 0\
+  \ 0\" xyz=\"0 -0.316 0\"/>\n    <parent link=\"panda_link2\"/>\n    <child link=\"\
+  panda_link3\"/>\n    <axis xyz=\"0 0 1\"/>\n    <limit effort=\"87\" lower=\"-2.8973\"\
+  \ upper=\"2.8973\" velocity=\"2.1750\"/>\n  </joint>\n  <link name=\"panda_link4\"\
+  >\n    <visual>\n      <geometry>\n        <mesh filename=\"package://franka_description/meshes/visual/link4.dae\"\
+  />\n      </geometry>\n    </visual>\n    <collision>\n      <origin rpy=\"0 0 0\"\
+  \ xyz=\"0 0 0\"/>\n      <geometry>\n        <cylinder length=\"0.12\" radius=\"\
+  0.09\"/>\n      </geometry>\n    </collision>\n    <collision>\n      <origin rpy=\"\
+  0 0 0\" xyz=\"0 0 0.06\"/>\n      <geometry>\n        <sphere radius=\"0.09\"/>\n\
+  \      </geometry>\n    </collision>\n    <collision>\n      <origin rpy=\"0 0 0\"\
+  \ xyz=\"0 0 -0.06\"/>\n      <geometry>\n        <sphere radius=\"0.09\"/>\n   \
+  \   </geometry>\n    </collision>\n  </link>\n  <joint name=\"panda_joint4\" type=\"\
+  revolute\">\n    <safety_controller k_position=\"100.0\" k_velocity=\"40.0\" soft_lower_limit=\"\
+  -3.0718\" soft_upper_limit=\"-0.0698\"/>\n    <origin rpy=\"1.5707963267948966 0\
+  \ 0\" xyz=\"0.0825 0 0\"/>\n    <parent link=\"panda_link3\"/>\n    <child link=\"\
+  panda_link4\"/>\n    <axis xyz=\"0 0 1\"/>\n    <limit effort=\"87\" lower=\"-3.0718\"\
+  \ upper=\"-0.0698\" velocity=\"2.1750\"/>\n  </joint>\n  <link name=\"panda_link5\"\
+  >\n    <visual>\n      <geometry>\n        <mesh filename=\"package://franka_description/meshes/visual/link5.dae\"\
+  />\n      </geometry>\n    </visual>\n    <collision>\n      <origin rpy=\"0 0 0\"\
+  \ xyz=\"0 0 -0.26\"/>\n      <geometry>\n        <cylinder length=\"0.1\" radius=\"\
+  0.09\"/>\n      </geometry>\n    </collision>\n    <collision>\n      <origin rpy=\"\
+  0 0 0\" xyz=\"0 0 -0.31\"/>\n      <geometry>\n        <sphere radius=\"0.09\"/>\n\
+  \      </geometry>\n    </collision>\n    <collision>\n      <origin rpy=\"0 0 0\"\
+  \ xyz=\"0 0 -0.21\"/>\n      <geometry>\n        <sphere radius=\"0.09\"/>\n   \
+  \   </geometry>\n    </collision>\n    <collision>\n      <origin rpy=\"0 0 0\"\
+  \ xyz=\"0 0.08 -0.13\"/>\n      <geometry>\n        <cylinder length=\"0.14\" radius=\"\
+  0.055\"/>\n      </geometry>\n    </collision>\n    <collision>\n      <origin rpy=\"\
+  0 0 0\" xyz=\"0 0.08 -0.06\"/>\n      <geometry>\n        <sphere radius=\"0.055\"\
+  />\n      </geometry>\n    </collision>\n    <collision>\n      <origin rpy=\"0\
+  \ 0 0\" xyz=\"0 0.08 -0.20\"/>\n      <geometry>\n        <sphere radius=\"0.055\"\
+  />\n      </geometry>\n    </collision>\n  </link>\n  <joint name=\"panda_joint5\"\
+  \ type=\"revolute\">\n    <safety_controller k_position=\"100.0\" k_velocity=\"\
+  40.0\" soft_lower_limit=\"-2.8973\" soft_upper_limit=\"2.8973\"/>\n    <origin rpy=\"\
+  -1.5707963267948966 0 0\" xyz=\"-0.0825 0.384 0\"/>\n    <parent link=\"panda_link4\"\
+  />\n    <child link=\"panda_link5\"/>\n    <axis xyz=\"0 0 1\"/>\n    <limit effort=\"\
+  12\" lower=\"-2.8973\" upper=\"2.8973\" velocity=\"2.6100\"/>\n  </joint>\n  <link\
+  \ name=\"panda_link6\">\n    <visual>\n      <geometry>\n        <mesh filename=\"\
+  package://franka_description/meshes/visual/link6.dae\"/>\n      </geometry>\n  \
+  \  </visual>\n    <collision>\n      <origin rpy=\"0 0 0\" xyz=\"0 0 -0.03\"/>\n\
+  \      <geometry>\n        <cylinder length=\"0.08\" radius=\"0.08\"/>\n      </geometry>\n\
+  \    </collision>\n    <collision>\n      <origin rpy=\"0 0 0\" xyz=\"0 0 0.01\"\
+  />\n      <geometry>\n        <sphere radius=\"0.08\"/>\n      </geometry>\n   \
+  \ </collision>\n    <collision>\n      <origin rpy=\"0 0 0\" xyz=\"0 0 -0.07\"/>\n\
+  \      <geometry>\n        <sphere radius=\"0.08\"/>\n      </geometry>\n    </collision>\n\
+  \  </link>\n  <joint name=\"panda_joint6\" type=\"revolute\">\n    <safety_controller\
+  \ k_position=\"100.0\" k_velocity=\"40.0\" soft_lower_limit=\"-0.0175\" soft_upper_limit=\"\
+  3.7525\"/>\n    <origin rpy=\"1.5707963267948966 0 0\" xyz=\"0 0 0\"/>\n    <parent\
+  \ link=\"panda_link5\"/>\n    <child link=\"panda_link6\"/>\n    <axis xyz=\"0 0\
+  \ 1\"/>\n    <limit effort=\"12\" lower=\"-0.0175\" upper=\"3.7525\" velocity=\"\
+  2.6100\"/>\n  </joint>\n  <link name=\"panda_link7\">\n    <visual>\n      <geometry>\n\
+  \        <mesh filename=\"package://franka_description/meshes/visual/link7.dae\"\
+  />\n      </geometry>\n    </visual>\n    <collision>\n      <origin rpy=\"0 0 0\"\
+  \ xyz=\"0 0 0.01\"/>\n      <geometry>\n        <cylinder length=\"0.14\" radius=\"\
+  0.07\"/>\n      </geometry>\n    </collision>\n    <collision>\n      <origin rpy=\"\
+  0 0 0\" xyz=\"0 0 0.08\"/>\n      <geometry>\n        <sphere radius=\"0.07\"/>\n\
+  \      </geometry>\n    </collision>\n    <collision>\n      <origin rpy=\"0 0 0\"\
+  \ xyz=\"0 0 -0.06\"/>\n      <geometry>\n        <sphere radius=\"0.07\"/>\n   \
+  \   </geometry>\n    </collision>\n  </link>\n  <joint name=\"panda_joint7\" type=\"\
+  revolute\">\n    <safety_controller k_position=\"100.0\" k_velocity=\"40.0\" soft_lower_limit=\"\
+  -2.8973\" soft_upper_limit=\"2.8973\"/>\n    <origin rpy=\"1.5707963267948966 0\
+  \ 0\" xyz=\"0.088 0 0\"/>\n    <parent link=\"panda_link6\"/>\n    <child link=\"\
+  panda_link7\"/>\n    <axis xyz=\"0 0 1\"/>\n    <limit effort=\"12\" lower=\"-2.8973\"\
+  \ upper=\"2.8973\" velocity=\"2.6100\"/>\n  </joint>\n  <link name=\"panda_link8\"\
+  >\n    <collision>\n      <origin rpy=\"3.141592653589793 1.5707963267948966 1.5707963267948966\"\
+  \ xyz=\"0.0424 0.0424 -0.0250\"/>\n      <geometry>\n        <cylinder length=\"\
+  0.01\" radius=\"0.06\"/>\n      </geometry>\n    </collision>\n    <collision>\n\
+  \      <origin rpy=\"0 0 0\" xyz=\"0.0424 0.0424 -0.02\"/>\n      <geometry>\n \
+  \       <sphere radius=\"0.06\"/>\n      </geometry>\n    </collision>\n    <collision>\n\
+  \      <origin rpy=\"0 0 0\" xyz=\"0.0424 0.0424 -0.03\"/>\n      <geometry>\n \
+  \       <sphere radius=\"0.06\"/>\n      </geometry>\n    </collision>\n  </link>\n\
+  \  <joint name=\"panda_joint8\" type=\"fixed\">\n    <origin rpy=\"0 0 0\" xyz=\"\
+  0 0 0.107\"/>\n    <parent link=\"panda_link7\"/>\n    <child link=\"panda_link8\"\
+  />\n  </joint>\n  <joint name=\"panda_hand_joint\" type=\"fixed\">\n    <parent\
+  \ link=\"panda_link8\"/>\n    <child link=\"panda_hand\"/>\n    <origin rpy=\"0\
+  \ 0 -0.7853981633974483\" xyz=\"0 0 0\"/>\n  </joint>\n  <link name=\"panda_hand\"\
+  >\n    <visual>\n      <geometry>\n        <mesh filename=\"package://franka_description/meshes/visual/hand.dae\"\
+  />\n      </geometry>\n    </visual>\n    <collision>\n      <origin rpy=\"0 1.5707963267948966\
+  \ 1.5707963267948966\" xyz=\"0 0 0.04\"/>\n      <geometry>\n        <cylinder length=\"\
+  0.1\" radius=\"0.07\"/>\n      </geometry>\n    </collision>\n    <collision>\n\
+  \      <origin rpy=\"0 0 0\" xyz=\"0 -0.05 0.04\"/>\n      <geometry>\n        <sphere\
+  \ radius=\"0.07\"/>\n      </geometry>\n    </collision>\n    <collision>\n    \
+  \  <origin rpy=\"0 0 0\" xyz=\"0 0.05 0.04\"/>\n      <geometry>\n        <sphere\
+  \ radius=\"0.07\"/>\n      </geometry>\n    </collision>\n    <collision>\n    \
+  \  <origin rpy=\"0 1.5707963267948966 1.5707963267948966\" xyz=\"0 0 0.1\"/>\n \
+  \     <geometry>\n        <cylinder length=\"0.1\" radius=\"0.05\"/>\n      </geometry>\n\
+  \    </collision>\n    <collision>\n      <origin rpy=\"0 0 0\" xyz=\"0 -0.05 0.1\"\
+  />\n      <geometry>\n        <sphere radius=\"0.05\"/>\n      </geometry>\n   \
+  \ </collision>\n    <collision>\n      <origin rpy=\"0 0 0\" xyz=\"0 0.05 0.1\"\
+  />\n      <geometry>\n        <sphere radius=\"0.05\"/>\n      </geometry>\n   \
+  \ </collision>\n  </link>\n  <!-- Define the hand_tcp frame -->\n  <link name=\"\
+  panda_hand_tcp\"/>\n  <joint name=\"panda_hand_tcp_joint\" type=\"fixed\">\n   \
+  \ <origin rpy=\"0 0 0\" xyz=\"0 0 0.1034\"/>\n    <parent link=\"panda_hand\"/>\n\
+  \    <child link=\"panda_hand_tcp\"/>\n  </joint>\n  <link name=\"panda_leftfinger\"\
+  >\n    <visual>\n      <geometry>\n        <mesh filename=\"package://franka_description/meshes/visual/finger.dae\"\
+  />\n      </geometry>\n    </visual>\n  </link>\n  <link name=\"panda_rightfinger\"\
+  >\n    <visual>\n      <origin rpy=\"0 0 3.141592653589793\" xyz=\"0 0 0\"/>\n \
+  \     <geometry>\n        <mesh filename=\"package://franka_description/meshes/visual/finger.dae\"\
+  />\n      </geometry>\n    </visual>\n  </link>\n  <joint name=\"panda_finger_joint1\"\
+  \ type=\"prismatic\">\n    <parent link=\"panda_hand\"/>\n    <child link=\"panda_leftfinger\"\
+  />\n    <origin rpy=\"0 0 0\" xyz=\"0 0 0.0584\"/>\n    <axis xyz=\"0 1 0\"/>\n\
+  \    <limit effort=\"100\" lower=\"0.0\" upper=\"0.04\" velocity=\"0.2\"/>\n  </joint>\n\
+  \  <joint name=\"panda_finger_joint2\" type=\"prismatic\">\n    <parent link=\"\
+  panda_hand\"/>\n    <child link=\"panda_rightfinger\"/>\n    <origin rpy=\"0 0 0\"\
+  \ xyz=\"0 0 0.0584\"/>\n    <axis xyz=\"0 -1 0\"/>\n    <limit effort=\"100\" lower=\"\
+  0.0\" upper=\"0.04\" velocity=\"0.2\"/>\n    <mimic joint=\"panda_finger_joint1\"\
+  />\n  </joint>\n</robot>\n\n"
+robot_description_kinematics:
+  panda_arm:
+    kinematics_solver: kdl_kinematics_plugin/KDLKinematicsPlugin
+    kinematics_solver_search_resolution: 0.005
+    kinematics_solver_timeout: 0.05
+robot_description_planning:
+  joint_limits:
+    panda_finger_joint1:
+      has_acceleration_limits: false
+      has_velocity_limits: true
+      max_acceleration: 0
+      max_velocity: 0.1
+    panda_finger_joint2:
+      has_acceleration_limits: false
+      has_velocity_limits: true
+      max_acceleration: 0
+      max_velocity: 0.1
+    panda_joint1:
+      has_acceleration_limits: true
+      has_velocity_limits: true
+      max_acceleration: 3.75
+      max_velocity: 2.175
+    panda_joint2:
+      has_acceleration_limits: true
+      has_velocity_limits: true
+      max_acceleration: 1.875
+      max_velocity: 2.175
+    panda_joint3:
+      has_acceleration_limits: true
+      has_velocity_limits: true
+      max_acceleration: 2.5
+      max_velocity: 2.175
+    panda_joint4:
+      has_acceleration_limits: true
+      has_velocity_limits: true
+      max_acceleration: 3.125
+      max_velocity: 2.175
+    panda_joint5:
+      has_acceleration_limits: true
+      has_velocity_limits: true
+      max_acceleration: 3.75
+      max_velocity: 2.61
+    panda_joint6:
+      has_acceleration_limits: true
+      has_velocity_limits: true
+      max_acceleration: 5
+      max_velocity: 2.61
+    panda_joint7:
+      has_acceleration_limits: true
+      has_velocity_limits: true
+      max_acceleration: 5
+      max_velocity: 2.61
+robot_description_semantic: "<?xml version=\"1.0\" ?>\n<!-- ===================================================================================\
+  \ -->\n<!-- |    This document was autogenerated by xacro from /home/ruppulur/catkin_ws/src/icra_2022_mars/mars_sim/panda_moveit_config/config/panda_arm_hand.srdf.xacro\
+  \ | -->\n<!-- |    EDITING THIS FILE BY HAND IS NOT RECOMMENDED                \
+  \                 | -->\n<!-- ===================================================================================\
+  \ -->\n<!--This does not replace URDF, and is not an extension of URDF.\n    This\
+  \ is a format for representing semantic information about the robot structure.\n\
+  \    A URDF file must exist for this robot as well, where the joints and the links\
+  \ that are referenced are defined\n-->\n<robot name=\"panda\">\n  <!--GROUPS: Representation\
+  \ of a set of joints and links. This can be useful for specifying DOF to plan for,\
+  \ defining arms, end effectors, etc-->\n  <!--LINKS: When a link is specified, the\
+  \ parent joint of that link (if it exists) is automatically included-->\n  <!--JOINTS:\
+  \ When a joint is specified, the child link of that joint (which will always exist)\
+  \ is automatically included-->\n  <!--CHAINS: When a chain is specified, all the\
+  \ links along the chain (including endpoints) are included in the group. Additionally,\
+  \ all the joints that are parents to included links are also included. This means\
+  \ that joints along the chain and the parent joint of the base link are included\
+  \ in the group-->\n  <!--SUBGROUPS: Groups can also be formed by referencing to\
+  \ already defined group names-->\n  <group name=\"panda_arm\">\n    <chain base_link=\"\
+  panda_link0\" tip_link=\"panda_link8\"/>\n  </group>\n  <!--GROUP STATES: Purpose:\
+  \ Define a named state for a particular group, in terms of joint values. This is\
+  \ useful to define states like 'folded arms'-->\n  <group_state group=\"panda_arm\"\
+  \ name=\"ready\">\n    <joint name=\"panda_joint1\" value=\"0\"/>\n    <joint name=\"\
+  panda_joint2\" value=\"-0.785\"/>\n    <joint name=\"panda_joint3\" value=\"0\"\
+  />\n    <joint name=\"panda_joint4\" value=\"-2.356\"/>\n    <joint name=\"panda_joint5\"\
+  \ value=\"0\"/>\n    <joint name=\"panda_joint6\" value=\"1.571\"/>\n    <joint\
+  \ name=\"panda_joint7\" value=\"0.785\"/>\n  </group_state>\n  <group_state group=\"\
+  panda_arm\" name=\"extended\">\n    <joint name=\"panda_joint1\" value=\"0\"/>\n\
+  \    <joint name=\"panda_joint2\" value=\"0\"/>\n    <joint name=\"panda_joint3\"\
+  \ value=\"0\"/>\n    <joint name=\"panda_joint4\" value=\"0\"/>\n    <joint name=\"\
+  panda_joint5\" value=\"0\"/>\n    <joint name=\"panda_joint6\" value=\"0\"/>\n \
+  \   <joint name=\"panda_joint7\" value=\"0.785\"/>\n  </group_state>\n  <group_state\
+  \ group=\"panda_arm\" name=\"transport\">\n    <joint name=\"panda_joint1\" value=\"\
+  0\"/>\n    <joint name=\"panda_joint2\" value=\"-0.5599\"/>\n    <joint name=\"\
+  panda_joint3\" value=\"0\"/>\n    <joint name=\"panda_joint4\" value=\"-2.97\"/>\n\
+  \    <joint name=\"panda_joint5\" value=\"0\"/>\n    <joint name=\"panda_joint6\"\
+  \ value=\"0\"/>\n    <joint name=\"panda_joint7\" value=\"0.785\"/>\n  </group_state>\n\
+  \  <!--END EFFECTOR: Purpose: Represent information about an end effector.-->\n\
+  \  <!--VIRTUAL JOINT: Purpose: this element defines a virtual joint between a robot\
+  \ link and an external frame of reference (considered fixed with respect to the\
+  \ robot)-->\n  <virtual_joint child_link=\"panda_link0\" name=\"virtual_joint\"\
+  \ parent_frame=\"world\" type=\"floating\"/>\n  <!--DISABLE COLLISIONS: By default\
+  \ it is assumed that any link of the robot could potentially come into collision\
+  \ with any other link in the robot. This tag disables collision checking between\
+  \ a specified pair of links. -->\n  <disable_collisions link1=\"panda_link0\" link2=\"\
+  panda_link1\" reason=\"Adjacent\"/>\n  <disable_collisions link1=\"panda_link0\"\
+  \ link2=\"panda_link2\" reason=\"Never\"/>\n  <disable_collisions link1=\"panda_link0\"\
+  \ link2=\"panda_link3\" reason=\"Never\"/>\n  <disable_collisions link1=\"panda_link0\"\
+  \ link2=\"panda_link4\" reason=\"Never\"/>\n  <disable_collisions link1=\"panda_link1\"\
+  \ link2=\"panda_link2\" reason=\"Adjacent\"/>\n  <disable_collisions link1=\"panda_link1\"\
+  \ link2=\"panda_link3\" reason=\"Default\"/>\n  <disable_collisions link1=\"panda_link1\"\
+  \ link2=\"panda_link4\" reason=\"Never\"/>\n  <disable_collisions link1=\"panda_link2\"\
+  \ link2=\"panda_link3\" reason=\"Adjacent\"/>\n  <disable_collisions link1=\"panda_link2\"\
+  \ link2=\"panda_link4\" reason=\"Never\"/>\n  <disable_collisions link1=\"panda_link3\"\
+  \ link2=\"panda_link4\" reason=\"Adjacent\"/>\n  <disable_collisions link1=\"panda_link3\"\
+  \ link2=\"panda_link6\" reason=\"Never\"/>\n  <disable_collisions link1=\"panda_link4\"\
+  \ link2=\"panda_link5\" reason=\"Adjacent\"/>\n  <disable_collisions link1=\"panda_link4\"\
+  \ link2=\"panda_link6\" reason=\"Never\"/>\n  <disable_collisions link1=\"panda_link4\"\
+  \ link2=\"panda_link7\" reason=\"Never\"/>\n  <disable_collisions link1=\"panda_link4\"\
+  \ link2=\"panda_link8\" reason=\"Never\"/>\n  <disable_collisions link1=\"panda_link5\"\
+  \ link2=\"panda_link6\" reason=\"Adjacent\"/>\n  <disable_collisions link1=\"panda_link6\"\
+  \ link2=\"panda_link7\" reason=\"Adjacent\"/>\n  <disable_collisions link1=\"panda_link6\"\
+  \ link2=\"panda_link8\" reason=\"Default\"/>\n  <disable_collisions link1=\"panda_link7\"\
+  \ link2=\"panda_link8\" reason=\"Adjacent\"/>\n  <!--GROUPS: Representation of a\
+  \ set of joints and links. This can be useful for specifying DOF to plan for, defining\
+  \ arms, end effectors, etc-->\n  <!--LINKS: When a link is specified, the parent\
+  \ joint of that link (if it exists) is automatically included-->\n  <!--JOINTS:\
+  \ When a joint is specified, the child link of that joint (which will always exist)\
+  \ is automatically included-->\n  <!--CHAINS: When a chain is specified, all the\
+  \ links along the chain (including endpoints) are included in the group. Additionally,\
+  \ all the joints that are parents to included links are also included. This means\
+  \ that joints along the chain and the parent joint of the base link are included\
+  \ in the group-->\n  <!--SUBGROUPS: Groups can also be formed by referencing to\
+  \ already defined group names-->\n  <group name=\"hand\">\n    <link name=\"panda_hand\"\
+  />\n    <link name=\"panda_leftfinger\"/>\n    <link name=\"panda_rightfinger\"\
+  />\n    <joint name=\"panda_finger_joint1\"/>\n    <passive_joint name=\"panda_finger_joint2\"\
+  />\n  </group>\n  <!--GROUP STATES: Purpose: Define a named state for a particular\
+  \ group, in terms of joint values. This is useful to define states like 'folded\
+  \ arms'-->\n  <!--END EFFECTOR: Purpose: Represent information about an end effector.-->\n\
+  \  <!--DISABLE COLLISIONS: By default it is assumed that any link of the robot could\
+  \ potentially come into collision with any other link in the robot. This tag disables\
+  \ collision checking between a specified pair of links. -->\n  <disable_collisions\
+  \ link1=\"panda_hand\" link2=\"panda_leftfinger\" reason=\"Adjacent\"/>\n  <disable_collisions\
+  \ link1=\"panda_hand\" link2=\"panda_rightfinger\" reason=\"Adjacent\"/>\n  <disable_collisions\
+  \ link1=\"panda_leftfinger\" link2=\"panda_rightfinger\" reason=\"Default\"/>\n\
+  \  <!--GROUPS: Representation of a set of joints and links. This can be useful for\
+  \ specifying DOF to plan for, defining arms, end effectors, etc-->\n  <!--LINKS:\
+  \ When a link is specified, the parent joint of that link (if it exists) is automatically\
+  \ included-->\n  <!--JOINTS: When a joint is specified, the child link of that joint\
+  \ (which will always exist) is automatically included-->\n  <!--CHAINS: When a chain\
+  \ is specified, all the links along the chain (including endpoints) are included\
+  \ in the group. Additionally, all the joints that are parents to included links\
+  \ are also included. This means that joints along the chain and the parent joint\
+  \ of the base link are included in the group-->\n  <!--SUBGROUPS: Groups can also\
+  \ be formed by referencing to already defined group names-->\n  <group name=\"panda_arm_hand\"\
+  >\n    <group name=\"panda_arm\"/>\n    <group name=\"hand\"/>\n  </group>\n  <group_state\
+  \ group=\"hand\" name=\"open\">\n    <joint name=\"panda_finger_joint1\" value=\"\
+  0.035\"/>\n    <joint name=\"panda_finger_joint2\" value=\"0.035\"/>\n  </group_state>\n\
+  \  <group_state group=\"hand\" name=\"close\">\n    <joint name=\"panda_finger_joint1\"\
+  \ value=\"0\"/>\n    <joint name=\"panda_finger_joint2\" value=\"0\"/>\n  </group_state>\n\
+  \  <!--END EFFECTOR: Purpose: Represent information about an end effector.-->\n\
+  \  <end_effector group=\"hand\" name=\"hand\" parent_group=\"panda_arm\" parent_link=\"\
+  panda_link8\"/>\n  <!--DISABLE COLLISIONS: By default it is assumed that any link\
+  \ of the robot could potentially come into collision with any other link in the\
+  \ robot. This tag disables collision checking between a specified pair of links.\
+  \ -->\n  <disable_collisions link1=\"panda_hand\" link2=\"panda_link4\" reason=\"\
+  Never\"/>\n  <disable_collisions link1=\"panda_hand\" link2=\"panda_link6\" reason=\"\
+  Never\"/>\n  <disable_collisions link1=\"panda_hand\" link2=\"panda_link7\" reason=\"\
+  Default\"/>\n  <disable_collisions link1=\"panda_hand\" link2=\"panda_link8\" reason=\"\
+  Adjacent\"/>\n  <disable_collisions link1=\"panda_leftfinger\" link2=\"panda_link4\"\
+  \ reason=\"Never\"/>\n  <disable_collisions link1=\"panda_leftfinger\" link2=\"\
+  panda_link6\" reason=\"Never\"/>\n  <disable_collisions link1=\"panda_leftfinger\"\
+  \ link2=\"panda_link7\" reason=\"Never\"/>\n  <disable_collisions link1=\"panda_leftfinger\"\
+  \ link2=\"panda_link8\" reason=\"Never\"/>\n  <disable_collisions link1=\"panda_link4\"\
+  \ link2=\"panda_rightfinger\" reason=\"Never\"/>\n  <disable_collisions link1=\"\
+  panda_link6\" link2=\"panda_rightfinger\" reason=\"Never\"/>\n  <disable_collisions\
+  \ link1=\"panda_link7\" link2=\"panda_rightfinger\" reason=\"Never\"/>\n  <disable_collisions\
+  \ link1=\"panda_link8\" link2=\"panda_rightfinger\" reason=\"Never\"/>\n</robot>\n\
+  \n"
+rosdistro: 'noetic
+
+  '
+roslaunch:
+  uris:
+    host_192_168_0_112__33337: http://192.168.0.112:33337/
+    host_192_168_0_112__33403: http://192.168.0.112:33403/
+    host_192_168_0_112__33997: http://192.168.0.112:33997/
+    host_192_168_0_112__34473: http://192.168.0.112:34473/
+    host_192_168_0_112__35355: http://192.168.0.112:35355/
+    host_192_168_0_112__35425: http://192.168.0.112:35425/
+    host_192_168_0_112__35665: http://192.168.0.112:35665/
+    host_192_168_0_112__35897: http://192.168.0.112:35897/
+    host_192_168_0_112__36433: http://192.168.0.112:36433/
+    host_192_168_0_112__36579: http://192.168.0.112:36579/
+    host_192_168_0_112__36681: http://192.168.0.112:36681/
+    host_192_168_0_112__37319: http://192.168.0.112:37319/
+    host_192_168_0_112__37353: http://192.168.0.112:37353/
+    host_192_168_0_112__37417: http://192.168.0.112:37417/
+    host_192_168_0_112__37563: http://192.168.0.112:37563/
+    host_192_168_0_112__37837: http://192.168.0.112:37837/
+    host_192_168_0_112__38191: http://192.168.0.112:38191/
+    host_192_168_0_112__38649: http://192.168.0.112:38649/
+    host_192_168_0_112__38767: http://192.168.0.112:38767/
+    host_192_168_0_112__38909: http://192.168.0.112:38909/
+    host_192_168_0_112__38927: http://192.168.0.112:38927/
+    host_192_168_0_112__39071: http://192.168.0.112:39071/
+    host_192_168_0_112__39263: http://192.168.0.112:39263/
+    host_192_168_0_112__39487: http://192.168.0.112:39487/
+    host_192_168_0_112__39653: http://192.168.0.112:39653/
+    host_192_168_0_112__40159: http://192.168.0.112:40159/
+    host_192_168_0_112__40507: http://192.168.0.112:40507/
+    host_192_168_0_112__40571: http://192.168.0.112:40571/
+    host_192_168_0_112__40637: http://192.168.0.112:40637/
+    host_192_168_0_112__40991: http://192.168.0.112:40991/
+    host_192_168_0_112__41421: http://192.168.0.112:41421/
+    host_192_168_0_112__41491: http://192.168.0.112:41491/
+    host_192_168_0_112__42297: http://192.168.0.112:42297/
+    host_192_168_0_112__42701: http://192.168.0.112:42701/
+    host_192_168_0_112__42781: http://192.168.0.112:42781/
+    host_192_168_0_112__43149: http://192.168.0.112:43149/
+    host_192_168_0_112__43299: http://192.168.0.112:43299/
+    host_192_168_0_112__43355: http://192.168.0.112:43355/
+    host_192_168_0_112__43543: http://192.168.0.112:43543/
+    host_192_168_0_112__43615: http://192.168.0.112:43615/
+    host_192_168_0_112__43921: http://192.168.0.112:43921/
+    host_192_168_0_112__44283: http://192.168.0.112:44283/
+    host_192_168_0_112__44593: http://192.168.0.112:44593/
+    host_192_168_0_112__45575: http://192.168.0.112:45575/
+    host_192_168_0_112__45897: http://192.168.0.112:45897/
+    host_192_168_0_112__45935: http://192.168.0.112:45935/
+    host_192_168_0_112__46735: http://192.168.0.112:46735/
+    host_192_168_0_115__32807: http://192.168.0.115:32807/
+    host_192_168_0_115__32935: http://192.168.0.115:32935/
+    host_192_168_0_115__32975: http://192.168.0.115:32975/
+    host_192_168_0_115__32999: http://192.168.0.115:32999/
+    host_192_168_0_115__33195: http://192.168.0.115:33195/
+    host_192_168_0_115__33337: http://192.168.0.115:33337/
+    host_192_168_0_115__33395: http://192.168.0.115:33395/
+    host_192_168_0_115__33451: http://192.168.0.115:33451/
+    host_192_168_0_115__33467: http://192.168.0.115:33467/
+    host_192_168_0_115__33873: http://192.168.0.115:33873/
+    host_192_168_0_115__33983: http://192.168.0.115:33983/
+    host_192_168_0_115__34189: http://192.168.0.115:34189/
+    host_192_168_0_115__34341: http://192.168.0.115:34341/
+    host_192_168_0_115__34421: http://192.168.0.115:34421/
+    host_192_168_0_115__34533: http://192.168.0.115:34533/
+    host_192_168_0_115__34643: http://192.168.0.115:34643/
+    host_192_168_0_115__34729: http://192.168.0.115:34729/
+    host_192_168_0_115__34739: http://192.168.0.115:34739/
+    host_192_168_0_115__34911: http://192.168.0.115:34911/
+    host_192_168_0_115__34939: http://192.168.0.115:34939/
+    host_192_168_0_115__35003: http://192.168.0.115:35003/
+    host_192_168_0_115__35169: http://192.168.0.115:35169/
+    host_192_168_0_115__35381: http://192.168.0.115:35381/
+    host_192_168_0_115__35401: http://192.168.0.115:35401/
+    host_192_168_0_115__35427: http://192.168.0.115:35427/
+    host_192_168_0_115__35675: http://192.168.0.115:35675/
+    host_192_168_0_115__35743: http://192.168.0.115:35743/
+    host_192_168_0_115__35921: http://192.168.0.115:35921/
+    host_192_168_0_115__35985: http://192.168.0.115:35985/
+    host_192_168_0_115__36147: http://192.168.0.115:36147/
+    host_192_168_0_115__36163: http://192.168.0.115:36163/
+    host_192_168_0_115__36259: http://192.168.0.115:36259/
+    host_192_168_0_115__36659: http://192.168.0.115:36659/
+    host_192_168_0_115__36833: http://192.168.0.115:36833/
+    host_192_168_0_115__37101: http://192.168.0.115:37101/
+    host_192_168_0_115__37117: http://192.168.0.115:37117/
+    host_192_168_0_115__37595: http://192.168.0.115:37595/
+    host_192_168_0_115__37699: http://192.168.0.115:37699/
+    host_192_168_0_115__37953: http://192.168.0.115:37953/
+    host_192_168_0_115__37985: http://192.168.0.115:37985/
+    host_192_168_0_115__38069: http://192.168.0.115:38069/
+    host_192_168_0_115__38133: http://192.168.0.115:38133/
+    host_192_168_0_115__38277: http://192.168.0.115:38277/
+    host_192_168_0_115__38503: http://192.168.0.115:38503/
+    host_192_168_0_115__38627: http://192.168.0.115:38627/
+    host_192_168_0_115__38641: http://192.168.0.115:38641/
+    host_192_168_0_115__38745: http://192.168.0.115:38745/
+    host_192_168_0_115__38897: http://192.168.0.115:38897/
+    host_192_168_0_115__39039: http://192.168.0.115:39039/
+    host_192_168_0_115__39115: http://192.168.0.115:39115/
+    host_192_168_0_115__39305: http://192.168.0.115:39305/
+    host_192_168_0_115__39447: http://192.168.0.115:39447/
+    host_192_168_0_115__39461: http://192.168.0.115:39461/
+    host_192_168_0_115__39665: http://192.168.0.115:39665/
+    host_192_168_0_115__39673: http://192.168.0.115:39673/
+    host_192_168_0_115__39845: http://192.168.0.115:39845/
+    host_192_168_0_115__39983: http://192.168.0.115:39983/
+    host_192_168_0_115__39993: http://192.168.0.115:39993/
+    host_192_168_0_115__40057: http://192.168.0.115:40057/
+    host_192_168_0_115__40069: http://192.168.0.115:40069/
+    host_192_168_0_115__40335: http://192.168.0.115:40335/
+    host_192_168_0_115__40359: http://192.168.0.115:40359/
+    host_192_168_0_115__40607: http://192.168.0.115:40607/
+    host_192_168_0_115__40623: http://192.168.0.115:40623/
+    host_192_168_0_115__40751: http://192.168.0.115:40751/
+    host_192_168_0_115__40781: http://192.168.0.115:40781/
+    host_192_168_0_115__41133: http://192.168.0.115:41133/
+    host_192_168_0_115__41329: http://192.168.0.115:41329/
+    host_192_168_0_115__41345: http://192.168.0.115:41345/
+    host_192_168_0_115__41369: http://192.168.0.115:41369/
+    host_192_168_0_115__41465: http://192.168.0.115:41465/
+    host_192_168_0_115__41479: http://192.168.0.115:41479/
+    host_192_168_0_115__42037: http://192.168.0.115:42037/
+    host_192_168_0_115__42201: http://192.168.0.115:42201/
+    host_192_168_0_115__42265: http://192.168.0.115:42265/
+    host_192_168_0_115__42377: http://192.168.0.115:42377/
+    host_192_168_0_115__42431: http://192.168.0.115:42431/
+    host_192_168_0_115__42437: http://192.168.0.115:42437/
+    host_192_168_0_115__42679: http://192.168.0.115:42679/
+    host_192_168_0_115__42925: http://192.168.0.115:42925/
+    host_192_168_0_115__42983: http://192.168.0.115:42983/
+    host_192_168_0_115__43303: http://192.168.0.115:43303/
+    host_192_168_0_115__43349: http://192.168.0.115:43349/
+    host_192_168_0_115__43729: http://192.168.0.115:43729/
+    host_192_168_0_115__43739: http://192.168.0.115:43739/
+    host_192_168_0_115__43955: http://192.168.0.115:43955/
+    host_192_168_0_115__44185: http://192.168.0.115:44185/
+    host_192_168_0_115__44465: http://192.168.0.115:44465/
+    host_192_168_0_115__44647: http://192.168.0.115:44647/
+    host_192_168_0_115__45135: http://192.168.0.115:45135/
+    host_192_168_0_115__45373: http://192.168.0.115:45373/
+    host_192_168_0_115__45427: http://192.168.0.115:45427/
+    host_192_168_0_115__45513: http://192.168.0.115:45513/
+    host_192_168_0_115__45863: http://192.168.0.115:45863/
+    host_192_168_0_115__46345: http://192.168.0.115:46345/
+    host_192_168_0_115__46417: http://192.168.0.115:46417/
+    host_192_168_0_115__46795: http://192.168.0.115:46795/
+rosversion: '1.15.13
+
+  '
+run_id: c07b489e-e6a3-11ec-961c-5d848d1b6b32
+rviz:
+  motionplanning_planning_scene_monitor:
+    publish_geometry_updates: true
+    publish_planning_scene: false
+    publish_planning_scene_hz: 4.0
+    publish_state_updates: false
+    publish_transforms_updates: false
+  planning_scene_monitor:
+    publish_geometry_updates: true
+    publish_planning_scene: false
+    publish_planning_scene_hz: 4.0
+    publish_state_updates: false
+    publish_transforms_updates: false
+  planningscene_planning_scene_monitor:
+    publish_geometry_updates: true
+    publish_planning_scene: false
+    publish_planning_scene_hz: 4.0
+    publish_state_updates: false
+    publish_transforms_updates: false
+square_peg: /home/ruppulur/catkin_ws/src/icra_2022_mars/mars_sim/nist_board_gazebo/models/mesh/KET8-1.STL

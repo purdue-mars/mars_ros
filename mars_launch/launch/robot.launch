@@ -1,5 +1,5 @@
 <launch>
-    <arg name="robot_ip" default="192.168.0.144"/>
+    <arg name="robot_ip" default="172.16.0.2"/>
     <arg name="load_gripper" default="true"/>
     <arg name="rviz" default="true"/>
 
@@ -27,5 +27,4 @@
     <machine name="mars-linux-2" address="192.168.0.112" env-loader="~/mars_env.bash" user="ruppulur" default="true"/>
 
     <include file="$(find mars_perception)/launch/detection.launch"/>
-
 </launch>

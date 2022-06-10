@@ -1,0 +1,4 @@
+position_joint_trajectory_controller:
+  constraints:
+    goal_time: 2.0
+    stopped_velocity_tolerance: 0

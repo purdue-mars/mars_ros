@@ -1,6 +1,6 @@
 <launch>
 
-  <arg name="detection_threshold" default="0.8" />
+  <arg name="detection_threshold" default="0.9" />
   <arg name="config" default="$(find detectron2_ros)/config/peg_config.yaml" />
   <arg name="model" default="$(find detectron2_ros)/config/peg_model.pth" />
   <arg name="visualization" default="true" />
@@ -62,7 +62,7 @@
     </node>
   </group>
 
-  <group ns="/d405/camera">
+  <!-- <group ns="/d405/camera">
     <include file="$(find detectron2_ros)/launch/detectron2_ros.launch">
       <arg name="input" value="color/image_raw" />
       <arg name="detection_threshold" value="$(arg detection_threshold)" />
@@ -81,6 +81,6 @@
         <remap from="depth_registered/points" to="$(arg masked_points_topic)"/>
         <param name="queue_size" value="100" />
     </node>
-  </group>
+  </group> -->
 
 </launch>

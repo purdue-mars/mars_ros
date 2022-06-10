@@ -8,6 +8,7 @@ find_package(catkin REQUIRED COMPONENTS
   geometry_msgs
   actionlib
   mars_msgs
+  tf
 )
 
 add_action_files(DIRECTORY action FILES DoVSRigidPickup.action)
@@ -19,6 +20,7 @@ catkin_package(
       actionlib_msgs
       actionlib
       mars_msgs
+      tf
 )
 
 include_directories(

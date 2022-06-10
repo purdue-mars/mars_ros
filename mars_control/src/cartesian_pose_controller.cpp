@@ -111,6 +111,7 @@ namespace mars_control
     test = msg->data.c_str();
   }
 
-  PLUGINLIB_EXPORT_CLASS(mars_control::CartesianPoseController, controller_interface::ControllerBase)
 
 }
+
+PLUGINLIB_EXPORT_CLASS(mars_control::CartesianPoseController, controller_interface::ControllerBase)
