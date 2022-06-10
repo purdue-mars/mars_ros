@@ -31,6 +31,7 @@ class PickNode {
     float grasp_val;
     float gripper_width;
     float max_grip_width;
+    geometry_msgs::Pose grasp_pose;
 
     PickNode() : move_to_act("move_to", true), grip_move_act("/franka_gripper/move", true), grip_stop_act("/franka_gripper/stop", true), grip_home_act("/franka_gripper/homing", true) {
         gelsight_sub = n.subscribe("/grasped",10,  &PickNode::gelsight_cb, this);
@@ -93,7 +94,9 @@ class PickNode {
         goal.target.orientation.y = 0;
         goal.target.orientation.z = 0;
         goal.target.orientation.w = 0;
+        grasp_pose = goal.target;
         move_to_act.sendGoal(goal);
+        move_to_act.waitForResult();
     }
 
     void grasp() {
@@ -113,6 +116,14 @@ class PickNode {
         grip_move_act.cancelAllGoals();
         grip_stop_act.sendGoal(stop_goal);
         ROS_INFO("GRASP COMPLETED!");
+    }
+
+    void go_up() {
+        mars_msgs::MoveToGoal goal;
+        goal.target = grasp_pose;
+        goal.target.position.z += 0.1;
+        move_to_act.sendGoal(goal);
+        move_to_act.waitForResult();
     }
 };
 
@@ -134,7 +145,8 @@ int main(int argc, char** argv) {
     PickNode p;
 
     p.move_to_object();
-    //p.grasp();
+    p.grasp();
+    p.go_up();
 
     ROS_INFO("pick done!"); 
     return 0;

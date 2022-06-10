@@ -32,7 +32,7 @@ void execute(const mars_msgs::MoveToGoalConstPtr &goal, Server *as)
   move_group_interface.setMaxVelocityScalingFactor(0.01);
   move_group_interface.setMaxAccelerationScalingFactor(0.01);
   double fraction = move_group_interface.computeCartesianPath(waypoints,
-                                                              0.01, // eef_step
+                                                              0.001, // eef_step
                                                               0.00,  // jump_threshold
                                                               trajectory);
 
