@@ -19,6 +19,9 @@ class MaskNode:
         self.H = None 
         self.depth_mask = None 
         self.color_mask = None 
+        self.is_detected = False
+
+        self.detect_names = rospy.get_param("~detect_class_names")
 
         mask_topic = rospy.get_param("/mask_topic")
         color_topic = str(rospy.get_param("/color_topic"))
@@ -43,21 +46,29 @@ class MaskNode:
     def detection_cb(self,msg):
         if self.W is not None and self.H is not None:
             mask = np.zeros((self.H,self.W),dtype=np.uint8)
-            for m in msg.masks:
-                cv_mask = np.array(self.br.imgmsg_to_cv2(m))
-                mask = cv2.bitwise_or(mask, cv_mask)
-            self.depth_mask = mask.astype(np.uint16)
-            self.color_mask = np.zeros((self.H,self.W,3),dtype=np.uint8) | np.expand_dims(mask,axis=-1)
+            found = False
+            for i in range(len(msg.masks)):
+                name = msg.class_names[msg.class_ids[i]]
+                if name in self.detect_names:
+                    mask = np.array(self.br.imgmsg_to_cv2(msg.masks[i]))
+                    found = True
+                    break
+            if found:
+                self.is_detected = True
+                self.depth_mask = mask.astype(np.uint16)
+                self.color_mask = np.zeros((self.H,self.W,3),dtype=np.uint8) | np.expand_dims(mask,axis=-1)
+            else:
+                self.is_detected = False
 
     def depth_callback(self,msg):
-        if self.depth_mask is not None:
+        if self.depth_mask is not None and self.is_detected:
             im = np.array(self.br.imgmsg_to_cv2(msg))
             im[self.depth_mask == 0] = 0
             msg.data = self.br.cv2_to_imgmsg(im).data
             self.masked_depth_pub.publish(msg)
 
     def color_callback(self,msg):
-        if self.color_mask is not None:
+        if self.color_mask is not None and self.is_detected:
             im = np.array(self.br.imgmsg_to_cv2(msg,'rgb8'))
             im = cv2.bitwise_and(im,self.color_mask)
             msg.data = self.br.cv2_to_imgmsg(im).data

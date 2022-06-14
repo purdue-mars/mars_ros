@@ -10,7 +10,7 @@
 #include <franka_gripper/HomingAction.h>
 #include <std_msgs/Float32.h>
 
-#define GRAPS_THRES 0.15
+#define GRAPS_THRES 0.7
 
 class PickNode {
 
@@ -35,7 +35,7 @@ class PickNode {
 
     PickNode() : move_to_act("move_to", true), grip_move_act("/franka_gripper/move", true), grip_stop_act("/franka_gripper/stop", true), grip_home_act("/franka_gripper/homing", true) {
         gelsight_sub = n.subscribe("/grasped",10,  &PickNode::gelsight_cb, this);
-        gelsight_sub = n.subscribe("/franka_gripper/joint_states", 10,  &PickNode::gripper_joints_cb, this);
+        gripper_joints_sub = n.subscribe("/franka_gripper/joint_states", 10,  &PickNode::gripper_joints_cb, this);
         client = n.serviceClient<mars_msgs::ICPMeshTF>("icp_mesh_tf");
         client.waitForExistence();
         move_to_act.waitForServer();
@@ -108,6 +108,7 @@ class PickNode {
         grip_move_act.sendGoal(move_goal);
         while(grasp_val < GRAPS_THRES) {
             ros::spinOnce();
+            std::cout << grasp_val << "\n"; 
             if(grip_move_act.getState() != actionlib::SimpleClientGoalState::PENDING && grip_move_act.getState() != actionlib::SimpleClientGoalState::ACTIVE) {
                 ROS_INFO("ACTION CLIENT BREAK");
                 break;

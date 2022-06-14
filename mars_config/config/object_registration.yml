@@ -16,6 +16,8 @@ max_iterations: 20
 ransac_rejection_threshold: 0.05
 
 ## Filters
+
+median_enabled: false
 # voxel filter
 voxel_enabled: false
 leaf_sizes:

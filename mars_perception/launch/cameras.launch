@@ -40,10 +40,6 @@
 
   <node pkg="tf2_ros" type="static_transform_publisher" name="d405_broadcaster" args="0.0419262 -0.0542951 0.0249049  0.6312052481455493 -0.2611933430046631  0.677071864422379 0.2718384236028734 panda_link8 d405_link" />
 
-  <!-- <node name="pc_registration" type="pc_registration" pkg="mars_perception" output="screen" >
-      <rosparam file="$(find mars_config)/config/registration.yml" command="load"  />
-  </node> -->
-
 
   <node pkg="tf2_ros" type="static_transform_publisher" name="d455_0_broad"
     args="0.14920791195950264 -0.24468079160915554 0.2661905924670789 -0.1091336001416634 0.3721667609345948 0.28487836048578946 0.8766010383647533 panda_link0 d455_0_link" />
