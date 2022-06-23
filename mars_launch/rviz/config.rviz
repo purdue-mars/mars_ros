@@ -5,7 +5,11 @@ Panels:
     Property Tree Widget:
       Expanded:
         - /MarkerArray1
+        - /PlanningScene1
+        - /PlanningScene1/Scene Geometry1
         - /PlanningScene1/Scene Robot1
+        - /MotionPlanning1
+        - /MotionPlanning1/Scene Geometry1
         - /Axes1
         - /TF1/Tree1
         - /PointCloud21
@@ -152,7 +156,7 @@ Visualization Manager:
         Scene Alpha: 0.8999999761581421
         Scene Color: 50; 230; 50
         Scene Display Time: 0.20000000298023224
-        Show Scene Geometry: true
+        Show Scene Geometry: false
         Voxel Coloring: Z-Axis
         Voxel Rendering: Occupied Voxels
       Scene Robot:
@@ -361,7 +365,7 @@ Visualization Manager:
         Scene Alpha: 0.8999999761581421
         Scene Color: 50; 230; 50
         Scene Display Time: 0.009999999776482582
-        Show Scene Geometry: true
+        Show Scene Geometry: false
         Voxel Coloring: Z-Axis
         Voxel Rendering: Occupied Voxels
       Scene Robot:
@@ -490,6 +494,8 @@ Visualization Manager:
           Value: false
         d455_1_link:
           Value: true
+        large_round_peg_frame:
+          Value: true
         panda_EE:
           Value: false
         panda_K:
@@ -552,6 +558,8 @@ Visualization Manager:
               d455_1_depth_frame:
                 d455_1_depth_optical_frame:
                   {}
+            large_round_peg_frame:
+              {}
             panda_link1:
               panda_link2:
                 panda_link3:

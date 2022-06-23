@@ -1,6 +1,6 @@
 <launch>
     <arg name="robot_ip" default="172.16.0.2"/>
-    <arg name="load_gripper" default="true"/>
+    <arg name="load_gripper" default="false"/>
     <arg name="rviz" default="true"/>
 
     <rosparam file="$(find mars_config)/config/global.yml" command="load" subst_value="true"/>
@@ -26,5 +26,9 @@
 
     <machine name="mars-linux-2" address="192.168.0.112" env-loader="~/mars_env.bash" user="ruppulur" default="true"/>
 
-    <include file="$(find mars_perception)/launch/detection.launch"/>
+    <!-- <include file="$(find mars_perception)/launch/detection.launch"/> -->
+
+    <!-- <node name="global_pc_registration" type="pc_registration" pkg="mars_perception" output="screen" >
+        <rosparam file="$(find mars_config)/config/global_registration.yml" command="load"  />
+    </node> -->
 </launch>

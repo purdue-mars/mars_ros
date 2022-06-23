@@ -70,6 +70,8 @@ class PickNode {
 
         tf::StampedTransform transform;
 
+        ros::Duration(3.0).sleep();
+
         try {
             tf_listener.lookupTransform(base_frame, mesh_name + "_frame", ros::Time(0), transform);
         }
@@ -77,7 +79,6 @@ class PickNode {
             ROS_ERROR("%s",ex.what());
             ros::Duration(1.0).sleep();
         }
-        ros::Duration(5.0).sleep();
         // Move to object
         ROS_INFO("Waiting for action server to start.");
         // wait for the action server to start
