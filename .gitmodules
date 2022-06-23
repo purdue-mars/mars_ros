@@ -10,3 +10,6 @@
 [submodule "third_party/detectron2_ros"]
 	path = third_party/detectron2_ros
 	url = https://github.com/raghavauppuluri13/detectron2_ros
+[submodule "third_party/BundleTrack"]
+	path = third_party/BundleTrack
+	url = https://github.com/raghavauppuluri13/BundleTrack

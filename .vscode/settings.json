@@ -4,5 +4,11 @@
         "*.tcc": "cpp",
         "unordered_map": "cpp",
         "unordered_set": "cpp"
-    }
+    },
+    "python.analysis.extraPaths": [
+        "/opt/ros/noetic/lib/python3/dist-packages",
+        "/home/raghava/catkin_ws/devel/lib/python3/dist-packages",
+        "./mars_perception/src",
+        "./mars_perception/src"
+    ]
 }

@@ -1,6 +1,8 @@
 *.pth
 *.bag
-data/*
+*data*
+*out*
+*output*
 .vscode/*
 !.vscode/settings.json
 !.vscode/tasks.json
