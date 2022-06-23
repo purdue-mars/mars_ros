@@ -1,8 +1,8 @@
 <launch>
 
-  <arg name="detection_threshold" default="0.9" />
-  <arg name="config" default="$(find detectron2_ros)/config/peg_config.yaml" />
-  <arg name="model" default="$(find detectron2_ros)/config/peg_hole_model_1.pth" />
+  <arg name="detection_threshold" default="0.8" />
+  <arg name="config" default="$(find mars_config)/config/detection/peg_config.yaml" />
+  <arg name="model" default="$(find mars_config)/config/detection/cable_peg_hole.pth" />
   <arg name="visualization" default="true" />
 
   <arg name="d455_1_en" default="true"/>
@@ -14,16 +14,20 @@
   <arg name="masked_depth_topic" default="aligned_depth_to_color/masked_image"/>
   <arg name="masked_points_topic" default="aligned_depth_to_color/color/masked_points"/>
   <arg name="detect_class_names" default="[connector]"/>
-  <arg name="detection_camera_ns" default="[]"/>
+  <arg name="detection_camera_ns" default="[d405,d455_0,d455_1]"/>
 
   <include file="$(find detectron2_ros)/launch/detectron2_ros.launch">
-    <arg name="input" value="color/image_raw" />
     <arg name="detection_threshold" value="$(arg detection_threshold)" />
     <arg name="config" value="$(arg config)" />
     <arg name="model" value="$(arg model)" />
-    <rosparam param="camera_ns" subst_value="True">$(arg detection_camera_ns)</rosparam> 
     <arg name="visualization" value="$(arg visualization)" />
+
+    <arg name="detection_camera_ns" value="$(arg detection_camera_ns)"/>
   </include>
+
+  <!-- <node pkg="mars_perception" name="detect_mask" type="detect_mask_node" output="screen">
+        <rosparam param="detect_class_names" subst_value="True">$(arg detect_class_names)</rosparam> 
+  </node> -->
 
   <node name="pc_registration" type="pc_registration" pkg="mars_perception" output="screen" >
       <rosparam file="$(find mars_config)/config/object_registration.yml" command="load"  />
@@ -35,9 +39,6 @@
   </node>
 
   <group ns="/d455_0/camera" if="$(arg d455_0_en)">
-    <node pkg="mars_perception" name="detect_mask" type="detect_mask_node" output="screen">
-         <rosparam param="detect_class_names" subst_value="True">$(arg detect_class_names)</rosparam> 
-    </node>
     <node pkg="nodelet" type="nodelet" args="manager" name="d455_0_detect_nodelet" output="screen"/>
     <node pkg="nodelet" type="nodelet" name="d455_0_depth_proc_nodelet"
             args="load depth_image_proc/point_cloud_xyzrgb d455_0_detect_nodelet --no-bond">
@@ -50,10 +51,6 @@
   </group>
 
   <group ns="/d455_1/camera" if="$(arg d455_1_en)">
-    <node pkg="mars_perception" name="detect_mask" type="detect_mask_node" output="screen">
-         <rosparam param="detect_class_names" subst_value="True">$(arg detect_class_names)</rosparam> 
-    </node>
-
     <node pkg="nodelet" type="nodelet" args="manager" name="d455_1_detect_nodelet" output="screen"/>
     <node pkg="nodelet" type="nodelet" name="d455_1_depth_proc_nodelet"
             args="load depth_image_proc/point_cloud_xyzrgb d455_1_detect_nodelet">
@@ -66,10 +63,6 @@
   </group>
 
   <group ns="/d405/camera" if="$(arg d405_en)">
-    <node pkg="mars_perception" name="detect_mask" type="detect_mask_node" output="screen">
-         <rosparam param="detect_class_names" subst_value="True">$(arg detect_class_names)</rosparam> 
-    </node>
-
     <node pkg="nodelet" type="nodelet" args="manager" name="d405_detect_nodelet" output="screen"/>
     <node pkg="nodelet" type="nodelet" name="d405_depth_proc_nodelet"
             args="load depth_image_proc/point_cloud_xyzrgb d405_detect_nodelet">
