@@ -10,7 +10,7 @@ int main(int argc, char** argv) {
     client.waitForExistence();
 
     mars_msgs::ICPMeshTF srv;
-    std::vector<std::string> mesh_names({"large_round_peg"});
+    std::vector<std::string> mesh_names({"cable_male"});
 
     for(int i = 0; i < mesh_names.size(); i++) {
         srv.request.mesh_name = mesh_names[i];
