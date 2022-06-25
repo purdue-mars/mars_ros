@@ -8,7 +8,7 @@
 #include <string>
 #include <Eigen/Dense>
 #include <controller_interface/controller_base.h>
-#include <franka_hw/franka_velocity_command_interface.h>
+#include <hardware_interface/joint_command_interface.h>
 #include <hardware_interface/hardware_interface.h>
 #include <pluginlib/class_list_macros.h>
 #include <ros/ros.h>
@@ -19,10 +19,10 @@ namespace mars_control
 {
 
   bool CableFollower::init(hardware_interface::RobotHW *robot_hardware,
-                                     ros::NodeHandle &node_handle)
+                           ros::NodeHandle &node_handle)
   {
-    cartesian_velocity_interface_ = robot_hardware->get<franka_hw::FrankaVelocityCartesianInterface>();
-    if (cartesian_velocity_interface_ == nullptr)
+    cartesian_velocity_interface = robot_hardware->get<franka_hw::FrankaVelocityCartesianInterface>();
+    if (cartesian_velocity_interface == nullptr)
     {
       ROS_ERROR(
           "CableFollower: Could not get Cartesian Velocity "
@@ -30,23 +30,14 @@ namespace mars_control
       return false;
     }
 
-    if (!node_handle.getParam("is_debug", is_debug_))
+    if (!node_handle.getParam("fixed_pose/x", fixed_pos(0)) ||
+        !node_handle.getParam("fixed_pose/y", fixed_pos(1)) ||
+        !node_handle.getParam("fixed_pose/z", fixed_pos(2)) ||
+        !node_handle.getParam("fixed_pose/qx", fixed_quat.x()) ||
+        !node_handle.getParam("fixed_pose/qy", fixed_quat.y()) ||
+        !node_handle.getParam("fixed_pose/qz", fixed_quat.z()) ||
+        !node_handle.getParam("fixed_pose/qw", fixed_quat.w()))
     {
-      ROS_ERROR("CableFollower: Could not get parameter is_debug");
-      return false;
-    }
-
-    if (is_debug_) {
-      debug_pub_ = n.advertise<mars_msgs::CableFollowingDebug>("cable_following_debug", 10);
-    }
-
-    if (!node_handle.getParam("fixed_pose/x", fixed_pos_(0)) ||
-        !node_handle.getParam("fixed_pose/y", fixed_pos_(1)) ||
-        !node_handle.getParam("fixed_pose/z", fixed_pos_(2)) ||
-        !node_handle.getParam("fixed_pose/qx", fixed_quat_(0)) ||
-        !node_handle.getParam("fixed_pose/qy", fixed_quat_(1)) ||
-        !node_handle.getParam("fixed_pose/qz", fixed_quat_(2)) ||
-        !node_handle.getParam("fixed_pose/qw", fixed_quat_(3))) {
       ROS_ERROR("CableFollower: Could not get parameter fixed_pose");
       return false;
     }
@@ -60,8 +51,8 @@ namespace mars_control
 
     try
     {
-      cartesian_velocity_handle_ = std::make_unique<franka_hw::FrankaCartesianVelocityHandle>(
-          cartesian_velocity_interface_->getHandle(arm_id + "_robot"));
+      cartesian_velocity_handle = std::make_unique<franka_hw::FrankaCartesianVelocityHandle>(
+          cartesian_velocity_interface->getHandle(arm_id + "_robot"));
     }
     catch (const hardware_interface::HardwareInterfaceException &e)
     {
@@ -108,29 +99,28 @@ namespace mars_control
 
   void CableFollower::starting(const ros::Time & /* time */)
   {
-      elapsed_time_ = ros::Duration(0.0);
+    elapsed_time = ros::Duration(0.0);
   }
 
   void CableFollower::update(const ros::Time & /* time */,
                              const ros::Duration &period)
   {
-    elapsed_time_ += period;
+    elapsed_time += period;
 
     // Get current EE pose
-    std::array<double, 16> m = cartesian_pose_handle_->getRobotState().O_T_EE_d;
+    std::array<double, 16> m = cartesian_velocity_handle->getRobotState().O_T_EE_d;
     Eigen::Vector3d pos(m[12], m[13], m[14]);
-    Eigen::Quaterniond quat(0.0, 0.0, 0.0, 1.0);
-    quat(0) = sqrt(1.0 + m[0] + m[5] + m[10]) / 2.0;
-    quat(1) = (m[6] - m[9]) / (quat(0) * 4.0);
-    quat(2) = (m[8] - m[2]) / (quat(0) * 4.0);
-    quat(3) = (m[1] - m[4]) / (quat(0) * 4.0);
+    double w = sqrt(1.0 + m[0] + m[5] + m[10]) / 2.0;
+    Eigen::Quaterniond quat(w, (m[6] - m[9]) / (w * 4.0),
+                            (m[8] - m[2]) / (w * 4.0),
+                            (m[1] - m[4]) / (w * 4.0));
 
     // Find pose wrt fixed frame
-    pos -= fixed_pos_;
+    pos -= fixed_pos;
     quat *= fixed_quat.inverse();
 
     // Get cable pose from GelSight
-    double y = cable_pos_(1) +  pos(1);
+    double y = cable_pos(1) + pos(1);
     double theta = 0.0;
 
     // Calculate model state (y, theta, alpha)
@@ -143,52 +133,25 @@ namespace mars_control
 
     // Calculate velocity command from phi
     double target_dir = phi + alpha;
-    target_dir = max(-3.14159265 / 3.0, min(target_dir, 3.14159265 / 3.0));
+    target_dir = fmax(-3.14159265 / 3.0, fmin(target_dir, 3.14159265 / 3.0));
     double vnorm = 0.025;
     std::array<double, 6>
-        cmd = {{vnorm * cos(target_dir), vnrom * sin(target_dir), 0.0, 0.0, 0.0, 0.0}};
+        cmd = {{vnorm * cos(target_dir), vnorm * sin(target_dir), 0.0, 0.0, 0.0, 0.0}};
 
     // Publish velocity to Franka
-    velocity_cartesian_handle_->setCommand(cmd);
-
-    if (is_debug_) {
-      // Create pose msg
-      geometry_msgs::Pose pose_msg;
-      pose_msg.position.x = pos(0);
-      pose_msg.position.y = pos(1);
-      pose_msg.position.z = pos(2);
-
-      pose_msg.orientation.w = quat(0);
-      pose_msg.orientation.x = quat(1);
-      pose_msg.orientation.y = quat(2);
-      pose_msg.orientation.z = quat(3);
-
-      // Publish debug message
-      mars_msgs::CableFollowingDebug msg;
-      msg.ee_pose = pose_msg;
-      msg.cable_y = y;
-      msg.cable_theta = theta;
-      msg.cable_alpha = alpha;
-      msg.output_phi = phi;
-      msg.output_v = vnorm;
-      debug_pub_.publish(msg);
-    }
-  }
-
-  void CableFollower::stopping(const ros::Time&) {
-    // DO NOT PUBLISH ZERO VELOCITIES
+    cartesian_velocity_handle->setCommand(cmd);
   }
 
   void CableFollower::gelsightCallback(const geometry_msgs::PoseStamped::ConstPtr &msg)
   {
-    cable_pos_(0) = msg.pose.position.x;
-    cable_pos_(1) = msg.pose.position.y;
-    cable_pos_(2) = msg.pose.position.z;
+    cable_pos(0) = msg->pose.position.x;
+    cable_pos(1) = msg->pose.position.y;
+    cable_pos(2) = msg->pose.position.z;
 
-    cable_quat_(0) = msg.pose.orientation.x;
-    cable_quat_(1) = msg.pose.orientation.y;
-    cable_quat_(2) = msg.pose.orientation.z;
-    cable_quat_(3) = msg.pose.orientation.w;
+    cable_quat.w() = msg->pose.orientation.w;
+    cable_quat.x() = msg->pose.orientation.x;
+    cable_quat.y() = msg->pose.orientation.y;
+    cable_quat.z() = msg->pose.orientation.z;
   }
 }
 
