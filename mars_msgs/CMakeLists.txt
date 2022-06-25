@@ -20,6 +20,12 @@ add_service_files(
   ICPMeshTF.srv
 )
 
+add_message_files(
+  DIRECTORY msg
+  FILES
+  CableFollowingDebug.msg
+)
+
 add_action_files(DIRECTORY action FILES MoveTo.action)
 generate_messages(DEPENDENCIES geometry_msgs actionlib_msgs)
 
