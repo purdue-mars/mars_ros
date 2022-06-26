@@ -81,7 +81,6 @@ target_link_libraries(${PROJECT_NAME}_planning_server
 include_directories(include ${catkin_INCLUDE_DIRS})
 
 add_library(${PROJECT_NAME}
-  src/cartesian_pose_controller.cpp
   src/cable_follower.cpp
   src/cable_data_collector.cpp
 )

@@ -9,8 +9,9 @@
 #include <controller_interface/multi_interface_controller.h>
 #include <franka_hw/franka_state_interface.h>
 #include <hardware_interface/robot_hw.h>
+#include <mars_msgs/CableFollowingData.h>
 #include <realtime_tools/realtime_buffer.h>
-#include <realtime_tools/realtime_publihser.h>
+#include <realtime_tools/realtime_publisher.h>
 #include <ros/node_handle.h>
 #include <ros/time.h>
 #include <geometry_msgs/Pose.h>
@@ -42,7 +43,7 @@ namespace mars_control
 
         // Subscribers / Publishers
         ros::Subscriber gelsight_sub_;
-        realtime_tools::RealtimePublisher data_pub_;
+        // realtime_tools::RealtimePublisher<mars_msgs::CableFollowingData> data_pub_;
 
         // Gelsight data
         struct GelsightUpdate

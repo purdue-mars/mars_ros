@@ -132,7 +132,7 @@ namespace mars_control
       return false;
     }
 
-    data_pub_ = new RealtimePublisher<mars_msgs::CableFollowingData>(node_handle, "cable_data_output", 10);
+    // data_pub_ = new realtime_tools::RealtimePublisher<mars_msgs::CableFollowingData>(node_handle, "cable_data_output", 10);
     gelsight_sub_ = node_handle.subscribe("/contact", 1, &CableDataCollector::gelsightCallback, this);
 
     return true;
@@ -184,21 +184,21 @@ namespace mars_control
     cartesian_velocity_handle_->setCommand(cmd);
 
     // Create pose msg
-    if (data_pub_->trylock()) {
-      data_pub_->msg_.ee_pose.position.x = pos(0);
-      data_pub_->msg_.ee_pose.position.y = pos(1);
-      data_pub_->msg_.ee_pose.position.z = pos(2);
-      data_pub_->msg_.ee_pose.orientation.x = quat.x();
-      data_pub_->msg_.ee_pose.orientation.y = quat.y();
-      data_pub_->msg_.ee_pose.orientation.z = quat.z();
-      data_pub_->msg_.ee_pose.orientation.w = quat.w();
-      data_pub_->msg_.cable_y = cable_y;
-      data_pub_->msg_.cable_theta = theta;
-      data_pub_->msg_.cable_alpha = alpha;
-      data_pub_->msg_.output_phi = phi;
-      data_pub_->msg_.output_v = v_norm;
-      data_pub_->unlockAndPublish();
-    }
+    // if (data_pub_->trylock()) {
+    //   data_pub_->msg_.ee_pose.position.x = pos(0);
+    //   data_pub_->msg_.ee_pose.position.y = pos(1);
+    //   data_pub_->msg_.ee_pose.position.z = pos(2);
+    //   data_pub_->msg_.ee_pose.orientation.x = quat.x();
+    //   data_pub_->msg_.ee_pose.orientation.y = quat.y();
+    //   data_pub_->msg_.ee_pose.orientation.z = quat.z();
+    //   data_pub_->msg_.ee_pose.orientation.w = quat.w();
+    //   data_pub_->msg_.cable_y = cable_y;
+    //   data_pub_->msg_.cable_theta = theta;
+    //   data_pub_->msg_.cable_alpha = alpha;
+    //   data_pub_->msg_.output_phi = phi;
+    //   data_pub_->msg_.output_v = v_norm;
+    //   data_pub_->unlockAndPublish();
+    // }
   }
 
   void CableDataCollector::gelsightCallback(const geometry_msgs::PoseStamped &msg)

@@ -1,9 +1,4 @@
 <library path="lib/libmars_control">
-  <class name="mars_control/CartesianPoseController" type="mars_control::CartesianPoseController" base_class_type="controller_interface::ControllerBase">
-    <description>
-        Cartesian pose controller MARS
-      </description>
-  </class>
   <class name="mars_control/CableFollower" type="mars_control::CableFollower" base_class_type="controller_interface::ControllerBase">
     <description>
         Cable follower MARS

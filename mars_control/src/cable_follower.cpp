@@ -10,7 +10,7 @@
 #include <hardware_interface/hardware_interface.h>
 #include <pluginlib/class_list_macros.h>
 #include <ros/ros.h>
-#include <mars_msgs/CableFollowingDebug.h>
+#include <mars_msgs/CableFollowingData.h>
 #include <geometry_msgs/Pose.h>
 
 namespace mars_control
