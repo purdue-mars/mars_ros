@@ -1,4 +1,4 @@
-geometry_msgs/Pose target
+geometry_msgs/Pose[] targets
 ---
 bool was_success
 ---

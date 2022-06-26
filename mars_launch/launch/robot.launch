@@ -28,8 +28,17 @@
         <rosparam file="$(find mars_config)/config/global_registration.yml" command="load"  />
     </node>
 
+    <node name="pc_registration" type="pc_registration" pkg="mars_perception" output="screen" >
+        <rosparam file="$(find mars_config)/config/object_registration.yml" command="load"  />
+    </node>
+
+    <node name="icp_server" type="icp_server" pkg="mars_perception" output="screen" >
+        <rosparam file="$(find mars_config)/config/object_registration.yml" command="load"  />
+        <param name="max_iterations" value="100" />
+    </node>
+
     <machine name="mars-linux-2" address="192.168.0.112" env-loader="~/mars_env.bash" user="ruppulur" default="true"/>
 
-    <!-- <include file="$(find mars_perception)/launch/detection.launch"/> -->
+    <include file="$(find mars_perception)/launch/detection.launch"/>
 
 </launch>

@@ -13,7 +13,10 @@
   <arg name="masked_color_topic" default="color/masked_image"/>
   <arg name="masked_depth_topic" default="aligned_depth_to_color/masked_image"/>
   <arg name="masked_points_topic" default="aligned_depth_to_color/color/masked_points"/>
-  <arg name="detect_class_names" default="[connector_male]"/>
+
+  <arg name="class_names" default="[n/a, cable_male, cable_female]"/>
+  <arg name="detect_class_names" default="[cable_male]"/>
+
   <arg name="detection_camera_ns" default="[d455_0]"/>
 
   <include file="$(find detectron2_ros)/launch/detectron2_ros.launch">
@@ -22,6 +25,7 @@
     <arg name="model" value="$(arg model)" />
     <arg name="visualization" value="$(arg visualization)" />
 
+    <rosparam param="class_names" subst_value="True">$(arg class_names)</rosparam> 
     <arg name="detection_camera_ns" value="$(arg detection_camera_ns)"/>
   </include>
 

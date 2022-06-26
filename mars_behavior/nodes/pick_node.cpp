@@ -87,15 +87,16 @@ class PickNode {
         ROS_INFO("Action server started, sending goal.");
         // send a goal to the action
         mars_msgs::MoveToGoal goal;
-
-        goal.target.position.x = transform.getOrigin().x(); 
-        goal.target.position.y = transform.getOrigin().y(); 
-        goal.target.position.z = transform.getOrigin().z() + 0.094 + 0.081; 
-        goal.target.orientation.x = 1;
-        goal.target.orientation.y = 0;
-        goal.target.orientation.z = 0;
-        goal.target.orientation.w = 0;
-        grasp_pose = goal.target;
+        geometry_msgs::PoseStamped pose;
+        pose.pose.position.x = transform.getOrigin().x(); 
+        pose.pose.position.y = transform.getOrigin().y(); 
+        pose.pose.position.z = transform.getOrigin().z() + 0.094 + 0.081; 
+        pose.pose.orientation.x = 1;
+        pose.pose.orientation.y = 0;
+        pose.pose.orientation.z = 0;
+        pose.pose.orientation.w = 0;
+        goal.targets.push_back(pose.pose);
+        grasp_pose = pose.pose;
         move_to_act.sendGoal(goal);
         move_to_act.waitForResult();
     }
@@ -121,8 +122,8 @@ class PickNode {
 
     void go_up() {
         mars_msgs::MoveToGoal goal;
-        goal.target = grasp_pose;
-        goal.target.position.z += 0.1;
+        pose.pose = grasp_pose;
+        pose.pose.position.z += 0.1;
         move_to_act.sendGoal(goal);
         move_to_act.waitForResult();
     }
