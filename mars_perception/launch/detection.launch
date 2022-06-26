@@ -2,7 +2,7 @@
 
   <arg name="detection_threshold" default="0.8" />
   <arg name="config" default="$(find mars_config)/config/detection/peg_config.yaml" />
-  <arg name="model" default="$(find mars_config)/config/detection/cable_peg_hole_v3.pth" />
+  <arg name="model" default="$(find mars_config)/config/detection/cable_peg_hole.pth" />
   <arg name="visualization" default="true" />
 
   <arg name="d455_1_en" default="true"/>
@@ -24,13 +24,12 @@
     <arg name="config" value="$(arg config)" />
     <arg name="model" value="$(arg model)" />
     <arg name="visualization" value="$(arg visualization)" />
-
-    <rosparam param="class_names" subst_value="True">$(arg class_names)</rosparam> 
+    <arg name="class_names" value="$(arg class_names)" />
     <arg name="detection_camera_ns" value="$(arg detection_camera_ns)"/>
   </include>
 
+  <rosparam param="/detect_class_names" subst_value="True">$(arg detect_class_names)</rosparam> 
   <node pkg="mars_perception" name="detect_mask" type="detect_mask_node" output="screen">
-      <rosparam param="detect_class_names" subst_value="True">$(arg detect_class_names)</rosparam> 
       <rosparam param="camera_ns" subst_value="True">$(arg detection_camera_ns)</rosparam> 
   </node>
 

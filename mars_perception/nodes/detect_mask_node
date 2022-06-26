@@ -16,7 +16,7 @@ from message_filters import Subscriber, ApproximateTimeSynchronizer
 class MaskNode:
     def __init__(self):
 
-        self.detect_names = rospy.get_param("~detect_class_names",["peg"])
+        self.detect_names = rospy.get_param("~detect_class_names")
 
         mask_topic = rospy.get_param("/mask_topic")
         color_topic = str(rospy.get_param("/color_topic"))
