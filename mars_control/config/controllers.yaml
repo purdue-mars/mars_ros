@@ -17,8 +17,10 @@ cable_follower:
 cable_data_collector:
   type: mars_control/CableDataCollector
   arm_id: panda
-  p_gain: 0.05
-  fixed_pose:
+  start_pose: cable_following
+
+  p_gain: 0.15
+  cable_origin:
     x: 0.3078172245144579
     y: 0.00028015919795
     z: 0.5862457772948647

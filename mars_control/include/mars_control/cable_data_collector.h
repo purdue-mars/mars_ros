@@ -36,8 +36,8 @@ namespace mars_control
 
         // Controller configuration
         double p_gain_;
-        Eigen::Vector3d fixed_pos_;
-        Eigen::Quaterniond fixed_quat_;
+        Eigen::Vector3d cable_origin_pos_;
+        Eigen::Quaterniond cable_origin_quat_;
 
         // Subscribers / Publishers
         ros::Subscriber gelsight_sub_;

@@ -30,13 +30,13 @@ namespace mars_control
       return false;
     }
 
-    if (!node_handle.getParam("fixed_pose/x", fixed_pos(0)) ||
-        !node_handle.getParam("fixed_pose/y", fixed_pos(1)) ||
-        !node_handle.getParam("fixed_pose/z", fixed_pos(2)) ||
-        !node_handle.getParam("fixed_pose/qx", fixed_quat.x()) ||
-        !node_handle.getParam("fixed_pose/qy", fixed_quat.y()) ||
-        !node_handle.getParam("fixed_pose/qz", fixed_quat.z()) ||
-        !node_handle.getParam("fixed_pose/qw", fixed_quat.w()))
+    if (!node_handle.getParam("cable_origin/x", fixed_pos(0)) ||
+        !node_handle.getParam("cable_origin/y", fixed_pos(1)) ||
+        !node_handle.getParam("cable_origin/z", fixed_pos(2)) ||
+        !node_handle.getParam("cable_origin/qx", fixed_quat.x()) ||
+        !node_handle.getParam("cable_origin/qy", fixed_quat.y()) ||
+        !node_handle.getParam("cable_origin/qz", fixed_quat.z()) ||
+        !node_handle.getParam("cable_origin/qw", fixed_quat.w()))
     {
       ROS_ERROR("CableFollower: Could not get parameter fixed_pose");
       return false;

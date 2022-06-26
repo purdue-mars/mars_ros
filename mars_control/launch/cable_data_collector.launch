@@ -6,6 +6,10 @@
     <arg name="robot_ip" value="$(arg robot_ip)" />
     <arg name="load_gripper" value="$(arg load_gripper)" />
   </include>
+
+  <group ns="cable_data_collector">
+    <rosparam command="load" file="$(find mars_control)/config/move_to.yaml" />
+  </group>
   <rosparam command="load" file="$(find mars_control)/config/controllers.yaml" />
   <node name="controller_spawner" pkg="controller_manager" type="spawner" respawn="false" output="screen" args="cable_data_collector" />
   <node pkg="rviz" type="rviz" output="screen" name="rviz" args="-d $(find franka_example_controllers)/launch/robot.rviz" />

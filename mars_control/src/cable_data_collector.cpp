@@ -35,13 +35,13 @@ namespace mars_control
       return false;
     }
 
-    if (!node_handle.getParam("fixed_pose/x", fixed_pos_(0)) ||
-        !node_handle.getParam("fixed_pose/y", fixed_pos_(1)) ||
-        !node_handle.getParam("fixed_pose/z", fixed_pos_(2)) ||
-        !node_handle.getParam("fixed_pose/qx", fixed_quat_.x()) ||
-        !node_handle.getParam("fixed_pose/qy", fixed_quat_.y()) ||
-        !node_handle.getParam("fixed_pose/qz", fixed_quat_.z()) ||
-        !node_handle.getParam("fixed_pose/qw", fixed_quat_.w()))
+    if (!node_handle.getParam("cable_origin/x", cable_origin_pos_(0)) ||
+        !node_handle.getParam("cable_origin/y", cable_origin_pos_(1)) ||
+        !node_handle.getParam("cable_origin/z", cable_origin_pos_(2)) ||
+        !node_handle.getParam("cable_origin/qx", cable_origin_quat_.x()) ||
+        !node_handle.getParam("cable_origin/qy", cable_origin_quat_.y()) ||
+        !node_handle.getParam("cable_origin/qz", cable_origin_quat_.z()) ||
+        !node_handle.getParam("cable_origin/qw", cable_origin_quat_.w()))
     {
       ROS_ERROR("CableDataCollector: Could not get parameter fixed_pose");
       return false;
@@ -57,6 +57,26 @@ namespace mars_control
     if (!node_handle.getParam("p_gain", p_gain_))
     {
       ROS_ERROR("CableDataCollector: Could not get parameter p_gain");
+      return false;
+    }
+
+    std::string start_pose_name;
+    if (!node_handle.getParam("start_pose", start_pose_name))
+    {
+      ROS_WARN_STREAM("CableDataCollection: Starting pose name not set");
+      start_pose_name = "start";
+    }
+
+    double x, y, z, qx, qy, qz, qw;
+    if (!node_handle.getParam(start_pose_name + "/position/x", x) ||
+        !node_handle.getParam(start_pose_name + "/position/y", y) ||
+        !node_handle.getParam(start_pose_name + "/position/z", z) ||
+        !node_handle.getParam(start_pose_name + "/orientation/x", qx) ||
+        !node_handle.getParam(start_pose_name + "/orientation/y", qy) ||
+        !node_handle.getParam(start_pose_name + "/orientation/z", qz) ||
+        !node_handle.getParam(start_pose_name + "/orientation/w", qw))
+    {
+      ROS_ERROR_STREAM("CableDataCollection: Could not get start pose information for " << start_pose_name);
       return false;
     }
 
@@ -83,15 +103,35 @@ namespace mars_control
     {
       auto state_handle = state_interface->getHandle(arm_id + "_robot");
 
-      std::array<double, 7> q_start{{0, -M_PI_4, 0, -3 * M_PI_4, 0, M_PI_2, M_PI_4}};
-      for (size_t i = 0; i < q_start.size(); i++)
+      std::array<double, 16> ee_start{{
+          1 - 2 * (qy * qy + qz * qz),
+          2 * (qx * qy + qz * qw),
+          2 * (qz * qx - qw * qy),
+          0.0,
+          2 * (qx * qy - qw * qz),
+          1 - 2 * (qx * qx + qz * qz),
+          2 * (qy * qz + qw * qx),
+          0.0,
+          2 * (qx * qz + qw * qy),
+          2 * (qy * qz - qw * qx),
+          1 - 2 * (qx * qx + qy * qy),
+          0.0,
+          x,
+          y,
+          z,
+          1.0,
+      }};
+      for (size_t i = 0; i < ee_start.size(); i++)
       {
-        if (std::abs(state_handle.getRobotState().q_d[i] - q_start[i]) > 0.1)
+        if (std::abs(state_handle.getRobotState().O_T_EE[i] - ee_start[i]) > 0.1)
         {
+          ROS_INFO_STREAM(ee_start[i]);
+          ROS_INFO_STREAM(i);
           ROS_ERROR_STREAM(
               "CableDataCollector: Robot is not in the expected starting position for "
-              "running this example. Run `roslaunch franka_example_controllers move_to_start.launch "
-              "robot_ip:=<robot-ip> load_gripper:=<has-attached-gripper>` first.");
+              << start_pose_name << ". Run `roslaunch mars_control move_to.launch "
+                                    "robot_ip:=<robot-ip> pose_name:="
+              << start_pose_name << "` first.");
           return false;
         }
       }
@@ -125,8 +165,8 @@ namespace mars_control
                             (m[1] - m[4]) / (w * 4.0));
 
     // Find pose wrt fixed frame
-    pos -= fixed_pos_;
-    quat *= fixed_quat_.inverse();
+    pos -= cable_origin_pos_;
+    quat *= cable_origin_quat_.inverse();
 
     // Get cable pose from GelSight
     GelsightUpdate gelsight_update = *(gelsight_update_.readFromRT());
@@ -142,13 +182,13 @@ namespace mars_control
     double phi = -K.dot(x);
 
     // Calculate velocity command from phi
-    double y_vel = p_gain_ * gelsight_update.cable_pos(1);
+    double y_vel = -p_gain_ * gelsight_update.cable_pos(1);
     y_vel = fmin(0.05, fmax(-0.05, y_vel));
     ROS_INFO_STREAM("CableDataCollector: cmd " << y_vel << " y " << gelsight_update.cable_pos(1));
     std::array<double, 6>
         cmd = {0.0,
-               0.0,
                y_vel,
+               0.0,
                0.0,
                0.0,
                0.0};
