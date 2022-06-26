@@ -2,7 +2,7 @@
 
   <arg name="detection_threshold" default="0.8" />
   <arg name="config" default="$(find mars_config)/config/detection/peg_config.yaml" />
-  <arg name="model" default="$(find mars_config)/config/detection/cable_peg_hole.pth" />
+  <arg name="model" default="$(find mars_config)/config/detection/cable_peg.pth" />
   <arg name="visualization" default="true" />
 
   <arg name="d455_1_en" default="true"/>

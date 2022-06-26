@@ -41,8 +41,7 @@ class CableInsertionNode:
         self.grasped = msg.data
         pass
 
-    def get_tf(self,frame):
-        base_frame = rospy.get_param("/base_frame")
+    def get_tf(self,frame,base_frame=rospy.get_param("/base_frame")):
         try:
             (trans,rot) = self.tf_listener.lookupTransform(base_frame, frame, rospy.Time(0))
         except (tf.LookupException, tf.ConnectivityException, tf.ExtrapolationException):
@@ -88,7 +87,7 @@ class CableInsertionNode:
         self.move.send_goal(goal)
         self.move.wait_for_result()
 
-        pose = self.get_tf('panda_hand')
+        pose = self.get_tf('panda_hand','cable_male')
         print(pose)
 
     def cable_insert():
