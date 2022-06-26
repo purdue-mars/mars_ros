@@ -24,6 +24,8 @@ class CableInsertionNode:
         self.stop = actionlib.SimpleActionClient('/franka_gripper/stop', StopAction)
 
         self.gelsight_sub = rospy.Subscriber('/grasped',10,self.gelsight_cb)
+        self.finger_offset = 0.094 + 0.081
+        self.grasp_height_offset = 0.2
 
         self.icp = rospy.ServiceProxy('icp_mesh_tf',ICPMeshTF) 
         self.tf_listener = tf.TransformListener()
@@ -57,13 +59,14 @@ class CableInsertionNode:
         return pose
 
     def get_object_pose(self, mesh_name):
+        rospy.set_param('detect_class_names',)
         resp = self.icp(mesh_name)
         rospy.sleep(3.0)
         pose = self.get_tf(mesh_name + '_frame')
         return pose
     
     def to_finger_frame(self,pose):
-        pose.pose.position.z += 0.094 + 0.081
+        pose.pose.position.z += self.finger_offset 
 
     def cable_pick(self):
         # Get pose of object
@@ -73,16 +76,16 @@ class CableInsertionNode:
         cable_male_pose = self.get_object_pose('cable_male')
         self.to_finger_frame(cable_male_pose)
         goal.target = cable_male_pose
-        goal.target.pose.position.z += 0.20
+        goal.target.pose.position.z += self.grasp_height_offset 
         self.grasp_pose = goal.target 
-        self.move.send_goal(goal);
-        self.move.wait_for_result();
+        self.move.send_goal(goal)
+        self.move.wait_for_result()
 
         pose = self.get_tf('')
         goal.target = cable_male_pose
         self.grasp_pose = goal.target 
-        self.move.send_goal(goal);
-        self.move.wait_for_result();
+        self.move.send_goal(goal)
+        self.move.wait_for_result()
 
     def cable_insert():
         pass

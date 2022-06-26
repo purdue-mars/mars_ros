@@ -39,6 +39,6 @@
 
     <machine name="mars-linux-2" address="192.168.0.112" env-loader="~/mars_env.bash" user="ruppulur" default="true"/>
 
-    <!-- <include file="$(find mars_perception)/launch/detection.launch"/> -->
+    <include file="$(find mars_perception)/launch/detection.launch"/>
 
 </launch>
