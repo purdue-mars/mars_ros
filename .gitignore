@@ -3,6 +3,7 @@
 *data*
 *out*
 *output*
+cable_insertion-*
 .vscode/*
 !.vscode/settings.json
 !.vscode/tasks.json
