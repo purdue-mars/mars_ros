@@ -1,5 +1,3 @@
-// Copyright (c) 2017 Franka Emika GmbH
-// Use of this source code is governed by the Apache-2.0 license, see LICENSE
 #include <mars_control/cable_data_collector.h>
 
 #include <cmath>
@@ -11,9 +9,19 @@
 #include <hardware_interface/joint_command_interface.h>
 #include <hardware_interface/hardware_interface.h>
 #include <pluginlib/class_list_macros.h>
+#include <realtime_tools/realtime_publisher.h>
 #include <ros/ros.h>
-#include <mars_msgs/CableFollowingDebug.h>
+#include <mars_msgs/CableFollowingData.h>
 #include <geometry_msgs/Pose.h>
+
+std::array<double, 16> poseToTransform(Eigen::Vector3d pos, Eigen::Quaterniond quat) {
+  Eigen::Matrix3d rot = quat.toRotationMatrix();
+
+  return {rot(0, 0), rot(0, 1), rot(0, 2), 0.0,
+          rot(1, 0), rot(1, 1), rot(1, 2), 0.0,
+          rot(2, 0), rot(2, 1), rot(2, 2), 0.0,
+          pos(0), pos(1), pos(2), 1.0};
+}
 
 namespace mars_control
 {
@@ -67,14 +75,15 @@ namespace mars_control
       start_pose_name = "start";
     }
 
-    double x, y, z, qx, qy, qz, qw;
-    if (!node_handle.getParam(start_pose_name + "/position/x", x) ||
-        !node_handle.getParam(start_pose_name + "/position/y", y) ||
-        !node_handle.getParam(start_pose_name + "/position/z", z) ||
-        !node_handle.getParam(start_pose_name + "/orientation/x", qx) ||
-        !node_handle.getParam(start_pose_name + "/orientation/y", qy) ||
-        !node_handle.getParam(start_pose_name + "/orientation/z", qz) ||
-        !node_handle.getParam(start_pose_name + "/orientation/w", qw))
+    Eigen::Vector3d start_pos(0.0, 0.0, 0.0);
+    Eigen::Quaterniond start_quat(1.0, 0.0, 0.0, 0.0);
+    if (!node_handle.getParam(start_pose_name + "/position/x", start_pos(0)) ||
+        !node_handle.getParam(start_pose_name + "/position/y", start_pos(1)) ||
+        !node_handle.getParam(start_pose_name + "/position/z", start_pos(2)) ||
+        !node_handle.getParam(start_pose_name + "/orientation/x", start_quat.x()) ||
+        !node_handle.getParam(start_pose_name + "/orientation/y", start_quat.y()) ||
+        !node_handle.getParam(start_pose_name + "/orientation/z", start_quat.z()) ||
+        !node_handle.getParam(start_pose_name + "/orientation/w", start_quat.w()))
     {
       ROS_ERROR_STREAM("CableDataCollection: Could not get start pose information for " << start_pose_name);
       return false;
@@ -102,31 +111,11 @@ namespace mars_control
     try
     {
       auto state_handle = state_interface->getHandle(arm_id + "_robot");
-
-      std::array<double, 16> ee_start{{
-          1 - 2 * (qy * qy + qz * qz),
-          2 * (qx * qy + qz * qw),
-          2 * (qz * qx - qw * qy),
-          0.0,
-          2 * (qx * qy - qw * qz),
-          1 - 2 * (qx * qx + qz * qz),
-          2 * (qy * qz + qw * qx),
-          0.0,
-          2 * (qx * qz + qw * qy),
-          2 * (qy * qz - qw * qx),
-          1 - 2 * (qx * qx + qy * qy),
-          0.0,
-          x,
-          y,
-          z,
-          1.0,
-      }};
-      for (size_t i = 0; i < ee_start.size(); i++)
+      auto start_transform = poseToTransform(start_pos, start_quat);
+      for (size_t i = 0; i < start_transform.size(); i++)
       {
-        if (std::abs(state_handle.getRobotState().O_T_EE[i] - ee_start[i]) > 0.1)
+        if (std::abs(state_handle.getRobotState().O_T_EE[i] - start_transform[i]) > 0.1)
         {
-          ROS_INFO_STREAM(ee_start[i]);
-          ROS_INFO_STREAM(i);
           ROS_ERROR_STREAM(
               "CableDataCollector: Robot is not in the expected starting position for "
               << start_pose_name << ". Run `roslaunch mars_control move_to.launch "
@@ -143,15 +132,13 @@ namespace mars_control
       return false;
     }
 
-    data_pub_ = node_handle.advertise<mars_msgs::CableFollowingDebug>("cable_data_output", 10);
+    data_pub_ = new RealtimePublisher<mars_msgs::CableFollowingData>(node_handle, "cable_data_output", 10);
     gelsight_sub_ = node_handle.subscribe("/contact", 1, &CableDataCollector::gelsightCallback, this);
 
     return true;
   }
 
-  void CableDataCollector::starting(const ros::Time & /* time */)
-  {
-  }
+  void CableDataCollector::starting(const ros::Time & /* time */) {}
 
   void CableDataCollector::update(const ros::Time & /* time */,
                                   const ros::Duration &period)
@@ -170,52 +157,48 @@ namespace mars_control
 
     // Get cable pose from GelSight
     GelsightUpdate gelsight_update = *(gelsight_update_.readFromRT());
-    double y = gelsight_update.cable_pos(1) + pos(1);
-    double theta = 0.0;
+    double cable_x = gelsight_update.cable_pos(1) + pos(0);
+    double cable_y = gelsight_update.cable_pos(1) + pos(1);
 
-    // Calculate model state (y, theta, alpha)
-    double alpha = 0.0; // Use x, y and y_global
-    Eigen::Vector3d x(y, theta, alpha);
+    Eigen::Vector3d euler = quat.toRotationMatrix().eulerAngles(0, 1, 2);
+    double theta = euler[2];
 
-    // Calculate phi from K
-    Eigen::Vector3d K(-900.28427003, -9.54405588, 13.36354662);
-    double phi = -K.dot(x);
+    // Calculate model state
+    double alpha = atan2(cable_y, cable_x);
+    Eigen::Vector3d state(cable_y, theta, alpha);
 
     // Calculate velocity command from phi
+    double v_norm = 0.01;
     double y_vel = -p_gain_ * gelsight_update.cable_pos(1);
     y_vel = fmin(0.05, fmax(-0.05, y_vel));
-    ROS_INFO_STREAM("CableDataCollector: cmd " << y_vel << " y " << gelsight_update.cable_pos(1));
     std::array<double, 6>
-        cmd = {0.0,
+        cmd = {v_norm,
                y_vel,
                0.0,
                0.0,
                0.0,
                0.0};
+    double phi = atan2(y_vel, v_norm)-alpha;
 
     // Publish velocity to Franka
     cartesian_velocity_handle_->setCommand(cmd);
 
     // Create pose msg
-    geometry_msgs::Pose pose_msg;
-    pose_msg.position.x = pos(0);
-    pose_msg.position.y = pos(1);
-    pose_msg.position.z = pos(2);
-
-    pose_msg.orientation.w = quat.w();
-    pose_msg.orientation.x = quat.x();
-    pose_msg.orientation.y = quat.y();
-    pose_msg.orientation.z = quat.z();
-
-    // Publish debug message
-    mars_msgs::CableFollowingDebug msg;
-    msg.ee_pose = pose_msg;
-    msg.cable_y = y;
-    msg.cable_theta = theta;
-    msg.cable_alpha = alpha;
-    msg.output_phi = phi;
-    msg.output_v = 0.0;
-    data_pub_.publish(msg);
+    if (data_pub_->trylock()) {
+      data_pub_->msg_.ee_pose.position.x = pos(0);
+      data_pub_->msg_.ee_pose.position.y = pos(1);
+      data_pub_->msg_.ee_pose.position.z = pos(2);
+      data_pub_->msg_.ee_pose.orientation.x = quat.x();
+      data_pub_->msg_.ee_pose.orientation.y = quat.y();
+      data_pub_->msg_.ee_pose.orientation.z = quat.z();
+      data_pub_->msg_.ee_pose.orientation.w = quat.w();
+      data_pub_->msg_.cable_y = cable_y;
+      data_pub_->msg_.cable_theta = theta;
+      data_pub_->msg_.cable_alpha = alpha;
+      data_pub_->msg_.output_phi = phi;
+      data_pub_->msg_.output_v = v_norm;
+      data_pub_->unlockAndPublish();
+    }
   }
 
   void CableDataCollector::gelsightCallback(const geometry_msgs::PoseStamped &msg)

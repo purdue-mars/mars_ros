@@ -12,6 +12,7 @@
 #include <hardware_interface/hardware_interface.h>
 #include <pluginlib/class_list_macros.h>
 #include <ros/ros.h>
+#include <mars_msgs/CableFollowingDebug.msg>
 
 namespace mars_control
 {
@@ -26,6 +27,16 @@ namespace mars_control
           "CartesianPoseController: Could not get Cartesian Pose "
           "interface from hardware");
       return false;
+    }
+
+    if (!node_handle.getParam("is_debug", is_debug_))
+    {
+      ROS_ERROR("CartesianPoseController: Could not get parameter is_debug");
+      return false;
+    }  
+
+    if (is_debug_) {
+      debug_pub_ = n.advertise<mars_msgs::CableFollowingDebug>("cable_following_debug", 10);
     }
 
     std::string arm_id;

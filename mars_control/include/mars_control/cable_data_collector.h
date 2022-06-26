@@ -10,6 +10,7 @@
 #include <franka_hw/franka_state_interface.h>
 #include <hardware_interface/robot_hw.h>
 #include <realtime_tools/realtime_buffer.h>
+#include <realtime_tools/realtime_publihser.h>
 #include <ros/node_handle.h>
 #include <ros/time.h>
 #include <geometry_msgs/Pose.h>
@@ -41,7 +42,7 @@ namespace mars_control
 
         // Subscribers / Publishers
         ros::Subscriber gelsight_sub_;
-        ros::Publisher data_pub_;
+        realtime_tools::RealtimePublisher data_pub_;
 
         // Gelsight data
         struct GelsightUpdate

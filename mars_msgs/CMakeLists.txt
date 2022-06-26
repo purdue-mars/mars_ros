@@ -23,7 +23,7 @@ add_service_files(
 add_message_files(
   DIRECTORY msg
   FILES
-  CableFollowingDebug.msg
+  CableFollowingData.msg
 )
 
 add_action_files(DIRECTORY action FILES MoveTo.action)
