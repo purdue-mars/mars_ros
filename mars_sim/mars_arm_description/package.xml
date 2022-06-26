@@ -12,9 +12,6 @@
   <build_depend>franka_description</build_depend>
   <build_export_depend>franka_description</build_export_depend>
   <exec_depend>franka_description</exec_depend>
-  <build_depend>wsg_50_simulation</build_depend>
-  <build_export_depend>wsg_50_simulation</build_export_depend>
-  <exec_depend>wsg_50_simulation</exec_depend>
 
   <export>
   </export>

@@ -1,0 +1,86 @@
+<launch>
+
+  <arg name="detection_threshold" default="0.9" />
+  <arg name="config" default="$(find detectron2_ros)/config/peg_config.yaml" />
+  <arg name="model" default="$(find detectron2_ros)/config/peg_model.pth" />
+  <arg name="visualization" default="true" />
+
+  <arg name="masked_info_topic" default="color/camera_info"/>
+  <arg name="masked_color_topic" default="color/masked_image"/>
+  <arg name="masked_depth_topic" default="aligned_depth_to_color/masked_image"/>
+  <arg name="masked_points_topic" default="aligned_depth_to_color/color/masked_points"/>
+
+
+  <node name="pc_registration" type="pc_registration" pkg="mars_perception" output="screen" >
+      <rosparam file="$(find mars_config)/config/object_registration.yml" command="load"  />
+  </node>
+
+  <node name="icp_server" type="icp_server" pkg="mars_perception" output="screen" >
+      <rosparam file="$(find mars_config)/config/object_registration.yml" command="load"  />
+      <param name="max_iterations" value="100" />
+  </node>
+
+  <group ns="/d455_0/camera">
+    <include file="$(find detectron2_ros)/launch/detectron2_ros.launch">
+      <arg name="input" value="color/image_raw" />
+      <arg name="detection_threshold" value="$(arg detection_threshold)" />
+      <arg name="config" value="$(arg config)" />
+      <arg name="model" value="$(arg model)" />
+      <arg name="visualization" value="$(arg visualization)" />
+    </include>
+    <node pkg="mars_perception" name="detect_mask" type="detect_mask_node" output="screen"/>
+
+    <node pkg="nodelet" type="nodelet" args="manager" name="d455_0_detect_nodelet" output="screen"/>
+    <node pkg="nodelet" type="nodelet" name="d455_0_depth_proc_nodelet"
+            args="load depth_image_proc/point_cloud_xyzrgb d455_0_detect_nodelet --no-bond">
+        <remap from="rgb/camera_info" to="$(arg masked_info_topic)"/>
+        <remap from="rgb/image_rect_color" to="$(arg masked_color_topic)"/>
+        <remap from="depth_registered/image_rect" to="$(arg masked_depth_topic)"/>
+        <remap from="depth_registered/points" to="$(arg masked_points_topic)"/>
+        <param name="queue_size" value="100" />
+    </node>
+  </group>
+
+  <group ns="/d455_1/camera">
+    <include file="$(find detectron2_ros)/launch/detectron2_ros.launch">
+      <arg name="input" value="color/image_raw" />
+      <arg name="detection_threshold" value="$(arg detection_threshold)" />
+      <arg name="config" value="$(arg config)" />
+      <arg name="model" value="$(arg model)" />
+      <arg name="visualization" value="$(arg visualization)" />
+    </include>
+    <node pkg="mars_perception" name="detect_mask" type="detect_mask_node" output="screen"/>
+
+    <node pkg="nodelet" type="nodelet" args="manager" name="d455_1_detect_nodelet" output="screen"/>
+    <node pkg="nodelet" type="nodelet" name="d455_1_depth_proc_nodelet"
+            args="load depth_image_proc/point_cloud_xyzrgb d455_1_detect_nodelet">
+        <remap from="rgb/camera_info" to="$(arg masked_info_topic)"/>
+        <remap from="rgb/image_rect_color" to="$(arg masked_color_topic)"/>
+        <remap from="depth_registered/image_rect" to="$(arg masked_depth_topic)"/>
+        <remap from="depth_registered/points" to="$(arg masked_points_topic)"/>
+        <param name="queue_size" value="100" />
+    </node>
+  </group>
+
+  <!-- <group ns="/d405/camera">
+    <include file="$(find detectron2_ros)/launch/detectron2_ros.launch">
+      <arg name="input" value="color/image_raw" />
+      <arg name="detection_threshold" value="$(arg detection_threshold)" />
+      <arg name="config" value="$(arg config)" />
+      <arg name="model" value="$(arg model)" />
+      <arg name="visualization" value="$(arg visualization)" />
+    </include>
+    <node pkg="mars_perception" name="detect_mask" type="detect_mask_node" output="screen"/>
+
+    <node pkg="nodelet" type="nodelet" args="manager" name="d405_detect_nodelet" output="screen"/>
+    <node pkg="nodelet" type="nodelet" name="d405_depth_proc_nodelet"
+            args="load depth_image_proc/point_cloud_xyzrgb d405_detect_nodelet">
+        <remap from="rgb/camera_info" to="$(arg masked_info_topic)"/>
+        <remap from="rgb/image_rect_color" to="$(arg masked_color_topic)"/>
+        <remap from="depth_registered/image_rect" to="$(arg masked_depth_topic)"/>
+        <remap from="depth_registered/points" to="$(arg masked_points_topic)"/>
+        <param name="queue_size" value="100" />
+    </node>
+  </group> -->
+
+</launch>

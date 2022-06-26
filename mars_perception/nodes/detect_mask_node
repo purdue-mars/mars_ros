@@ -1,0 +1,83 @@
+#!/usr/bin/env python3
+import rospy
+import numpy as np
+import pcl
+from sensor_msgs.msg import PointCloud2,Image, CameraInfo
+import sensor_msgs.point_cloud2 as pc2
+import ros_numpy
+import cv2
+
+from cv_bridge import CvBridge, CvBridgeError
+
+from detectron2_ros.msg import Result
+
+
+class MaskNode:
+    def __init__(self):
+        self.br = CvBridge()
+        self.W = None
+        self.H = None 
+        self.depth_mask = None 
+        self.color_mask = None 
+        self.is_detected = False
+
+        self.detect_names = rospy.get_param("~detect_class_names")
+
+        mask_topic = rospy.get_param("/mask_topic")
+        color_topic = str(rospy.get_param("/color_topic"))
+        color_info_topic = color_topic.split('/')[0] + '/' + 'camera_info' 
+        depth_topic = rospy.get_param("/depth_topic")
+        masked_out_topic = rospy.get_param("/masked_out_topic")
+
+        masked_depth_topic = depth_topic.split('/')[0] + '/' + masked_out_topic 
+        masked_color_topic = color_topic.split('/')[0] + '/' + masked_out_topic 
+        self.color_info = rospy.Subscriber(color_info_topic, CameraInfo, self.color_info_cb, queue_size=10)
+        self.detect_sub = rospy.Subscriber(mask_topic, Result, self.detection_cb, queue_size=10)
+        self.depth_sub = rospy.Subscriber(depth_topic, Image, self.depth_callback, queue_size=10)
+        self.color_sub = rospy.Subscriber(color_topic, Image, self.color_callback, queue_size=10)
+
+        self.masked_color_pub = rospy.Publisher(masked_color_topic, Image, queue_size=10)
+        self.masked_depth_pub = rospy.Publisher(masked_depth_topic, Image, queue_size=10)
+
+    def color_info_cb(self,msg : CameraInfo):
+        self.W = msg.width
+        self.H = msg.height
+
+    def detection_cb(self,msg):
+        if self.W is not None and self.H is not None:
+            mask = np.zeros((self.H,self.W),dtype=np.uint8)
+            found = False
+            for i in range(len(msg.masks)):
+                name = msg.class_names[msg.class_ids[i]]
+                if name in self.detect_names:
+                    mask = np.array(self.br.imgmsg_to_cv2(msg.masks[i]))
+                    found = True
+                    break
+            if found:
+                self.is_detected = True
+                self.depth_mask = mask.astype(np.uint16)
+                self.color_mask = np.zeros((self.H,self.W,3),dtype=np.uint8) | np.expand_dims(mask,axis=-1)
+            else:
+                self.is_detected = False
+
+    def depth_callback(self,msg):
+        if self.depth_mask is not None and self.is_detected:
+            im = np.array(self.br.imgmsg_to_cv2(msg))
+            im[self.depth_mask == 0] = 0
+            msg.data = self.br.cv2_to_imgmsg(im).data
+            self.masked_depth_pub.publish(msg)
+
+    def color_callback(self,msg):
+        if self.color_mask is not None and self.is_detected:
+            im = np.array(self.br.imgmsg_to_cv2(msg,'rgb8'))
+            im = cv2.bitwise_and(im,self.color_mask)
+            msg.data = self.br.cv2_to_imgmsg(im).data
+            self.masked_color_pub.publish(msg)
+
+
+if __name__ == '__main__':
+    rospy.init_node('detect_mask_node')
+
+    mask = MaskNode()
+
+    rospy.spin()

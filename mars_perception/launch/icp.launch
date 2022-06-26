@@ -1,0 +1,7 @@
+<launch>
+    <rosparam file="$(find mars_config)/config/mesh.yml" command="load" subst_value="true"/>
+    <node name="icp_server" type="icp_server" pkg="mars_perception" output="screen" >
+        <rosparam file="$(find mars_config)/config/icp.yml" command="load"  />
+    </node>
+    <node name="icp_client" type="icp_client" pkg="mars_perception" output="screen" />
+</launch>

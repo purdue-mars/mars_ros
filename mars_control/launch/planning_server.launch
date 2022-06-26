@@ -1,0 +1,4 @@
+<?xml version="1.0"?>
+<launch>
+  <node pkg="mars_control" name="panda_planning_server" type="planning_server" />
+</launch>
