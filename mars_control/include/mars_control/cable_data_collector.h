@@ -43,7 +43,7 @@ namespace mars_control
 
         // Subscribers / Publishers
         ros::Subscriber gelsight_sub_;
-        // realtime_tools::RealtimePublisher<mars_msgs::CableFollowingData> data_pub_;
+        realtime_tools::RealtimePublisher<mars_msgs::CableFollowingData> *data_pub_;
 
         // Gelsight data
         struct GelsightUpdate
