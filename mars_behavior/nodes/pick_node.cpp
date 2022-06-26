@@ -54,7 +54,7 @@ class PickNode {
     bool move_to_object() {
         // Get pose of object
         mars_msgs::ICPMeshTF srv;
-        std::string mesh_name = "large_round_peg";
+        std::string mesh_name = "cable_male";
         geometry_msgs::PoseStamped p;
 
         std::string base_frame;

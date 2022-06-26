@@ -24,47 +24,48 @@ void ICP::scene_pc_cb_(const PointCloudMsg::ConstPtr &msg)
 
 void ICP::set_mesh_(std::string mesh_name)
 {
-    assert(ros::param::has(mesh_name));
-    std::string mesh_path;
-    nh_.getParam(mesh_name, mesh_path);
-    std::cout << "Mesh: " << mesh_path << "\n";
-    pcl::PolygonMesh mesh;
-    pcl::io::loadPolygonFileSTL(mesh_path, mesh);
-    polygon_mesh_to_pc(&mesh, mesh_pc_);
+    if(ros::param::has(mesh_name)) {
+        std::string mesh_path;
+        nh_.getParam(mesh_name, mesh_path);
+        std::cout << "Mesh: " << mesh_path << "\n";
+        pcl::PolygonMesh mesh;
+        pcl::io::loadPolygonFileSTL(mesh_path, mesh);
+        polygon_mesh_to_pc(&mesh, mesh_pc_);
 
-    for (int i = 0; i < mesh_pc_->points.size(); i++)
-    {
-        mesh_pc_->points[i].x /= 1000;
-        mesh_pc_->points[i].y /= 1000;
-        mesh_pc_->points[i].z /= 1000;
+        for (int i = 0; i < mesh_pc_->points.size(); i++)
+        {
+            mesh_pc_->points[i].x /= 1000;
+            mesh_pc_->points[i].y /= 1000;
+            mesh_pc_->points[i].z /= 1000;
+        }
+
+        float centroid_x = 0.0;
+        float centroid_y = 0.0;
+        float centroid_z = 0.0;
+
+        for (int i = 0; i < mesh_pc_->points.size(); i++)
+        {
+        centroid_x += mesh_pc_->points[i].x;
+        centroid_y += mesh_pc_->points[i].y;
+        centroid_z += mesh_pc_->points[i].z;
+        }
+
+        centroid_x /= mesh_pc_->points.size();
+        centroid_y /= mesh_pc_->points.size();
+        centroid_z /= mesh_pc_->points.size();
+
+        std::cout << centroid_x << " " << centroid_y << " " << centroid_z << "\n";
+
+        for (int i = 0; i < mesh_pc_->points.size(); i++)
+        {
+            mesh_pc_->points[i].x -= centroid_x;
+            mesh_pc_->points[i].y -= centroid_y;
+            mesh_pc_->points[i].z -= centroid_z;
+        }
+
+
+        std::cout << "mesh_frame: " << mesh_pc_->header.frame_id << "\n";
     }
-
-    float centroid_x = 0.0;
-    float centroid_y = 0.0;
-    float centroid_z = 0.0;
-
-    for (int i = 0; i < mesh_pc_->points.size(); i++)
-    {
-       centroid_x += mesh_pc_->points[i].x;
-       centroid_y += mesh_pc_->points[i].y;
-       centroid_z += mesh_pc_->points[i].z;
-    }
-
-    centroid_x /= mesh_pc_->points.size();
-    centroid_y /= mesh_pc_->points.size();
-    centroid_z /= mesh_pc_->points.size();
-
-    std::cout << centroid_x << " " << centroid_y << " " << centroid_z << "\n";
-
-    for (int i = 0; i < mesh_pc_->points.size(); i++)
-    {
-        mesh_pc_->points[i].x -= centroid_x;
-        mesh_pc_->points[i].y -= centroid_y;
-        mesh_pc_->points[i].z -= centroid_z;
-    }
-
-
-    std::cout << "mesh_frame: " << mesh_pc_->header.frame_id << "\n";
 }
 
 void ICP::run() {
