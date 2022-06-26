@@ -10,16 +10,11 @@ import cv2
 from cv_bridge import CvBridge, CvBridgeError
 
 from detectron2_ros.msg import Result
+from message_filters import Subscriber, ApproximateTimeSynchronizer
 
 
 class MaskNode:
     def __init__(self):
-        self.br = CvBridge()
-        self.W = None
-        self.H = None 
-        self.depth_mask = None 
-        self.color_mask = None 
-        self.is_detected = False
 
         self.detect_names = rospy.get_param("~detect_class_names")
 
@@ -29,50 +24,75 @@ class MaskNode:
         depth_topic = rospy.get_param("/depth_topic")
         masked_out_topic = rospy.get_param("/masked_out_topic")
 
+        self.camera_ns = list(rospy.get_param('~camera_ns'))
         masked_depth_topic = depth_topic.split('/')[0] + '/' + masked_out_topic 
         masked_color_topic = color_topic.split('/')[0] + '/' + masked_out_topic 
-        self.color_info = rospy.Subscriber(color_info_topic, CameraInfo, self.color_info_cb, queue_size=10)
-        self.detect_sub = rospy.Subscriber(mask_topic, Result, self.detection_cb, queue_size=10)
-        self.depth_sub = rospy.Subscriber(depth_topic, Image, self.depth_callback, queue_size=10)
-        self.color_sub = rospy.Subscriber(color_topic, Image, self.color_callback, queue_size=10)
 
-        self.masked_color_pub = rospy.Publisher(masked_color_topic, Image, queue_size=10)
-        self.masked_depth_pub = rospy.Publisher(masked_depth_topic, Image, queue_size=10)
+        self.color_info_subs = [Subscriber(f'/{cam}/camera/{color_info_topic}', CameraInfo) for cam in self.camera_ns]
+        self.ats_color_info = ApproximateTimeSynchronizer(self.color_info_subs,queue_size=10,slop=0.1)
+        self.ats_color_info.registerCallback(self.color_info_cb);
 
-    def color_info_cb(self,msg : CameraInfo):
-        self.W = msg.width
-        self.H = msg.height
+        self.detect_subs = [Subscriber(f'/{cam}/{mask_topic}', Result) for cam in self.camera_ns]
+        self.ats_detect = ApproximateTimeSynchronizer(self.detect_subs,queue_size=10,slop=0.1)
+        self.ats_detect.registerCallback(self.detection_cb);
 
-    def detection_cb(self,msg):
-        if self.W is not None and self.H is not None:
-            mask = np.zeros((self.H,self.W),dtype=np.uint8)
-            found = False
-            for i in range(len(msg.masks)):
-                name = msg.class_names[msg.class_ids[i]]
-                if name in self.detect_names:
-                    mask = np.array(self.br.imgmsg_to_cv2(msg.masks[i]))
-                    found = True
-                    break
-            if found:
-                self.is_detected = True
-                self.depth_mask = mask.astype(np.uint16)
-                self.color_mask = np.zeros((self.H,self.W,3),dtype=np.uint8) | np.expand_dims(mask,axis=-1)
-            else:
-                self.is_detected = False
+        self.depth_subs = [Subscriber(f'/{cam}/camera/{depth_topic}', Image) for cam in self.camera_ns]
+        self.ats_depth = ApproximateTimeSynchronizer(self.depth_subs,queue_size=10,slop=0.1)
+        self.ats_depth.registerCallback(self.depth_callback);
 
-    def depth_callback(self,msg):
-        if self.depth_mask is not None and self.is_detected:
-            im = np.array(self.br.imgmsg_to_cv2(msg))
-            im[self.depth_mask == 0] = 0
-            msg.data = self.br.cv2_to_imgmsg(im).data
-            self.masked_depth_pub.publish(msg)
+        self.color_subs = [Subscriber(f'/{cam}/camera/{color_topic}', Image) for cam in self.camera_ns]
+        self.ats_color = ApproximateTimeSynchronizer(self.color_subs,queue_size=10,slop=0.1)
+        self.ats_color.registerCallback(self.color_callback);
 
-    def color_callback(self,msg):
-        if self.color_mask is not None and self.is_detected:
-            im = np.array(self.br.imgmsg_to_cv2(msg,'rgb8'))
-            im = cv2.bitwise_and(im,self.color_mask)
-            msg.data = self.br.cv2_to_imgmsg(im).data
-            self.masked_color_pub.publish(msg)
+        self.masked_color_pubs = [rospy.Publisher(f'/{cam}/camera/{masked_color_topic}', Image, queue_size=10) for cam in self.camera_ns]
+        self.masked_depth_pubs = [rospy.Publisher(f'/{cam}/camera/{masked_depth_topic}', Image, queue_size=10) for cam in self.camera_ns]
+
+        self.br = CvBridge()
+        self.widths = [None] * len(self.camera_ns)
+        self.heights = [None] * len(self.camera_ns) 
+        self.depth_masks = [None] * len(self.camera_ns)
+        self.color_masks = [None] * len(self.camera_ns) 
+        self.is_detected = [False] * len(self.camera_ns) 
+
+    def color_info_cb(self, *msgs : list):
+        for i in range(len(self.camera_ns)):
+            self.widths[i] = msgs[i].width
+            self.heights[i] = msgs[i].height
+
+    def detection_cb(self,*msgs):
+        self.detect_names = rospy.get_param_cached("/detect_class_names",["connector_male","connector_female"])
+        for i in range(len(self.camera_ns)):
+            if self.widths[i] is not None and self.heights[i] is not None:
+                mask = np.zeros((self.heights[i],self.widths[i]),dtype=np.uint8)
+                found = False
+                for j in range(len(msgs[i].masks)):
+                    name = msgs[i].class_names[j]
+                    
+                    if name in self.detect_names:
+                        mask = cv2.bitwise_or(mask,np.array(self.br.imgmsg_to_cv2(msgs[i].masks[j])))
+                        found = True
+                if found:
+                    self.is_detected[i] = True
+                    self.depth_masks[i] = mask.astype(np.uint16)
+                    self.color_masks[i] = np.zeros((self.heights[i],self.widths[i],3),dtype=np.uint8) | np.expand_dims(mask,axis=-1)
+                else:
+                    self.is_detected[i] = False
+
+    def depth_callback(self,*msgs):
+        for i in range(len(self.camera_ns)):
+            if self.depth_masks[i] is not None and self.is_detected[i]:
+                im = np.array(self.br.imgmsg_to_cv2(msgs[i]))
+                im[self.depth_masks[i] == 0] = 0
+                msgs[i].data = self.br.cv2_to_imgmsg(im).data
+                self.masked_depth_pubs[i].publish(msgs[i])
+
+    def color_callback(self,*msgs):
+        for i in range(len(self.camera_ns)):
+            if self.color_masks[i] is not None and self.is_detected[i]:
+                im = np.array(self.br.imgmsg_to_cv2(msgs[i],'rgb8'))
+                im = cv2.bitwise_and(im,self.color_masks[i])
+                msgs[i].data = self.br.cv2_to_imgmsg(im).data
+                self.masked_color_pubs[i].publish(msgs[i])
 
 
 if __name__ == '__main__':

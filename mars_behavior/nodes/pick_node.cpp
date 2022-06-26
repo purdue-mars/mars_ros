@@ -54,7 +54,7 @@ class PickNode {
     bool move_to_object() {
         // Get pose of object
         mars_msgs::ICPMeshTF srv;
-        std::string mesh_name = "large_round_peg";
+        std::string mesh_name = "cable_male";
         geometry_msgs::PoseStamped p;
 
         std::string base_frame;
@@ -70,6 +70,8 @@ class PickNode {
 
         tf::StampedTransform transform;
 
+        ros::Duration(3.0).sleep();
+
         try {
             tf_listener.lookupTransform(base_frame, mesh_name + "_frame", ros::Time(0), transform);
         }
@@ -77,7 +79,6 @@ class PickNode {
             ROS_ERROR("%s",ex.what());
             ros::Duration(1.0).sleep();
         }
-        ros::Duration(5.0).sleep();
         // Move to object
         ROS_INFO("Waiting for action server to start.");
         // wait for the action server to start
@@ -86,15 +87,16 @@ class PickNode {
         ROS_INFO("Action server started, sending goal.");
         // send a goal to the action
         mars_msgs::MoveToGoal goal;
-
-        goal.target.position.x = transform.getOrigin().x(); 
-        goal.target.position.y = transform.getOrigin().y(); 
-        goal.target.position.z = transform.getOrigin().z() + 0.094 + 0.081; 
-        goal.target.orientation.x = 1;
-        goal.target.orientation.y = 0;
-        goal.target.orientation.z = 0;
-        goal.target.orientation.w = 0;
-        grasp_pose = goal.target;
+        geometry_msgs::PoseStamped pose;
+        pose.pose.position.x = transform.getOrigin().x(); 
+        pose.pose.position.y = transform.getOrigin().y(); 
+        pose.pose.position.z = transform.getOrigin().z() + 0.094 + 0.081; 
+        pose.pose.orientation.x = 1;
+        pose.pose.orientation.y = 0;
+        pose.pose.orientation.z = 0;
+        pose.pose.orientation.w = 0;
+        goal.targets.push_back(pose.pose);
+        grasp_pose = pose.pose;
         move_to_act.sendGoal(goal);
         move_to_act.waitForResult();
     }
@@ -121,8 +123,8 @@ class PickNode {
 
     void go_up() {
         mars_msgs::MoveToGoal goal;
-        goal.target = grasp_pose;
-        goal.target.position.z += 0.1;
+        pose.pose = grasp_pose;
+        pose.pose.position.z += 0.1;
         move_to_act.sendGoal(goal);
         move_to_act.waitForResult();
     }

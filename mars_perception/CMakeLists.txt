@@ -26,6 +26,8 @@ if(NOT realsense2_FOUND)
     message(FATAL_ERROR "\n\n Intel RealSense SDK 2.0 is missing, please install it from https://github.com/IntelRealSense/librealsense/releases\n\n")
 endif()
 
+catkin_python_setup()
+
 catkin_package(
   INCLUDE_DIRS include
 #  LIBRARIES mars_perception

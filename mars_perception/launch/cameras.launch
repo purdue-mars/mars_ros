@@ -6,7 +6,11 @@
   <arg name="initial_reset" default="false" />
   <arg name="sim" default="false" />
 
-  <group ns="d455_0">
+  <arg name="d455_1_en" default="true"/>
+  <arg name="d405_en" default="true"/>
+  <arg name="d455_0_en" default="true"/>
+
+  <group ns="d455_0" if="$(arg d455_0_en)">
     <include file="$(find realsense2_camera)/launch/rs_camera.launch">
       <arg name="serial_no" value="$(arg serial_no_d455_0)" />
       <arg name="tf_prefix" value="d455_0" />
@@ -16,7 +20,7 @@
     </include>
   </group>
 
-  <group ns="d455_1">
+  <group ns="d455_1" if="$(arg d455_1_en)">
     <include file="$(find realsense2_camera)/launch/rs_camera.launch">
       <arg name="serial_no" value="$(arg serial_no_d455_1)" />
       <arg name="tf_prefix" value="d455_1" />
@@ -26,7 +30,7 @@
     </include>
   </group>
 
-  <group ns="d405">
+  <group ns="d405" if="$(arg d405_en)">
     <include file="$(find realsense2_camera)/launch/rs_camera.launch">
       <arg name="serial_no" value="$(arg serial_no_d405)" />
       <arg name="tf_prefix" value="d405" />

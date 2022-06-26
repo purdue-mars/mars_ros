@@ -24,11 +24,21 @@
     <include file="$(find mars_control)/launch/planning_server.launch"/>
     <node pkg="rviz" type="rviz" name="rviz" args="-d $(find mars_launch)/rviz/config.rviz"/>
 
+    <node name="global_pc_registration" type="pc_registration" pkg="mars_perception" output="screen" >
+        <rosparam file="$(find mars_config)/config/global_registration.yml" command="load"  />
+    </node>
+
+    <node name="pc_registration" type="pc_registration" pkg="mars_perception" output="screen" >
+        <rosparam file="$(find mars_config)/config/object_registration.yml" command="load"  />
+    </node>
+
+    <node name="icp_server" type="icp_server" pkg="mars_perception" output="screen" >
+        <rosparam file="$(find mars_config)/config/object_registration.yml" command="load"  />
+        <param name="max_iterations" value="100" />
+    </node>
+
     <machine name="mars-linux-2" address="192.168.0.112" env-loader="~/mars_env.bash" user="ruppulur" default="true"/>
 
     <include file="$(find mars_perception)/launch/detection.launch"/>
 
-    <node name="global_pc_registration" type="pc_registration" pkg="mars_perception" output="screen" >
-        <rosparam file="$(find mars_config)/config/global_registration.yml" command="load"  />
-    </node>
 </launch>

@@ -26,8 +26,9 @@ void execute(const mars_msgs::MoveToGoalConstPtr &goal, Server *as)
   moveit::core::RobotState start_state(*move_group_interface.getCurrentState());
 
   std::vector<geometry_msgs::Pose> waypoints;
-  waypoints.push_back(goal->target);
-
+  for(int i = 0; i < goal->targets.size(); i++) {
+    waypoints.push_back(goal->targets[i]);
+  }
   moveit_msgs::RobotTrajectory trajectory;
   move_group_interface.setMaxVelocityScalingFactor(0.01);
   move_group_interface.setMaxAccelerationScalingFactor(0.01);
@@ -45,8 +46,8 @@ void execute(const mars_msgs::MoveToGoalConstPtr &goal, Server *as)
 
   // rt.getRobotTrajectoryMsg(trajectory);
 
-  visual_tools.publishAxisLabeled(goal->target, "goal");
-  visual_tools.publishTrajectoryLine(trajectory, joint_model_group);
+  // visual_tools.publishAxisLabeled(goal->target, "goal");
+  // visual_tools.publishTrajectoryLine(trajectory, joint_model_group);
 
   move_group_interface.execute(trajectory);
 

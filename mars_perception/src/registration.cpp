@@ -68,15 +68,15 @@ void PCRegistration::pointcloud_callback(const PointCloudMsgT::ConstPtr &msg1, c
 
       if (cloud_sources[i]->size() != 0)
       {
-          // pcl::CropBox<PointT> box_filter;
-          // box_filter.setInputCloud(cloud_sources[i]);
-          // box_filter.setMin(Eigen::Vector4f(box_min_[0], box_min_[1], box_min_[2], 1.0));
-          // box_filter.setMax(Eigen::Vector4f(box_max_[0], box_max_[1], box_max_[2], 1.0));
-          // box_filter.filter(*cloud_sources[i]);
+          pcl::CropBox<PointT> box_filter;
+          box_filter.setInputCloud(cloud_sources[i]);
+          box_filter.setMin(Eigen::Vector4f(box_min_[0], box_min_[1], box_min_[2], 1.0));
+          box_filter.setMax(Eigen::Vector4f(box_max_[0], box_max_[1], box_max_[2], 1.0));
+          box_filter.filter(*cloud_sources[i]);
 
-          pcl::MedianFilter<PointT> median_filter;
-          median_filter.setInputCloud(cloud_sources[i]);
-          median_filter.filter(*cloud_sources[i]);
+          // pcl::MedianFilter<PointT> median_filter;
+          // median_filter.setInputCloud(cloud_sources[i]);
+          // median_filter.filter(*cloud_sources[i]);
 
           pcl::VoxelGrid<PointT> voxel_filter;
           voxel_filter.setInputCloud(cloud_sources[i]);
