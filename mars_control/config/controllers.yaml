@@ -19,7 +19,7 @@ cable_data_collector:
   arm_id: panda
   start_pose: cable_following
 
-  p_gain: 0.15
+  p_gain: 0.25
   cable_origin:
     x: 0.3078172245144579
     y: 0.00028015919795

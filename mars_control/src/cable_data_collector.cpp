@@ -14,7 +14,8 @@
 #include <mars_msgs/CableFollowingData.h>
 #include <geometry_msgs/Pose.h>
 
-std::array<double, 16> poseToTransform(Eigen::Vector3d pos, Eigen::Quaterniond quat) {
+std::array<double, 16> poseToTransform(Eigen::Vector3d pos, Eigen::Quaterniond quat)
+{
   Eigen::Matrix3d rot = quat.toRotationMatrix();
 
   return {rot(0, 0), rot(1, 0), rot(2, 0), 0.0,
@@ -168,9 +169,9 @@ namespace mars_control
     Eigen::Vector3d state(cable_y, theta, alpha);
 
     // Calculate velocity command from phi
-    double v_norm = 0.01;
-    double y_vel = -p_gain_ * gelsight_update.cable_pos(1);
-    y_vel = fmin(0.05, fmax(-0.05, y_vel));
+    double v_norm = -0.01;
+    double y_vel = p_gain_ * gelsight_update.cable_pos(1);
+    y_vel = fmin(0.075, fmax(-0.075, y_vel));
     std::array<double, 6>
         cmd = {v_norm,
                y_vel,
@@ -178,13 +179,14 @@ namespace mars_control
                0.0,
                0.0,
                0.0};
-    double phi = atan2(y_vel, v_norm)-alpha;
+    double phi = atan2(y_vel, v_norm) - alpha;
 
     // Publish velocity to Franka
     cartesian_velocity_handle_->setCommand(cmd);
 
     // Create pose msg
-    if (data_pub_->trylock()) {
+    if (data_pub_->trylock())
+    {
       data_pub_->msg_.ee_pose.position.x = pos(0);
       data_pub_->msg_.ee_pose.position.y = pos(1);
       data_pub_->msg_.ee_pose.position.z = pos(2);
