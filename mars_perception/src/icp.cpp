@@ -112,11 +112,10 @@ void ICP::run() {
 
 bool ICP::mesh_icp_srv(mars_msgs::ICPMeshTF::Request &req, mars_msgs::ICPMeshTF::Response &resp)
 {
-    if(req.mesh_name != mesh_name_) {
-        set_mesh_(req.mesh_name);
-        tf_ = TFMatrix::Identity();
-        mesh_name_ = req.mesh_name;
-    }
+    set_mesh_(req.mesh_name);
+    tf_ = TFMatrix::Identity();
+    mesh_name_ = req.mesh_name;
+
     std::cout << mesh_name_ << "\n"; 
     for(int i = 0; i < 10; i++) {
         run();

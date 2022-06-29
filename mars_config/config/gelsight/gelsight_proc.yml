@@ -1,0 +1,44 @@
+cam_url: "http://192.168.0.170:8080/?action=stream"
+
+image_size:
+  width: 480
+  height: 640
+
+image_roi:
+  top_left: 
+    x: 70
+    y: 100
+  bottom_right:
+    x: 325
+    y: 390
+
+nn_compute: "cuda"
+nn_output_size:
+  width: 120
+  height: 160
+nn_mmpp: 0.0887
+
+pca_buffer_size: 4
+gaussian_kernel:
+  width: 0
+  height: 0
+
+publish_markers: true
+flow:
+  n_markers: 10
+  m_markers: 14
+  marker_top_left: [10,11]
+  marker_spacing: [11,11]
+  fps: 40
+  block_size: 33
+
+depth_thresh:
+  type: "exponential"
+  gaussian:
+    max: 10.0
+    min: 2.0
+    sig: 150.0
+  exponential:
+    max: 10.0
+    min: 0.1
+    beta: 0.2

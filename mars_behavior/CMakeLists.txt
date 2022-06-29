@@ -11,6 +11,8 @@ find_package(catkin REQUIRED COMPONENTS
   tf
 )
 
+catkin_python_setup()
+
 add_action_files(DIRECTORY action FILES DoVSRigidPickup.action)
 generate_messages(DEPENDENCIES actionlib_msgs geometry_msgs)
 

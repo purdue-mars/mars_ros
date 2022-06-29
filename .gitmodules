@@ -13,3 +13,6 @@
 [submodule "third_party/BundleTrack"]
 	path = third_party/BundleTrack
 	url = https://github.com/raghavauppuluri13/BundleTrack
+[submodule "third_party/gelsight-ros"]
+	path = third_party/gelsight-ros
+	url = https://github.com/hmccarty/gelsight-ros

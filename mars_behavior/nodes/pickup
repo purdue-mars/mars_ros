@@ -1,10 +1,10 @@
 #!/usr/bin/python3
 
+import actionlib
 import rospy
 import tf
-import actionlib
-from mars_control.msg import MoveToAction, MoveToGoal
 from geometry_msgs.msg import Pose
+from mars_control.msg import MoveToAction, MoveToGoal
 
 if __name__ == "__main__":
     rospy.init_node("pickup_node")
