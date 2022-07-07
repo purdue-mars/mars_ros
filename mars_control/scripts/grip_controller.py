@@ -2,6 +2,7 @@
 
 import rospy
 from wsg_50_common.msg import Cmd, Status
+from numpy as np
 
 POS_MIN = 3.0 # mm (Point where gelsight fingers touch) 
 POS_MAX = 68.0 # mm (Physical limit)
@@ -9,9 +10,15 @@ POS_MARGIN = 1.0 # mm
 MOVE_SPEED = 50.0 # mm/s (Default 50mm/s)
 
 friction = None
-def friction_cb(msg: ):
+def friction_cb(msg):
     global friction
-    
+
+    ref = np.array(msg.ref_markers.data)
+    ref = ref.reshape((ref.shape[0]//2, 2))
+    cur = np.array(msg.cur_markers.data)
+    cur = cur.reshape((cur.shape[0]//2, 2))
+
+    friction = np.mean(cur - ref, axis=1)
 
 cur_pos = None
 def pos_cb(msg: Cmd):
@@ -25,26 +32,6 @@ if __name__ == "__main__":
     rospy.Subscriber("/wsg_50_driver/status", Status, pos_cb)
     pub = rospy.Publisher("/wsg_50_driver/goal_position", Cmd, queue_size=1, latch=True)
 
-    # Start by opening gripper
-    msg = Cmd()
-    msg.pos = POS_MAX
-    msg.speed = MOVE_SPEED
-    pub.publish(msg)
-
-    opening = True
     while not rospy.is_shutdown():
-        if cur_pos: 
-            # Alternate between open and close 
-            msg = Cmd()
-            if opening and cur_pos > (POS_MAX - POS_MARGIN):
-                msg.pos = POS_MIN
-                opening = False
-            elif not opening and cur_pos < (POS_MIN + POS_MARGIN):
-                opening = True
-                msg.pos = POS_MAX
-            else:
-                continue
-            msg.speed = MOVE_SPEED
-            pub.publish(msg)
-
+        print(friction) 
         rate.sleep()

@@ -1,0 +1,16 @@
+<?xml version="1.0"?>
+<!-- Condense into move_to.launch -->
+
+<launch>
+    <arg name="pos_name" />
+
+    <!-- Fix to include, original errors on exit -->
+    <!-- <include file="$(find wsg_50_driver)/launch/wsg_50_tcp.launch">
+        <arg name="ip" value="172.19.1.2" />
+        <arg name="com_mode" value="auto_update" />
+    </include> -->
+
+    <rosparam command="load" file="$(find mars_control)/config/gripper_move_to.yaml" />
+    <param name="pos_name" value="$(arg pos_name)" />
+    <node name="gripper_move_to" pkg="mars_control" type="gripper_move_to.py" required="true"/>
+</launch>
