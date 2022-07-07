@@ -2,12 +2,13 @@
 
 import rospy
 from wsg_50_common.msg import Cmd, Status
-from numpy as np
+from std_msgs.msg import Bool
+import numpy as np
 
-POS_MIN = 3.0 # mm (Point where gelsight fingers touch) 
-POS_MAX = 68.0 # mm (Physical limit)
-POS_MARGIN = 1.0 # mm
 MOVE_SPEED = 50.0 # mm/s (Default 50mm/s)
+FRICTION_MIN = 5.0 # avg marker px diff
+FRICTION_MAX = 10.0
+MOVE_DX = 2.0 # mm
 
 friction = None
 def friction_cb(msg):
@@ -25,13 +26,30 @@ def pos_cb(msg: Cmd):
     global cur_pos
     cur_pos = msg.width
 
+move_done = False
+def move_done_cb(msg):
+    global move_done
+    move_done = msg.data
+
 if __name__ == "__main__":
     rospy.init_node("gripper_controller")
     rate = rospy.Rate(10)
-
+    rospy.Subscriber("wsg_50_driver/moving", Bool, move_done_cb) 
     rospy.Subscriber("/wsg_50_driver/status", Status, pos_cb)
     pub = rospy.Publisher("/wsg_50_driver/goal_position", Cmd, queue_size=1, latch=True)
 
+    rospy.sleep(1.0)
+
     while not rospy.is_shutdown():
-        print(friction) 
+        dx = 0.0
+        if friction < FRICTION_MIN:
+            dx -= MOVE_DX
+        elif friction > FRICTION_MAX:
+            dx += MOVE_DX
+
+        if dx != 0.0 and cur_pos and move_done:
+            msg = Cmd()
+            msg.pos = cur_pos + dx
+            msg.speed = MOVE_SPEED
+            pub.publish(msg)
         rate.sleep()
