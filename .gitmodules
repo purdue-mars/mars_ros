@@ -16,6 +16,3 @@
 [submodule "third_party/gelsight-ros"]
 	path = third_party/gelsight-ros
 	url = https://github.com/hmccarty/gelsight-ros
-[submodule "third_party/relaxed_ik_ros1"]
-	path = third_party/relaxed_ik_ros1
-	url = https://github.com/raghavauppuluri13/relaxed_ik_ros1
