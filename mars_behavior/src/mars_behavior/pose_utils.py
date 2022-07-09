@@ -1,7 +1,7 @@
 from typing import List
 
 import numpy as np
-from tf.transformations import quaternion_from_matrix 
+from tf.transformations import quaternion_from_matrix, quaternion_from_euler,euler_from_matrix,euler_matrix, quaternion_matrix 
 import ros_numpy
 import rospy
 import tf
@@ -41,9 +41,9 @@ def tf_mat_to_quat_stamped(tf_mat, frame_id):
 def normalize(x):
     return x / np.linalg.norm(x)
 
-def get_transform(from_frame : str, to_frame : str,tf_listener : TransformListener):
+def get_transform(source_frame : str, target_frame : str,tf_listener : TransformListener):
     try:
-        (trans,rot) = tf_listener.lookupTransform(to_frame, from_frame, rospy.Time(0))
+        (trans,rot) = tf_listener.lookupTransform(target_frame, source_frame, rospy.Time(0))
     except (tf.LookupException, tf.ConnectivityException, tf.ExtrapolationException):
         return 
 
@@ -61,8 +61,6 @@ def rot_from_a_to_b_preserve_axis(a : np.ndarray, b : np.ndarray, axis_to_preser
     '''Gets rotation between vectors without changing direction of preserved axis'''
     comp_vecs = [a.copy() for a in AXES if not np.array_equal(axis_to_preserve,a)]
     ax1,ax2 = comp_vecs
-    print(b)
-    print(comp_vecs)
     comp_v1_ax1 = comp_a_along_b(b,ax1)
     comp_v1_ax2 = comp_a_along_b(b,ax2)
 
@@ -71,6 +69,14 @@ def rot_from_a_to_b_preserve_axis(a : np.ndarray, b : np.ndarray, axis_to_preser
 
 def comp_a_along_b(a,b):
     return (np.dot(a,b) / np.dot(b,b)) * b
+
+def rotate_mat_from_euler(angles,rot_mat):
+    euler = euler_from_matrix(rot_mat)
+    euler = np.array(euler) + np.array(angles)
+    quat = quaternion_from_euler(*euler)    
+    quat = quat / np.linalg.norm(quat)
+    mat = quaternion_matrix(quat)
+    return mat 
 
 def rot_from_a_to_b(a : np.ndarray, b : np.ndarray):
     cross_1_2 = np.cross(a,b)

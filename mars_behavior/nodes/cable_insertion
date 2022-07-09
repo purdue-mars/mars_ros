@@ -2,11 +2,13 @@
 
 from copy import deepcopy
 
+import numpy as np
 
 # Brings in the SimpleActionClient
 import actionlib
 import ros_numpy
 import rospy
+import rosnode
 import tf
 from franka_gripper.msg import (HomingAction, HomingActionGoal, MoveAction,GraspEpsilon,
                                 MoveGoal, StopAction, StopActionGoal)
@@ -19,8 +21,12 @@ from mars_msgs.srv import ICPMeshTF
 from moveit_commander import MoveGroupCommander
 from std_msgs.msg import Float32
 
+from gelsight_ros.msg import GelsightFlowStamped 
+
+from actionlib_msgs.msg import GoalStatusArray
+
 from mars_behavior.pose_utils import (AXIS_X, AXIS_Y, AXIS_Z, get_transform,
-                                      rot_from_a_to_b, rot_from_a_to_b_preserve_axis, transform_vector)
+                                      rot_from_a_to_b, rot_from_a_to_b_preserve_axis, rotate_mat_from_euler, tf_mat_to_quat_stamped, transform_vector)
 
 
 class CableInsertionNode:
@@ -31,14 +37,18 @@ class CableInsertionNode:
         self.homing = actionlib.SimpleActionClient('/franka_gripper/homing', HomingAction)
         self.stop = actionlib.SimpleActionClient('/franka_gripper/stop', StopAction)
 
-        self.grasped = rospy.Subscriber('/grasped',Float32, self.grasped)
-        self.markers = None
-        self.grasp_height_offset = 0.3
-        self.grasped = 0.0
+        self.go_home()
+
+        self.flow = rospy.Subscriber('/flow',GelsightFlowStamped, self.flow_cb)
+        self.grasp_height_offset = 0.2
+        self.grasped_flow_norm = 0.0
         self.planning_goals = []
         self.GRASP_THRESHOLD = 20
+
+        self.pub = rospy.Publisher('test_cable_eef_pose',PoseStamped,queue_size=1)
         
         self.base_frame=rospy.get_param("/base_frame")
+        self.eef_frame=rospy.get_param("/eef_frame", 'panda_hand')
 
         self.icp = rospy.ServiceProxy('icp_mesh_tf',ICPMeshTF) 
         self.tf_listener = tf.TransformListener()
@@ -50,8 +60,10 @@ class CableInsertionNode:
         self.homing.send_goal(home_goal)
         #self.homing.wait_for_result()
 
-    def grasped(self,msg):
-        self.grasped = msg.data
+    def flow_cb(self,msg):
+        flow_np = np.array(msg.cur_markers.data) - np.array(msg.ref_markers.data)
+        flow_np = np.reshape(flow_np, (msg.cur_markers.m,msg.cur_markers.n,2))
+        self.grasped_flow_norm = np.linalg.norm(flow_np)
 
     def get_object_pose(self, mesh_name, ref_frame):
         rospy.set_param('/detect_class_names',mesh_name)
@@ -63,6 +75,8 @@ class CableInsertionNode:
     
     def add_goal(self, goal : PoseStamped):
         g = deepcopy(goal)
+        if g.header.frame_id != self.eef_frame and g.header.frame_id != self.base_frame:
+            g = self.grasp_to_eef_frame(g)
         if g.header.frame_id != self.base_frame:
             g = self.pose_to_base_frame(g)
         self.planning_goals.append(g.pose)
@@ -79,21 +93,23 @@ class CableInsertionNode:
         cable_male_pose = self.get_object_pose('cable_male','gelsight_pad')
         self.grasp_pose = cable_male_pose
         hover_pose = PoseStamped() 
-        hover_pose.header.frame_id = 'panda_hand'
+        hover_pose.header.frame_id = 'gelsight_pad'
         hover_pose.pose = deepcopy(cable_male_pose)
-        hover_pose.pose.position.z -= self.grasp_height_offset 
 
         # +x axis_grip is 90 to +y axis
         # v_P = vector in panda hand frame, v_C = vector in cable frame
         grasp_pose = PoseStamped(header=hover_pose.header) 
-        grasp_pose.pose = get_transform('cable_male_frame','gelsight_pad', self.tf_listener)
-
+        grasp_pose.pose = deepcopy(cable_male_pose) 
         y_axis_cable_in_hand = transform_vector(AXIS_Y,'cable_male_frame','gelsight_pad',self.tf_listener)
-        tf_mat = rot_from_a_to_b_preserve_axis(-AXIS_X, y_axis_cable_in_hand,AXIS_Z)
-        grasp_pose.pose.orientation = ros_numpy.msgify(Pose,tf_mat).orientation
-        hover_pose.pose.orientation = ros_numpy.msgify(Pose,tf_mat).orientation
+        tf_mat = rot_from_a_to_b_preserve_axis(AXIS_X, y_axis_cable_in_hand,AXIS_Z)
+            
+        grasp_pose.pose.orientation = tf_mat_to_quat_stamped(tf_mat,'gelsight_pad').quaternion
+        hover_pose.pose.orientation = tf_mat_to_quat_stamped(tf_mat,'gelsight_pad').quaternion
 
-        hover_pose = self.pose_to_base_frame(hover_pose)
+        hover_pose = self.pose_to_base_frame(self.grasp_to_eef_frame(hover_pose))
+        hover_pose.pose.position.z += self.grasp_height_offset 
+        self.pub.publish(hover_pose)
+        self.pub.publish(grasp_pose)
 
         self.add_goal(hover_pose)
         self.add_goal(grasp_pose)
@@ -106,14 +122,40 @@ class CableInsertionNode:
     
     def pose_to_base_frame(self,pose : PoseStamped):
         return self.tf_listener.transformPose(self.base_frame,pose)
+
+    def go_home(self):
+        # move to ready pose
+        rospy.wait_for_message('move_group/status', GoalStatusArray)
+        commander = MoveGroupCommander('panda_arm')
+        commander.set_end_effector_link("gelsight_pad")
+        commander.set_pose_reference_frame("panda_link0")
+        commander.set_named_target('ready')
+        commander.go(wait=True)
+
+    def grasp_to_eef_frame(self,pose : PoseStamped):
+        tr = get_transform(self.eef_frame,pose.header.frame_id,self.tf_listener) # T_EE_G
+        tr_np: np.ndarray = ros_numpy.numpify(tr)
+        pose_np: np.ndarray = ros_numpy.numpify(pose.pose)
+
+        new_pose = ros_numpy.msgify(Pose, np.matmul(np.linalg.inv(tr_np),np.matmul(pose_np,tr_np)))
+        new_pose = PoseStamped(pose=new_pose)
+        new_pose.header.frame_id = self.eef_frame
+        return new_pose 
     
     def grasp(self):
-        self.grasping.send_goal(MoveGoal(width=0,speed=0.01))
-        while self.grasped < self.GRASP_THRESHOLD:
+        self.grasping.send_goal(MoveGoal(width=0,speed=0.02))
+        rate = rospy.Rate(30)
+        while self.grasped_flow_norm < self.GRASP_THRESHOLD:
+            rospy.loginfo("flow_norm: %4f",self.grasped_flow_norm)
             if self.grasping.get_state() != actionlib.SimpleGoalState.PENDING and self.grasping.get_state() != actionlib.SimpleGoalState.ACTIVE:
                 rospy.loginfo("MISSED DETECTION!")
                 self.stop.send_goal(StopActionGoal())
+                break
+            if rospy.is_shutdown():
+                rospy.loginfo("SHUTDOWN!")
+                self.stop.send_goal(StopActionGoal())
                 raise Exception("GRASP INCOMPLETE!") 
+            rate.sleep()
         self.grasping.cancel_all_goals()
         self.stop.send_goal(StopActionGoal())
         rospy.loginfo("GRASP COMPLETE!")
@@ -121,30 +163,31 @@ class CableInsertionNode:
     def cable_insert(self):
         cable_female_pose = self.get_object_pose('cable_female','gelsight_pad')
 
-
         self.grasp_pose = cable_female_pose
         hover_pose = PoseStamped() 
         hover_pose.header.frame_id = 'gelsight_pad'
         hover_pose.pose = deepcopy(cable_female_pose)
-        hover_pose.pose.orientation.x = 0 
-        hover_pose.pose.orientation.y = 0.7071068
-        hover_pose.pose.orientation.z = 0 
-        hover_pose.pose.orientation.w = 0.7071068
-        hover_pose.pose.position.z -= self.grasp_height_offset 
 
         aligned_pose = deepcopy(hover_pose)
-
+        aligned_pose.pose = deepcopy(cable_female_pose)
         down_ori = transform_vector(-AXIS_Z,self.base_frame,'gelsight_pad',self.tf_listener)
         tf_mat = rot_from_a_to_b(-AXIS_X, down_ori)
-        aligned_pose.pose.orientation = ros_numpy.msgify(Pose,tf_mat).orientation
+        tf_mat = rotate_mat_from_euler([0,0,np.pi/2],tf_mat)
+        hover_pose.pose.orientation = tf_mat_to_quat_stamped(tf_mat,'gelsight_pad').quaternion
+        aligned_pose.pose.orientation = tf_mat_to_quat_stamped(tf_mat,'gelsight_pad').quaternion
+
+        hover_pose = self.pose_to_base_frame(self.grasp_to_eef_frame(hover_pose))
+        hover_pose.pose.position.z += self.grasp_height_offset 
 
         self.add_goal(hover_pose)
         #self.add_goal(aligned_pose)
+
         self.execute_planned_goals()
 
 if __name__ == '__main__':
     rospy.init_node('cable_insertion_node')
     insertion = CableInsertionNode()
     insertion.cable_pick()
+    insertion.go_home()
     insertion.cable_insert()
     rospy.spin()

@@ -10,6 +10,7 @@ Panels:
         - /PlanningScene1/Scene Robot1
         - /MotionPlanning1
         - /MotionPlanning1/Scene Geometry1
+        - /MotionPlanning1/Planned Path1
         - /Axes1
         - /TF1
         - /TF1/Frames1
@@ -17,8 +18,10 @@ Panels:
         - /PointCloud21
         - /PointCloud22
         - /Image1
+        - /Image2
+        - /Pose1
       Splitter Ratio: 0.7425600290298462
-    Tree Height: 420
+    Tree Height: 443
   - Class: rviz/Help
     Name: Help
   - Class: rviz/Views
@@ -332,7 +335,7 @@ Visualization Manager:
             Show Axes: false
             Show Trail: false
             Value: true
-        Loop Animation: false
+        Loop Animation: true
         Robot Alpha: 0.5
         Robot Color: 150; 50; 150
         Show Robot Collision: false
@@ -460,10 +463,12 @@ Visualization Manager:
       Frame Timeout: 60
       Frames:
         All Enabled: false
+        cable_female_frame:
+          Value: true
         cable_male_frame:
           Value: true
         d405_aligned_depth_to_color_frame:
-          Value: true
+          Value: false
         d405_color_frame:
           Value: false
         d405_color_optical_frame:
@@ -473,9 +478,9 @@ Visualization Manager:
         d405_depth_optical_frame:
           Value: false
         d405_link:
-          Value: true
+          Value: false
         d455_0_aligned_depth_to_color_frame:
-          Value: true
+          Value: false
         d455_0_color_frame:
           Value: false
         d455_0_color_optical_frame:
@@ -485,19 +490,9 @@ Visualization Manager:
         d455_0_depth_optical_frame:
           Value: false
         d455_0_link:
-          Value: true
-        d455_1_aligned_depth_to_color_frame:
-          Value: true
-        d455_1_color_frame:
-          Value: false
-        d455_1_color_optical_frame:
-          Value: false
-        d455_1_depth_frame:
-          Value: false
-        d455_1_depth_optical_frame:
           Value: false
         d455_1_link:
-          Value: true
+          Value: false
         gelsight_pad:
           Value: true
         panda_EE:
@@ -507,7 +502,7 @@ Visualization Manager:
         panda_NE:
           Value: false
         panda_hand:
-          Value: true
+          Value: false
         panda_hand_tcp:
           Value: false
         panda_leftfinger:
@@ -543,6 +538,8 @@ Visualization Manager:
       Tree:
         world:
           panda_link0:
+            cable_female_frame:
+              {}
             cable_male_frame:
               {}
             d455_0_color_optical_frame:
@@ -556,14 +553,7 @@ Visualization Manager:
                 d455_0_depth_optical_frame:
                   {}
             d455_1_link:
-              d455_1_aligned_depth_to_color_frame:
-                d455_1_color_optical_frame:
-                  {}
-              d455_1_color_frame:
-                {}
-              d455_1_depth_frame:
-                d455_1_depth_optical_frame:
-                  {}
+              {}
             panda_link1:
               panda_link2:
                 panda_link3:
@@ -698,6 +688,58 @@ Visualization Manager:
       Transport Hint: raw
       Unreliable: false
       Value: true
+    - Class: rviz/Image
+      Enabled: true
+      Image Topic: /flow_image
+      Max Value: 1
+      Median window: 5
+      Min Value: 0
+      Name: Image
+      Normalize Range: true
+      Queue Size: 2
+      Transport Hint: raw
+      Unreliable: false
+      Value: true
+    - Alpha: 1
+      Axes Length: 0.10000000149011612
+      Axes Radius: 0.009999999776482582
+      Class: rviz/Pose
+      Color: 255; 25; 0
+      Enabled: true
+      Head Length: 0.30000001192092896
+      Head Radius: 0.10000000149011612
+      Name: Pose
+      Queue Size: 10
+      Shaft Length: 1
+      Shaft Radius: 0.05000000074505806
+      Shape: Axes
+      Topic: /test_cable_eef_pose
+      Unreliable: false
+      Value: true
+    - Class: rviz/Image
+      Enabled: true
+      Image Topic: /d455_1/camera/color/image_raw
+      Max Value: 1
+      Median window: 5
+      Min Value: 0
+      Name: Image
+      Normalize Range: true
+      Queue Size: 2
+      Transport Hint: raw
+      Unreliable: false
+      Value: true
+    - Class: rviz/Image
+      Enabled: true
+      Image Topic: /d405/camera/color/image_raw
+      Max Value: 1
+      Median window: 5
+      Min Value: 0
+      Name: Image
+      Normalize Range: true
+      Queue Size: 2
+      Transport Hint: raw
+      Unreliable: false
+      Value: true
   Enabled: true
   Global Options:
     Background Color: 48; 48; 48
@@ -721,7 +763,7 @@ Visualization Manager:
   Views:
     Current:
       Class: rviz/XYOrbit
-      Distance: 1.4129351377487183
+      Distance: 1.772385835647583
       Enable Stereo Rendering:
         Stereo Eye Separation: 0.05999999865889549
         Stereo Focal Distance: 1
@@ -729,24 +771,24 @@ Visualization Manager:
         Value: false
       Field of View: 0.7853981852531433
       Focal Point:
-        X: 0.5090698003768921
-        Y: -0.003720417618751526
-        Z: 4.470406622658629e-08
+        X: 0.3904402256011963
+        Y: 0.03542479872703552
+        Z: -1.4900578548804333e-08
       Focal Shape Fixed Size: true
       Focal Shape Size: 0.05000000074505806
       Invert Z Axis: false
       Name: Current View
       Near Clip Distance: 0.009999999776482582
-      Pitch: 0.09479492902755737
+      Pitch: 0.4847944378852844
       Target Frame: panda_link0
-      Yaw: 6.1467790603637695
+      Yaw: 6.231775760650635
     Saved: ~
 Window Geometry:
   Displays:
     collapsed: false
   HandEye Calibration:
     collapsed: false
-  Height: 1401
+  Height: 1365
   Help:
     collapsed: false
   Hide Left Dock: false
@@ -757,7 +799,7 @@ Window Geometry:
     collapsed: false
   MotionPlanning - Trajectory Slider:
     collapsed: false
-  QMainWindow State: 000000ff00000000fd00000001000000000000037c00000523fc0200000012fb000000100044006900730070006c006100790073010000003b000001df000000c700fffffffb0000000800480065006c00700000000342000000bb0000006e00fffffffb0000000a00560069006500770073000000026d000000b5000000a000fffffffb0000000c00430061006d00650072006100000002ff000001610000000000000000fb0000001e004d006f00740069006f006e00200050006c0061006e006e0069006e00670100000374000001890000000000000000fb0000002e004d006f00740069006f006e0050006c0061006e006e0069006e00670020002d00200053006c0069006400650072010000026f000000480000000000000000fb0000001c004d006f00740069006f006e0050006c0061006e006e0069006e00670000000294000002410000016900fffffffb00000024005200760069007a00560069007300750061006c0054006f006f006c007300470075006900000004a5000000950000006e00fffffffb0000001c004d006f00740069006f006e0050006c0061006e006e0069006e0067010000034f000001fb0000000000000000fb000000120020002d00200053006c006900640065007201000002df000000480000000000000000fb0000001c004d006f00740069006f006e0050006c0061006e006e0069006e0067010000032d000001fb0000000000000000fb00000044004d006f00740069006f006e0050006c0061006e006e0069006e00670020002d0020005400720061006a006500630074006f0072007900200053006c00690064006500720000000000ffffffff0000001600000016fb000000280020002d0020005400720061006a006500630074006f0072007900200053006c00690064006500720000000000ffffffff0000000000000000fb0000003c005400720061006a006500630074006f007200790020002d0020005400720061006a006500630074006f0072007900200053006c00690064006500720000000000ffffffff0000001600000016fb000000280020002d0020005400720061006a006500630074006f0072007900200053006c00690064006500720000000000ffffffff0000000000000000fb0000001c004d006f00740069006f006e0050006c0061006e006e0069006e006701000003b4000001740000000000000000fb0000002600480061006e0064004500790065002000430061006c006900620072006100740069006f006e000000013a000001e1000001e100fffffffb0000000a0049006d00610067006501000002200000033e0000001600ffffff0000067a0000052300000001000000020000000100000002fc0000000100000002000000010000000a0054006f006f006c00730100000000ffffffff0000000000000000
+  QMainWindow State: 000000ff00000000fd0000000200000000000002b5000004fffc0200000014fb000000100044006900730070006c006100790073000000003b00000106000000c700fffffffb0000000800480065006c00700000000342000000bb0000006e00fffffffb0000000a00560069006500770073000000026d000000b5000000a000fffffffb0000000c00430061006d00650072006100000002ff000001610000000000000000fb0000001e004d006f00740069006f006e00200050006c0061006e006e0069006e00670100000374000001890000000000000000fb0000002e004d006f00740069006f006e0050006c0061006e006e0069006e00670020002d00200053006c0069006400650072010000026f000000480000000000000000fb0000001c004d006f00740069006f006e0050006c0061006e006e0069006e00670000000294000002410000016900fffffffb00000024005200760069007a00560069007300750061006c0054006f006f006c007300470075006900000004a5000000950000006e00fffffffb0000001c004d006f00740069006f006e0050006c0061006e006e0069006e0067010000034f000001fb0000000000000000fb000000120020002d00200053006c006900640065007201000002df000000480000000000000000fb0000001c004d006f00740069006f006e0050006c0061006e006e0069006e0067010000032d000001fb0000000000000000fb00000044004d006f00740069006f006e0050006c0061006e006e0069006e00670020002d0020005400720061006a006500630074006f0072007900200053006c00690064006500720000000000ffffffff0000001600000016fb000000280020002d0020005400720061006a006500630074006f0072007900200053006c00690064006500720000000000ffffffff0000000000000000fb0000003c005400720061006a006500630074006f007200790020002d0020005400720061006a006500630074006f0072007900200053006c00690064006500720000000000ffffffff0000001600000016fb000000280020002d0020005400720061006a006500630074006f0072007900200053006c00690064006500720000000000ffffffff0000000000000000fb0000001c004d006f00740069006f006e0050006c0061006e006e0069006e006701000003b4000001740000000000000000fb0000002600480061006e0064004500790065002000430061006c006900620072006100740069006f006e000000013a000001e1000001e100fffffffb0000000a0049006d006100670065010000003b000001c10000001600fffffffb0000000a0049006d0061006700650100000202000001a60000001600fffffffb0000000a0049006d00610067006501000003ae0000018c0000001600ffffff00000001000001a3000004fffc0200000001fb0000000a0049006d006100670065010000003b000004ff0000001600ffffff00000598000004ff00000001000000020000000100000002fc0000000100000002000000010000000a0054006f006f006c00730100000000ffffffff0000000000000000
   RvizVisualToolsGui:
     collapsed: false
   Trajectory - Trajectory Slider:
@@ -766,4 +808,4 @@ Window Geometry:
     collapsed: false
   Width: 2556
   X: 0
-  Y: 18
+  Y: 54

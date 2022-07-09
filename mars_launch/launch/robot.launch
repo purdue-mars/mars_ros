@@ -7,7 +7,7 @@
     <rosparam file="$(find mars_config)/config/mesh.yml" command="load" subst_value="true"/>
 
     <node pkg="tf2_ros" type="static_transform_publisher" name="virtual_joint_broadcaster_zero" args="0 0 0 0 0 0 world panda_link0" /> 
-    <node pkg="tf2_ros" type="static_transform_publisher" name="gelsight_finger_broadcaster" args="0 0 0.18 0 0 0 panda_hand gelsight_pad" /> 
+    <node pkg="tf2_ros" type="static_transform_publisher" name="gelsight_finger_broadcaster" args="0 0 0.177 0 0 0 panda_hand gelsight_pad" /> 
     <include file="$(find franka_control)/launch/franka_control.launch" >
         <arg name="robot_ip" value="$(arg robot_ip)" />
         <arg name="load_gripper" value="$(arg load_gripper)" />

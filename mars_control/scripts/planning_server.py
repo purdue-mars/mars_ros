@@ -28,39 +28,39 @@ class PlanningActionServer(object):
         self._planning_ac = actionlib.SimpleActionServer('move_to',MoveToAction,execute_cb=self.execute_cb)
     
     def execute_cb(self, goal : MoveToActionGoal):
-        pose_goals: List[Pose] = goal.goal.targets
+        self._commander.set_end_effector_link("panda_hand")
+        self._commander.set_goal_tolerance(0.001)
+        self._commander.compute_cartesian_path(goal.targets,0.01,0.0)
+        self._commander.go(wait=True)
 
-        pos_arr = (ctypes.c_double * (3 * len(pose_goals)))()
-        quat_arr = (ctypes.c_double * (4 * len(pose_goals)))()
+        # pose_goals: List[Pose] = goal.targets
+        # pos_arr = (ctypes.c_double * (3 * len(pose_goals)))()
+        # quat_arr = (ctypes.c_double * (4 * len(pose_goals)))()
 
-        for i in range(len(pose_goals)):
-            p = pose_goals[i]
-            pos_arr[3*i] = p.position.x
-            pos_arr[3*i+1] = p.position.y
-            pos_arr[3*i+2] = p.position.z
+        # for i in range(len(pose_goals)):
+        #     p = pose_goals[i]
+        #     pos_arr[3*i] = p.position.x
+        #     pos_arr[3*i+1] = p.position.y
+        #     pos_arr[3*i+2] = p.position.z
 
-            quat_arr[4*i] = p.orientation.x
-            quat_arr[4*i+1] = p.orientation.y
-            quat_arr[4*i+2] = p.orientation.z
-            quat_arr[4*i+3] = p.orientation.w
+        #     quat_arr[4*i] = p.orientation.x
+        #     quat_arr[4*i+1] = p.orientation.y
+        #     quat_arr[4*i+2] = p.orientation.z
+        #     quat_arr[4*i+3] = p.orientation.w
         
-        jnts = self._commander.get_current_joint_values()
-        print(jnts)
-        #assert False
-        new_state = (ctypes.c_double * 7)(*jnts)
-        self._relaxed_ik_lib.update_joints(new_state)
-        xopt = self._relaxed_ik_lib.solve(pos_arr, len(pos_arr), quat_arr, len(quat_arr))
+        # jnts = self._commander.get_current_joint_values()
+        # print(jnts)
+        # new_state = (ctypes.c_double * 7)(*jnts)
+        # self._relaxed_ik_lib.update_joints(new_state)
+        # xopt = self._relaxed_ik_lib.solve(pos_arr, len(pos_arr), quat_arr, len(quat_arr))
 
-        relaxed_jnts = xopt.data
-        print(relaxed_jnts)
-        for jnts in relaxed_jnts:
-            self._commander.set_joint_value_target(jnts)
-            success, _  = self._commander.plan()
-            self._commander.execute()
+        # relaxed_jnts = [xopt.data[i] for i in range(xopt.length)]
+        # print(relaxed_jnts)
+        # self._commander.set_joint_value_target(relaxed_jnts)
+        # self._commander.plan()
+        # self._commander.go()
 
-        if success:
-            rospy.loginfo('%s: Succeeded' % self._action_name)
-            self._planning_ac.set_succeeded(self._result)
+        self._planning_ac.set_succeeded()
 
 if __name__ == '__main__':
 

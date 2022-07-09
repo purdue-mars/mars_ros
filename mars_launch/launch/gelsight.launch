@@ -1,6 +1,5 @@
 <launch>
-    <node name="gelsight_proc" type="gelsight_proc.py" pkg="gelsight_ros" output="screen">
-        <rosparam command="load" file="$(find mars_config)/config/gelsight/gelsight_proc.yml"/>
-        <param name="nn_path" value="$(find gelsight_ros)/data/nnr15.pt"/>
+    <node name="gelsight" type="gelsight.py" pkg="gelsight_ros" output="screen">
+        <rosparam command="load" file="$(find mars_config)/config/gelsight/new_gelsight.yml"/>
     </node>
 </launch>

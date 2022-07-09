@@ -1,0 +1,47 @@
+input_type: "http_stream" # Either "http_stream" or "file_stream"
+
+file_stream:
+  path: ""
+
+http_stream:
+  url: "http://192.168.0.170:8080/?action=stream"
+  publish_image: true
+  width: 480
+  height: 640
+  mmpp: 0.0887
+  roi_x0: 75
+  roi_y0: 110
+  roi_x1: 325
+  roi_y1: 370
+
+depth:
+  enable: false
+  topic_name: "depth"
+  compute_type: "cpu" # Either 'cuda' or 'cpu'
+  method: "poisson"
+  model_path: $(find gelsight_ros)/data/nnr15.pt
+
+markers:
+  enable: true
+  topic_name: "markers"
+  publish_image: true
+  threshold_block_size: 33
+  threshold_neg_bias: 15
+  marker_neighborhood_size: 20
+
+flow:
+  enable: true
+  topic_name: "flow"
+  publish_image: true
+  n: 10
+  m: 14
+  x0: 10
+  y0: 11
+  dx: 11
+  dy: 11
+
+pose:
+  enable: false
+  topic_name: "pose"
+  method: "depth" # Either 'markers' or 'depth'
+  rolling_avg: 1 # Must be 1 or greater

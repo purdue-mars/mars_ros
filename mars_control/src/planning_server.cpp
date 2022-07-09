@@ -10,6 +10,27 @@
 typedef actionlib::SimpleActionServer<mars_msgs::MoveToAction> Server;
 static const std::string PLANNING_GROUP = "panda_arm";
 
+// bool convert_to_planning_frame(const geometry_msgs::PoseStamped& p) {
+//   robot_model_loader::RobotModelLoader robot_model_loader("robot_description");
+//   robot_model::RobotModelPtr kinematic_model = robot_model_loader.getModel();
+//   robot_state::RobotStatePtr kinematic_state(new robot_state::RobotState(kinematic_model));
+//   kinematic_state->setToDefaultValues();
+//   const robot_state::JointModelGroup* joint_model_group = kinematic_model->getJointModelGroup("panda_arm");
+
+//   const std::vector<std::string> &joint_names = joint_model_group->getJointModelNames();
+//   bool found_ik = kinematic_state->setFromIK(joint_model_group, p, 10, 0.1);
+//   std::vector<double> joint_values;
+//   if (found_ik)
+//   {
+//     kinematic_state->copyJointGroupPositions(joint_model_group, joint_values);
+//   }
+//   else {
+//     ROS_INFO("Did not find IK solution");
+//     return false
+//   }
+  
+// }
+
 void execute(const mars_msgs::MoveToGoalConstPtr &goal, Server *as)
 {
   namespace rvt = rviz_visual_tools;
@@ -20,7 +41,8 @@ void execute(const mars_msgs::MoveToGoalConstPtr &goal, Server *as)
   const moveit::core::JointModelGroup *joint_model_group =
       move_group_interface.getCurrentState()->getJointModelGroup(PLANNING_GROUP);
 
-  move_group_interface.setGoalTolerance(0.01);
+  move_group_interface.setGoalOrientationTolerance(0.001);
+  move_group_interface.setGoalPositionTolerance(0.001);
   move_group_interface.setMaxVelocityScalingFactor(0.2);
 
   moveit::core::RobotState start_state(*move_group_interface.getCurrentState());
@@ -32,19 +54,21 @@ void execute(const mars_msgs::MoveToGoalConstPtr &goal, Server *as)
   moveit_msgs::RobotTrajectory trajectory;
   move_group_interface.setMaxVelocityScalingFactor(0.01);
   move_group_interface.setMaxAccelerationScalingFactor(0.01);
+  move_group_interface.setEndEffectorLink("panda_hand");
+  move_group_interface.setPoseReferenceFrame("panda_link0");
   double fraction = move_group_interface.computeCartesianPath(waypoints,
-                                                              0.001, // eef_step
+                                                              0.01, // eef_step
                                                               0.00,  // jump_threshold
                                                               trajectory);
 
-  robot_trajectory::RobotTrajectory rt(move_group_interface.getCurrentState()->getRobotModel(), PLANNING_GROUP);
-  rt.setRobotTrajectoryMsg(*move_group_interface.getCurrentState(), trajectory);
+  // robot_trajectory::RobotTrajectory rt(move_group_interface.getCurrentState()->getRobotModel(), PLANNING_GROUP);
+  // rt.setRobotTrajectoryMsg(*move_group_interface.getCurrentState(), trajectory);
   
-  trajectory_processing::IterativeParabolicTimeParameterization iptp;
-  bool time_stamp_success = iptp.computeTimeStamps(rt);
-  ROS_INFO("Computed time stamp %s", time_stamp_success ? "SUCCEEDED":"FAILED");
+  // trajectory_processing::IterativeParabolicTimeParameterization iptp;
+  // bool time_stamp_success = iptp.computeTimeStamps(rt);
+  // ROS_INFO("Computed time stamp %s", time_stamp_success ? "SUCCEEDED":"FAILED");
 
-  rt.getRobotTrajectoryMsg(trajectory);
+  // rt.getRobotTrajectoryMsg(trajectory);
 
   // visual_tools.publishAxisLabeled(goal->target, "goal");
   // visual_tools.publishTrajectoryLine(trajectory, joint_model_group);
