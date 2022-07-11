@@ -4,9 +4,6 @@
 [submodule "mars_sim/nist_board_gazebo"]
 	path = mars_sim/nist_board_gazebo
 	url = https://github.com/purdue-mars/nist_board_gazebo 
-[submodule "panda_moveit_config"]
-	path = mars_sim/panda_moveit_config
-	url = https://github.com/purdue-mars/panda_moveit_config 
 [submodule "third_party/detectron2_ros"]
 	path = third_party/detectron2_ros
 	url = https://github.com/raghavauppuluri13/detectron2_ros
@@ -16,3 +13,6 @@
 [submodule "third_party/gelsight-ros"]
 	path = third_party/gelsight-ros
 	url = https://github.com/hmccarty/gelsight-ros
+[submodule "mars_panda"]
+	path = mars_panda
+	url = https://github.com/purdue-mars/mars_panda

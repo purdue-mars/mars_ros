@@ -1,0 +1,9 @@
+<launch>
+    <arg name="ips" default="{pan_pan/robot_ip: 172.16.1.2, an_an/robot_ip: 172.18.1.2}"/>
+    <include file="$(find dual_mars_arm_moveit_config)/launch/panda_moveit.launch">
+    </include>
+
+    <include file="$(find franka_control)/launch/mars_combined_control.launch">
+        <arg name="robot_ips" value="$(arg ips)"/>
+    </include>
+</launch>
