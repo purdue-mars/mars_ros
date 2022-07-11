@@ -1,5 +1,5 @@
 <launch>
     <node name="gelsight" type="gelsight.py" pkg="gelsight_ros" output="screen">
-        <rosparam command="load" file="$(find mars_config)/config/gelsight/new_gelsight.yml"/>
+        <rosparam command="load" file="$(find mars_config)/config/gelsight.yml"/>
     </node>
 </launch>
