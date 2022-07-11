@@ -3,8 +3,8 @@
 
 ICP::ICP() : mesh_pc_(new PointCloud), scene_pc_(new PointCloud), tf_(TFMatrix::Identity())
 {
-    ros::param::param("~max_correspondence_distance", max_corresp_dist_,0.5);
-    ros::param::param("~transformation_epsilon", transf_epsilon_,1e-11);
+    ros::param::param<double>("~max_correspondence_distance", max_corresp_dist_,0.5);
+    ros::param::param<double>("~transformation_epsilon", transf_epsilon_,1e-11);
     ros::param::param<double>("~fitness_epsilon", fitness_epsilon_,1e-3);
     ros::param::param<double>("~max_iterations", max_iter_,100);
     ros::param::get("base_link", base_frame_);
@@ -24,10 +24,12 @@ void ICP::scene_pc_cb_(const PointCloudMsg::ConstPtr &msg)
 
 void ICP::set_mesh_(std::string mesh_name)
 {
-    if(ros::param::has(mesh_name)) {
+    std::string mesh_param_name = "/perception/mesh_directory/" + mesh_name;
+    if(ros::param::has(mesh_param_name)) {
         std::string mesh_path;
-        ros::param::get("mesh_directory/" + mesh_name, mesh_path);
-        std::cout << "Mesh: " << mesh_path << "\n";
+        ros::param::get(mesh_param_name, mesh_path);
+        std::cout << "Mesh name: " << mesh_name << "\n";
+        std::cout << "Mesh path: " << mesh_path << "\n";
         pcl::PolygonMesh mesh;
         pcl::io::loadPolygonFileSTL(mesh_path, mesh);
         polygon_mesh_to_pc(&mesh, mesh_pc_);
@@ -62,9 +64,6 @@ void ICP::set_mesh_(std::string mesh_name)
             mesh_pc_->points[i].y -= centroid_y;
             mesh_pc_->points[i].z -= centroid_z;
         }
-
-
-        std::cout << "mesh_frame: " << mesh_pc_->header.frame_id << "\n";
     }
 }
 
@@ -84,7 +83,7 @@ void ICP::run() {
         tf_ = icp.getFinalTransformation() * tf_;
 
         tf::Transform transform;
-        std::string frame_id = mesh_name_ + "_frame";
+        std::string frame_id = mesh_name_;
         geometry_msgs::TransformStamped tf;
         Eigen::Quaternionf q(tf_.topLeftCorner<3, 3>());
         transform.setOrigin(tf::Vector3(tf_.col(3)(0), tf_.col(3)(1), tf_.col(3)(2)));
@@ -120,7 +119,7 @@ bool ICP::mesh_icp_srv(mars_msgs::ICPMeshTF::Request &req, mars_msgs::ICPMeshTF:
     for(int i = 0; i < 10; i++) {
         run();
     }
-    resp.tf.header.frame_id = mesh_name_ + "_frame";
+    resp.tf.header.frame_id = mesh_name_;
     resp.tf.header.stamp = ros::Time::now();
     Eigen::Quaternionf q(tf_.topLeftCorner<3, 3>());
     resp.tf.pose.position.x = tf_.col(3)(0);

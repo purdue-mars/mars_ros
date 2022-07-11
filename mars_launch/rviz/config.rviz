@@ -4,24 +4,13 @@ Panels:
     Name: Displays
     Property Tree Widget:
       Expanded:
-        - /MarkerArray1
-        - /PlanningScene1
-        - /PlanningScene1/Scene Geometry1
-        - /PlanningScene1/Scene Robot1
-        - /MotionPlanning1
         - /MotionPlanning1/Scene Geometry1
-        - /MotionPlanning1/Planned Path1
-        - /Axes1
-        - /TF1
+        - /MotionPlanning1/Planning Request1
         - /TF1/Frames1
         - /TF1/Tree1
-        - /PointCloud21
-        - /PointCloud22
-        - /Image1
-        - /Image2
-        - /Pose1
+        - /Image4
       Splitter Ratio: 0.7425600290298462
-    Tree Height: 443
+    Tree Height: 140
   - Class: rviz/Help
     Name: Help
   - Class: rviz/Views
@@ -55,190 +44,6 @@ Visualization Manager:
       Plane: XY
       Plane Cell Count: 10
       Reference Frame: <Fixed Frame>
-      Value: true
-    - Class: rviz/MarkerArray
-      Enabled: true
-      Marker Topic: /rviz_visual_tools
-      Name: MarkerArray
-      Namespaces:
-        {}
-      Queue Size: 100
-      Value: true
-    - Class: moveit_rviz_plugin/Trajectory
-      Color Enabled: false
-      Enabled: true
-      Interrupt Display: false
-      Links:
-        All Links Enabled: true
-        Expand Joint Details: false
-        Expand Link Details: false
-        Expand Tree: false
-        Link Tree Style: Links in Alphabetic Order
-        panda_hand:
-          Alpha: 1
-          Show Axes: false
-          Show Trail: false
-          Value: true
-        panda_hand_tcp:
-          Alpha: 1
-          Show Axes: false
-          Show Trail: false
-        panda_leftfinger:
-          Alpha: 1
-          Show Axes: false
-          Show Trail: false
-          Value: true
-        panda_link0:
-          Alpha: 1
-          Show Axes: false
-          Show Trail: false
-          Value: true
-        panda_link1:
-          Alpha: 1
-          Show Axes: false
-          Show Trail: false
-          Value: true
-        panda_link2:
-          Alpha: 1
-          Show Axes: false
-          Show Trail: false
-          Value: true
-        panda_link3:
-          Alpha: 1
-          Show Axes: false
-          Show Trail: false
-          Value: true
-        panda_link4:
-          Alpha: 1
-          Show Axes: false
-          Show Trail: false
-          Value: true
-        panda_link5:
-          Alpha: 1
-          Show Axes: false
-          Show Trail: false
-          Value: true
-        panda_link6:
-          Alpha: 1
-          Show Axes: false
-          Show Trail: false
-          Value: true
-        panda_link7:
-          Alpha: 1
-          Show Axes: false
-          Show Trail: false
-          Value: true
-        panda_link8:
-          Alpha: 1
-          Show Axes: false
-          Show Trail: false
-          Value: true
-        panda_rightfinger:
-          Alpha: 1
-          Show Axes: false
-          Show Trail: false
-          Value: true
-      Loop Animation: false
-      Name: Trajectory
-      Robot Alpha: 0.5
-      Robot Color: 150; 50; 150
-      Robot Description: robot_description
-      Show Robot Collision: false
-      Show Robot Visual: true
-      Show Trail: false
-      State Display Time: 0.05 s
-      Trail Step Size: 1
-      Trajectory Topic: /move_group/display_planned_path
-      Use Sim Time: false
-      Value: true
-    - Class: moveit_rviz_plugin/PlanningScene
-      Enabled: true
-      Move Group Namespace: ""
-      Name: PlanningScene
-      Planning Scene Topic: /move_group/monitored_planning_scene
-      Robot Description: robot_description
-      Scene Geometry:
-        Scene Alpha: 0.8999999761581421
-        Scene Color: 50; 230; 50
-        Scene Display Time: 0.20000000298023224
-        Show Scene Geometry: false
-        Voxel Coloring: Z-Axis
-        Voxel Rendering: Occupied Voxels
-      Scene Robot:
-        Attached Body Color: 150; 50; 150
-        Links:
-          All Links Enabled: true
-          Expand Joint Details: false
-          Expand Link Details: false
-          Expand Tree: false
-          Link Tree Style: Links in Alphabetic Order
-          panda_hand:
-            Alpha: 1
-            Show Axes: false
-            Show Trail: false
-            Value: true
-          panda_hand_tcp:
-            Alpha: 1
-            Show Axes: false
-            Show Trail: false
-          panda_leftfinger:
-            Alpha: 1
-            Show Axes: false
-            Show Trail: false
-            Value: true
-          panda_link0:
-            Alpha: 1
-            Show Axes: false
-            Show Trail: false
-            Value: true
-          panda_link1:
-            Alpha: 1
-            Show Axes: false
-            Show Trail: false
-            Value: true
-          panda_link2:
-            Alpha: 1
-            Show Axes: false
-            Show Trail: false
-            Value: true
-          panda_link3:
-            Alpha: 1
-            Show Axes: false
-            Show Trail: false
-            Value: true
-          panda_link4:
-            Alpha: 1
-            Show Axes: false
-            Show Trail: false
-            Value: true
-          panda_link5:
-            Alpha: 1
-            Show Axes: false
-            Show Trail: false
-            Value: true
-          panda_link6:
-            Alpha: 1
-            Show Axes: false
-            Show Trail: false
-            Value: true
-          panda_link7:
-            Alpha: 1
-            Show Axes: false
-            Show Trail: false
-            Value: true
-          panda_link8:
-            Alpha: 1
-            Show Axes: false
-            Show Trail: false
-            Value: true
-          panda_rightfinger:
-            Alpha: 1
-            Show Axes: false
-            Show Trail: false
-            Value: true
-        Robot Alpha: 1
-        Show Robot Collision: false
-        Show Robot Visual: true
       Value: true
     - Acceleration_Scaling_Factor: 0.1
       Class: moveit_rviz_plugin/MotionPlanning
@@ -358,8 +163,8 @@ Visualization Manager:
         Goal State Color: 250; 128; 0
         Interactive Marker Size: 0
         Joint Violation Color: 255; 0; 255
-        Planning Group: hand
-        Query Goal State: true
+        Planning Group: panda_arm
+        Query Goal State: false
         Query Start State: false
         Show Workspace: false
         Start State Alpha: 1
@@ -463,10 +268,6 @@ Visualization Manager:
       Frame Timeout: 60
       Frames:
         All Enabled: false
-        cable_female_frame:
-          Value: true
-        cable_male_frame:
-          Value: true
         d405_aligned_depth_to_color_frame:
           Value: false
         d405_color_frame:
@@ -493,14 +294,14 @@ Visualization Manager:
           Value: false
         d455_1_link:
           Value: false
-        gelsight_pad:
-          Value: true
         panda_EE:
           Value: false
         panda_K:
           Value: false
         panda_NE:
           Value: false
+        panda_gelsight_pad:
+          Value: true
         panda_hand:
           Value: false
         panda_hand_tcp:
@@ -538,10 +339,6 @@ Visualization Manager:
       Tree:
         world:
           panda_link0:
-            cable_female_frame:
-              {}
-            cable_male_frame:
-              {}
             d455_0_color_optical_frame:
               {}
             d455_0_link:
@@ -576,7 +373,7 @@ Visualization Manager:
                                 panda_K:
                                   {}
                             panda_hand:
-                              gelsight_pad:
+                              panda_gelsight_pad:
                                 {}
                               panda_hand_tcp:
                                 {}
@@ -609,7 +406,7 @@ Visualization Manager:
       Size (Pixels): 3
       Size (m): 0.009999999776482582
       Style: Points
-      Topic: /filtered_masked_points
+      Topic: /perception/scene_filtered_points
       Unreliable: false
       Use Fixed Frame: true
       Use rainbow: true
@@ -637,7 +434,7 @@ Visualization Manager:
       Size (Pixels): 3
       Size (m): 0.009999999776482582
       Style: Flat Squares
-      Topic: /object_mesh_pc
+      Topic: /perception/object_mesh_pc
       Unreliable: false
       Use Fixed Frame: true
       Use rainbow: true
@@ -660,10 +457,10 @@ Visualization Manager:
       Tz: 0.2648
       Value: true
       base: panda_link0
-      camera_info_topic: /d455_0/camera/color/camera_info
+      camera_info_topic: ""
       eef: panda_hand
-      group: hand
-      image_topic: /d455_0/camera/color/image_raw
+      group: panda_arm
+      image_topic: ""
       marker border (bits): 1
       marker separation (px): 20
       marker size (px): 200
@@ -678,7 +475,7 @@ Visualization Manager:
       target_type: HandEyeTarget/Aruco
     - Class: rviz/Image
       Enabled: true
-      Image Topic: /d455_0/detection/vis
+      Image Topic: /perception/d455_0/detection/vis
       Max Value: 1
       Median window: 5
       Min Value: 0
@@ -690,7 +487,7 @@ Visualization Manager:
       Value: true
     - Class: rviz/Image
       Enabled: true
-      Image Topic: /flow_image
+      Image Topic: /perception/flow_image
       Max Value: 1
       Median window: 5
       Min Value: 0
@@ -718,7 +515,7 @@ Visualization Manager:
       Value: true
     - Class: rviz/Image
       Enabled: true
-      Image Topic: /d455_1/camera/color/image_raw
+      Image Topic: /perception/d455_1/camera/color/image_raw
       Max Value: 1
       Median window: 5
       Min Value: 0
@@ -730,7 +527,7 @@ Visualization Manager:
       Value: true
     - Class: rviz/Image
       Enabled: true
-      Image Topic: /d405/camera/color/image_raw
+      Image Topic: /perception/d405/camera/color/image_raw
       Max Value: 1
       Median window: 5
       Min Value: 0
@@ -763,7 +560,7 @@ Visualization Manager:
   Views:
     Current:
       Class: rviz/XYOrbit
-      Distance: 1.772385835647583
+      Distance: 1.8177988529205322
       Enable Stereo Rendering:
         Stereo Eye Separation: 0.05999999865889549
         Stereo Focal Distance: 1
@@ -779,16 +576,16 @@ Visualization Manager:
       Invert Z Axis: false
       Name: Current View
       Near Clip Distance: 0.009999999776482582
-      Pitch: 0.4847944378852844
+      Pitch: 0.44979438185691833
       Target Frame: panda_link0
-      Yaw: 6.231775760650635
+      Yaw: 0.24359071254730225
     Saved: ~
 Window Geometry:
   Displays:
     collapsed: false
   HandEye Calibration:
     collapsed: false
-  Height: 1365
+  Height: 1383
   Help:
     collapsed: false
   Hide Left Dock: false
@@ -799,13 +596,11 @@ Window Geometry:
     collapsed: false
   MotionPlanning - Trajectory Slider:
     collapsed: false
-  QMainWindow State: 000000ff00000000fd0000000200000000000002b5000004fffc0200000014fb000000100044006900730070006c006100790073000000003b00000106000000c700fffffffb0000000800480065006c00700000000342000000bb0000006e00fffffffb0000000a00560069006500770073000000026d000000b5000000a000fffffffb0000000c00430061006d00650072006100000002ff000001610000000000000000fb0000001e004d006f00740069006f006e00200050006c0061006e006e0069006e00670100000374000001890000000000000000fb0000002e004d006f00740069006f006e0050006c0061006e006e0069006e00670020002d00200053006c0069006400650072010000026f000000480000000000000000fb0000001c004d006f00740069006f006e0050006c0061006e006e0069006e00670000000294000002410000016900fffffffb00000024005200760069007a00560069007300750061006c0054006f006f006c007300470075006900000004a5000000950000006e00fffffffb0000001c004d006f00740069006f006e0050006c0061006e006e0069006e0067010000034f000001fb0000000000000000fb000000120020002d00200053006c006900640065007201000002df000000480000000000000000fb0000001c004d006f00740069006f006e0050006c0061006e006e0069006e0067010000032d000001fb0000000000000000fb00000044004d006f00740069006f006e0050006c0061006e006e0069006e00670020002d0020005400720061006a006500630074006f0072007900200053006c00690064006500720000000000ffffffff0000001600000016fb000000280020002d0020005400720061006a006500630074006f0072007900200053006c00690064006500720000000000ffffffff0000000000000000fb0000003c005400720061006a006500630074006f007200790020002d0020005400720061006a006500630074006f0072007900200053006c00690064006500720000000000ffffffff0000001600000016fb000000280020002d0020005400720061006a006500630074006f0072007900200053006c00690064006500720000000000ffffffff0000000000000000fb0000001c004d006f00740069006f006e0050006c0061006e006e0069006e006701000003b4000001740000000000000000fb0000002600480061006e0064004500790065002000430061006c006900620072006100740069006f006e000000013a000001e1000001e100fffffffb0000000a0049006d006100670065010000003b000001c10000001600fffffffb0000000a0049006d0061006700650100000202000001a60000001600fffffffb0000000a0049006d00610067006501000003ae0000018c0000001600ffffff00000001000001a3000004fffc0200000001fb0000000a0049006d006100670065010000003b000004ff0000001600ffffff00000598000004ff00000001000000020000000100000002fc0000000100000002000000010000000a0054006f006f006c00730100000000ffffffff0000000000000000
+  QMainWindow State: 000000ff00000000fd00000002000000000000029600000511fc0200000014fb000000100044006900730070006c006100790073010000003b000000c7000000c700fffffffb0000000800480065006c00700000000342000000bb0000006e00fffffffb0000000a00560069006500770073000000026d000000b5000000a000fffffffb0000000c00430061006d00650072006100000002ff000001610000000000000000fb0000001e004d006f00740069006f006e00200050006c0061006e006e0069006e00670100000374000001890000000000000000fb0000002e004d006f00740069006f006e0050006c0061006e006e0069006e00670020002d00200053006c0069006400650072010000026f000000480000000000000000fb0000001c004d006f00740069006f006e0050006c0061006e006e0069006e00670000000294000002410000016900fffffffb00000024005200760069007a00560069007300750061006c0054006f006f006c007300470075006900000004a5000000950000006e00fffffffb0000001c004d006f00740069006f006e0050006c0061006e006e0069006e0067010000034f000001fb0000000000000000fb000000120020002d00200053006c006900640065007201000002df000000480000000000000000fb0000001c004d006f00740069006f006e0050006c0061006e006e0069006e0067010000032d000001fb0000000000000000fb00000044004d006f00740069006f006e0050006c0061006e006e0069006e00670020002d0020005400720061006a006500630074006f0072007900200053006c00690064006500720000000000ffffffff0000001600000016fb000000280020002d0020005400720061006a006500630074006f0072007900200053006c00690064006500720000000000ffffffff0000000000000000fb0000003c005400720061006a006500630074006f007200790020002d0020005400720061006a006500630074006f0072007900200053006c00690064006500720000000000ffffffff0000000000000000fb000000280020002d0020005400720061006a006500630074006f0072007900200053006c00690064006500720000000000ffffffff0000000000000000fb0000001c004d006f00740069006f006e0050006c0061006e006e0069006e006701000003b4000001740000000000000000fb0000002600480061006e0064004500790065002000430061006c006900620072006100740069006f006e000000013a000001e1000001e100fffffffb0000000a0049006d0061006700650100000108000001820000001600fffffffb0000000a0049006d0061006700650100000290000001370000001600fffffffb0000000a0049006d00610067006501000003cd0000017f0000001600ffffff00000001000001a300000511fc0200000001fb0000000a0049006d006100670065010000003b000005110000001600ffffff000005b70000051100000001000000020000000100000002fc0000000100000002000000010000000a0054006f006f006c00730100000000ffffffff0000000000000000
   RvizVisualToolsGui:
-    collapsed: false
-  Trajectory - Trajectory Slider:
     collapsed: false
   Views:
     collapsed: false
   Width: 2556
   X: 0
-  Y: 54
+  Y: 36

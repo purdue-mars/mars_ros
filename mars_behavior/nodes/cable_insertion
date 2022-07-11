@@ -63,7 +63,7 @@ class CableInsertionNode:
         rospy.sleep(0.1)
         self.icp(mesh_name)
         rospy.sleep(3.0)
-        pose = get_transform(mesh_name + '_frame',ref_frame, self.tf_listener)
+        pose = get_transform(mesh_name, ref_frame, self.tf_listener)
         return pose
     
     def add_goal_(self, goal : PoseStamped):

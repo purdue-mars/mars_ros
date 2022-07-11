@@ -26,6 +26,7 @@
 
     <!-- Perception -->
     <group ns="perception">
+        <param name="base_link" value="$(arg robot_id)_link0"/>
         <rosparam ns="mesh_directory" file="$(find mars_config)/config/mesh_directory.yml" command="load" subst_value="true" />
         <rosparam file="$(find mars_config)/config/perception.yml" command="load" subst_value="true" />
         <include file="$(find mars_perception)/launch/cameras.launch" />
