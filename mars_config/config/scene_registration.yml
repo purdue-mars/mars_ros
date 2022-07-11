@@ -1,10 +1,10 @@
 point_cloud_topics:
   [
-    "/d455_0/camera/depth/color/points",
-    "/d455_1/camera/depth/color/points",
-    "/d455_0/camera/depth/color/points",
+    "d455_0/camera/depth/color/points",
+    "d455_1/camera/depth/color/points",
+    "d455_0/camera/depth/color/points",
   ]
-filtered_points_topic: "/scene_filtered_points"
+filtered_points_topic: "scene_filtered_points"
 
 ## ICP for final alignment
 icp_enabled: false 

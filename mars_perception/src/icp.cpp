@@ -3,11 +3,11 @@
 
 ICP::ICP() : mesh_pc_(new PointCloud), scene_pc_(new PointCloud), tf_(TFMatrix::Identity())
 {
-    ros::param::get("~max_correspondence_distance", max_corresp_dist_);
-    ros::param::get("~transformation_epsilon", transf_epsilon_);
-    ros::param::get("~fitness_epsilon", fitness_epsilon_);
-    ros::param::get("~max_iterations", max_iter_);
-    ros::param::get("/base_frame", base_frame_);
+    ros::param::param("~max_correspondence_distance", max_corresp_dist_,0.5);
+    ros::param::param("~transformation_epsilon", transf_epsilon_,1e-11);
+    ros::param::param<double>("~fitness_epsilon", fitness_epsilon_,1e-3);
+    ros::param::param<double>("~max_iterations", max_iter_,100);
+    ros::param::get("base_link", base_frame_);
 
     std::string scene_pc_topic;
     ros::param::get("~filtered_points_topic", scene_pc_topic);
@@ -26,7 +26,7 @@ void ICP::set_mesh_(std::string mesh_name)
 {
     if(ros::param::has(mesh_name)) {
         std::string mesh_path;
-        nh_.getParam(mesh_name, mesh_path);
+        ros::param::get("mesh_directory/" + mesh_name, mesh_path);
         std::cout << "Mesh: " << mesh_path << "\n";
         pcl::PolygonMesh mesh;
         pcl::io::loadPolygonFileSTL(mesh_path, mesh);

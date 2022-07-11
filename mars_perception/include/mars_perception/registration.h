@@ -71,7 +71,7 @@ private:
   double reject_thres_;
   bool icp_enabled_;
 
-  std::string base_frame_id_;
+  std::string base_frame_;
 
   void pointcloud_callback(const PointCloudMsgT::ConstPtr &msg1, const PointCloudMsgT::ConstPtr &msg2, const PointCloudMsgT::ConstPtr &msg3);
 };

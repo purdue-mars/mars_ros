@@ -1,49 +1,20 @@
-#include <mars_msgs/MoveToAction.h>
-#include <actionlib/server/simple_action_server.h>
-#include <moveit/trajectory_processing/iterative_time_parameterization.h>
-#include <moveit/move_group_interface/move_group_interface.h>
-#include <moveit/planning_scene_interface/planning_scene_interface.h>
-#include <moveit_visual_tools/moveit_visual_tools.h>
+#include <mars_control/planning_server.h>
 
-#include <mars_control/kinematics.h>
+PlanningServer::PlanningServer() : as_(nh_, SERVER_NAME, boost::bind(&PlanningServer::execute, this, _1), false) {
+  ros::param::param<std::string>("planning_group",planning_group_, "panda_arm");
+  ros::param::param<std::string>("ee_link",ee_link_, "panda_hand");
+  ros::param::param<std::string>("bas_e_link",base_link_, "panda_link0");
+  as_.start();
+} 
 
-typedef actionlib::SimpleActionServer<mars_msgs::MoveToAction> Server;
-static const std::string PLANNING_GROUP = "panda_arm";
-
-// bool convert_to_planning_frame(const geometry_msgs::PoseStamped& p) {
-//   robot_model_loader::RobotModelLoader robot_model_loader("robot_description");
-//   robot_model::RobotModelPtr kinematic_model = robot_model_loader.getModel();
-//   robot_state::RobotStatePtr kinematic_state(new robot_state::RobotState(kinematic_model));
-//   kinematic_state->setToDefaultValues();
-//   const robot_state::JointModelGroup* joint_model_group = kinematic_model->getJointModelGroup("panda_arm");
-
-//   const std::vector<std::string> &joint_names = joint_model_group->getJointModelNames();
-//   bool found_ik = kinematic_state->setFromIK(joint_model_group, p, 10, 0.1);
-//   std::vector<double> joint_values;
-//   if (found_ik)
-//   {
-//     kinematic_state->copyJointGroupPositions(joint_model_group, joint_values);
-//   }
-//   else {
-//     ROS_INFO("Did not find IK solution");
-//     return false
-//   }
-  
-// }
-
-void execute(const mars_msgs::MoveToGoalConstPtr &goal, Server *as)
+void PlanningServer::execute(const mars_msgs::MoveToGoalConstPtr &goal)
 {
-  namespace rvt = rviz_visual_tools;
-  moveit_visual_tools::MoveItVisualTools visual_tools("panda_link0");
-  visual_tools.deleteAllMarkers();
-
-  moveit::planning_interface::MoveGroupInterface move_group_interface(PLANNING_GROUP);
+  moveit::planning_interface::MoveGroupInterface move_group_interface(planning_group_);
   const moveit::core::JointModelGroup *joint_model_group =
-      move_group_interface.getCurrentState()->getJointModelGroup(PLANNING_GROUP);
+      move_group_interface.getCurrentState()->getJointModelGroup(planning_group_);
 
-  move_group_interface.setGoalOrientationTolerance(0.001);
-  move_group_interface.setGoalPositionTolerance(0.001);
-  move_group_interface.setMaxVelocityScalingFactor(0.2);
+  move_group_interface.setEndEffectorLink(ee_link_);
+  move_group_interface.setPoseReferenceFrame(base_link_);
 
   moveit::core::RobotState start_state(*move_group_interface.getCurrentState());
 
@@ -52,12 +23,8 @@ void execute(const mars_msgs::MoveToGoalConstPtr &goal, Server *as)
     waypoints.push_back(goal->targets[i]);
   }
   moveit_msgs::RobotTrajectory trajectory;
-  move_group_interface.setMaxVelocityScalingFactor(0.01);
-  move_group_interface.setMaxAccelerationScalingFactor(0.01);
-  move_group_interface.setEndEffectorLink("panda_hand");
-  move_group_interface.setPoseReferenceFrame("panda_link0");
   double fraction = move_group_interface.computeCartesianPath(waypoints,
-                                                              0.01, // eef_step
+                                                              0.001, // eef_step
                                                               0.00,  // jump_threshold
                                                               trajectory);
 
@@ -70,24 +37,15 @@ void execute(const mars_msgs::MoveToGoalConstPtr &goal, Server *as)
 
   // rt.getRobotTrajectoryMsg(trajectory);
 
-  // visual_tools.publishAxisLabeled(goal->target, "goal");
-  // visual_tools.publishTrajectoryLine(trajectory, joint_model_group);
-
   move_group_interface.execute(trajectory);
 
-  as->setSucceeded();
+  as_.setSucceeded();
 }
 
 int main(int argc, char **argv)
 {
   ros::init(argc, argv, "move_to_server");
-  ros::NodeHandle n;
-
-  // ros::AsyncSpinner spinner(1);
-  // spinner.start();
-
-  Server server(n, "move_to", boost::bind(&execute, _1, &server), false);
-  server.start();
+  PlanningServer server;
   ros::spin();
   return 0;
 }

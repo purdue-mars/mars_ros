@@ -1,43 +1,52 @@
 <launch>
-    <arg name="robot_ip" default="172.16.1.2"/>
-    <arg name="load_gripper" default="true"/>
-    <arg name="rviz" default="true"/>
+    <arg name="robot_ip" default="172.16.1.2" />
+    <arg name="load_gripper" default="true" />
+    <arg name="rviz" default="true" />
+    <arg name="robot_id" default="panda"/>
 
-    <rosparam file="$(find mars_config)/config/global.yml" command="load" subst_value="true"/>
-    <rosparam file="$(find mars_config)/config/mesh.yml" command="load" subst_value="true"/>
+    <param name="base_link" value="$(arg robot_id)_link0"/>
+    <param name="ee_link" value="$(arg robot_id)_hand"/>
+    <param name="grasp_link" value="$(arg robot_id)_gelsight_pad"/>
 
-    <node pkg="tf2_ros" type="static_transform_publisher" name="virtual_joint_broadcaster_zero" args="0 0 0 0 0 0 world panda_link0" /> 
-    <node pkg="tf2_ros" type="static_transform_publisher" name="gelsight_finger_broadcaster" args="0 0 0.177 0 0 0 panda_hand gelsight_pad" /> 
-    <include file="$(find franka_control)/launch/franka_control.launch" >
+    <node pkg="tf2_ros" type="static_transform_publisher" name="gelsight_finger_broadcaster" args="0 0 0.177 0 0 0 $(arg robot_id)_hand $(arg robot_id)_gelsight_pad" />
+
+    <node pkg="tf2_ros" type="static_transform_publisher" name="world_arm_broadcaster" args="0 0 0 0 0 0 world $(arg robot_id)_link0" />
+    <include file="$(find franka_control)/launch/franka_control.launch">
         <arg name="robot_ip" value="$(arg robot_ip)" />
         <arg name="load_gripper" value="$(arg load_gripper)" />
     </include>
-    
+
     <include file="$(find panda_moveit_config)/launch/panda_moveit.launch">
         <arg name="load_gripper" value="$(arg load_gripper)" />
     </include>
 
-    <include file="$(find mars_perception)/launch/cameras.launch"/>
-    <include file="$(find mars_launch)/launch/gelsight.launch"/>
+    <include file="$(find mars_control)/launch/planning_server.launch" />
 
-    <include file="$(find mars_control)/launch/planning_server.launch"/>
-    <node pkg="rviz" type="rviz" name="rviz" args="-d $(find mars_launch)/rviz/config.rviz"/>
+    <node pkg="rviz" type="rviz" name="rviz" args="-d $(find mars_launch)/rviz/config.rviz" />
 
-    <node name="global_pc_registration" type="pc_registration" pkg="mars_perception" output="screen" >
-        <rosparam file="$(find mars_config)/config/global_registration.yml" command="load"  />
-    </node>
+    <!-- Perception -->
+    <group ns="perception">
+        <rosparam ns="mesh_directory" file="$(find mars_config)/config/mesh_directory.yml" command="load" subst_value="true" />
+        <rosparam file="$(find mars_config)/config/perception.yml" command="load" subst_value="true" />
+        <include file="$(find mars_perception)/launch/cameras.launch" />
+        <include file="$(find mars_launch)/launch/gelsight.launch" />
 
-    <node name="pc_registration" type="pc_registration" pkg="mars_perception" output="screen" >
-        <rosparam file="$(find mars_config)/config/object_registration.yml" command="load"  />
-    </node>
+        <node name="global_pc_registration" type="pc_registration" pkg="mars_perception" output="screen">
+            <rosparam file="$(find mars_config)/config/scene_registration.yml" command="load" />
+        </node>
 
-    <node name="icp_server" type="icp_server" pkg="mars_perception" output="screen" >
-        <rosparam file="$(find mars_config)/config/object_registration.yml" command="load"  />
-        <param name="max_iterations" value="100" />
-    </node>
+        <node name="pc_registration" type="pc_registration" pkg="mars_perception" output="screen">
+            <rosparam file="$(find mars_config)/config/object_registration.yml" command="load" />
+        </node>
 
-    <machine name="mars-linux-2" address="192.168.0.112" env-loader="~/mars_env.bash" user="ruppulur" default="true"/>
+        <node name="icp_server" type="icp_server" pkg="mars_perception" output="screen">
+            <rosparam file="$(find mars_config)/config/object_registration.yml" command="load" />
+            <param name="max_iterations" value="100" />
+        </node>
 
-    <include file="$(find mars_perception)/launch/detection.launch"/>
+        <machine name="mars-linux-2" address="192.168.0.112" env-loader="~/mars_env.bash" user="ruppulur" default="true" />
+
+        <include file="$(find mars_perception)/launch/detection.launch" />
+    </group>
 
 </launch>

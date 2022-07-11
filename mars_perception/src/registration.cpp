@@ -5,7 +5,7 @@ PCRegistration::PCRegistration() : nh_(), tf_listener_(), cloud_concatenated(new
   std::vector<std::string> point_cloud_topics;
   std::string output_topic;
 
-  ros::param::get("/base_frame", base_frame_id_);
+  ros::param::get("base_link", base_frame_);
 
   // global
   ros::param::get("~filtered_points_topic", output_topic);
@@ -63,8 +63,8 @@ void PCRegistration::pointcloud_callback(const PointCloudMsgT::ConstPtr &msg1, c
     {
       cloud_sources[i] = PointCloudT().makeShared();
       pcl::fromROSMsg(*msgs[i], *cloud_sources[i]);
-      tf_listener_.waitForTransform(base_frame_id_, msgs[i]->header.frame_id, ros::Time(0), ros::Duration(1.0));
-      pcl_ros::transformPointCloud(base_frame_id_, ros::Time(0), *cloud_sources[i], msgs[i]->header.frame_id, *cloud_sources[i], tf_listener_);
+      tf_listener_.waitForTransform(base_frame_, msgs[i]->header.frame_id, ros::Time(0), ros::Duration(1.0));
+      pcl_ros::transformPointCloud(base_frame_, ros::Time(0), *cloud_sources[i], msgs[i]->header.frame_id, *cloud_sources[i], tf_listener_);
 
       if (cloud_sources[i]->size() != 0)
       {
@@ -121,6 +121,6 @@ void PCRegistration::pointcloud_callback(const PointCloudMsgT::ConstPtr &msg1, c
 
   // Publish
   cloud_concatenated->header = pcl_conversions::toPCL(msgs[0]->header);
-  cloud_concatenated->header.frame_id = base_frame_id_;
+  cloud_concatenated->header.frame_id = base_frame_;
   cloud_publisher_.publish(cloud_concatenated);
 }

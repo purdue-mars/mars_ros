@@ -10,6 +10,8 @@
 #include <franka_gripper/HomingAction.h>
 #include <std_msgs/Float32.h>
 
+// TODO: OUTDATED
+
 #define GRAPS_THRES 0.7
 
 class PickNode {

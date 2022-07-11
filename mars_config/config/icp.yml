@@ -1,4 +1,0 @@
-max_correspondence_distance: 0.5
-transformation_epsilon: 0.00000000001
-fitness_epsilon: 0.001
-max_iterations: 500

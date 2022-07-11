@@ -16,36 +16,36 @@ from message_filters import Subscriber, ApproximateTimeSynchronizer
 class MaskNode:
     def __init__(self):
 
-        self.detect_names = rospy.get_param("/detect_class_names")
+        self.detect_names = rospy.get_param("detect_class_names")
 
-        mask_topic = rospy.get_param("/mask_topic")
-        color_topic = str(rospy.get_param("/color_topic"))
+        mask_topic = rospy.get_param("mask_topic")
+        color_topic = str(rospy.get_param("color_topic"))
         color_info_topic = color_topic.split('/')[0] + '/' + 'camera_info' 
-        depth_topic = rospy.get_param("/depth_topic")
-        masked_out_topic = rospy.get_param("/masked_out_topic")
+        depth_topic = rospy.get_param("depth_topic")
+        masked_out_topic = rospy.get_param("masked_out_topic")
 
         self.camera_ns = list(rospy.get_param('~camera_ns'))
         masked_depth_topic = depth_topic.split('/')[0] + '/' + masked_out_topic 
         masked_color_topic = color_topic.split('/')[0] + '/' + masked_out_topic 
 
-        self.color_info_subs = [Subscriber(f'/{cam}/camera/{color_info_topic}', CameraInfo) for cam in self.camera_ns]
+        self.color_info_subs = [Subscriber(f'{cam}/camera/{color_info_topic}', CameraInfo) for cam in self.camera_ns]
         self.ats_color_info = ApproximateTimeSynchronizer(self.color_info_subs,queue_size=10,slop=0.1)
         self.ats_color_info.registerCallback(self.color_info_cb);
 
-        self.detect_subs = [Subscriber(f'/{cam}/{mask_topic}', Result) for cam in self.camera_ns]
+        self.detect_subs = [Subscriber(f'{cam}/{mask_topic}', Result) for cam in self.camera_ns]
         self.ats_detect = ApproximateTimeSynchronizer(self.detect_subs,queue_size=10,slop=0.1)
         self.ats_detect.registerCallback(self.detection_cb);
 
-        self.depth_subs = [Subscriber(f'/{cam}/camera/{depth_topic}', Image) for cam in self.camera_ns]
+        self.depth_subs = [Subscriber(f'{cam}/camera/{depth_topic}', Image) for cam in self.camera_ns]
         self.ats_depth = ApproximateTimeSynchronizer(self.depth_subs,queue_size=10,slop=0.1)
         self.ats_depth.registerCallback(self.depth_callback);
 
-        self.color_subs = [Subscriber(f'/{cam}/camera/{color_topic}', Image) for cam in self.camera_ns]
+        self.color_subs = [Subscriber(f'{cam}/camera/{color_topic}', Image) for cam in self.camera_ns]
         self.ats_color = ApproximateTimeSynchronizer(self.color_subs,queue_size=10,slop=0.1)
         self.ats_color.registerCallback(self.color_callback);
 
-        self.masked_color_pubs = [rospy.Publisher(f'/{cam}/camera/{masked_color_topic}', Image, queue_size=10) for cam in self.camera_ns]
-        self.masked_depth_pubs = [rospy.Publisher(f'/{cam}/camera/{masked_depth_topic}', Image, queue_size=10) for cam in self.camera_ns]
+        self.masked_color_pubs = [rospy.Publisher(f'{cam}/camera/{masked_color_topic}', Image, queue_size=10) for cam in self.camera_ns]
+        self.masked_depth_pubs = [rospy.Publisher(f'{cam}/camera/{masked_depth_topic}', Image, queue_size=10) for cam in self.camera_ns]
 
         self.br = CvBridge()
         self.widths = [None] * len(self.camera_ns)
@@ -60,7 +60,7 @@ class MaskNode:
             self.heights[i] = msgs[i].height
 
     def detection_cb(self,*msgs):
-        self.detect_names = rospy.get_param_cached("/detect_class_names",["connector_male","connector_female"])
+        self.detect_names = rospy.get_param_cached("detect_class_names",["connector_male","connector_female"])
         for i in range(len(self.camera_ns)):
             if self.widths[i] is not None and self.heights[i] is not None:
                 mask = np.zeros((self.heights[i],self.widths[i]),dtype=np.uint8)
