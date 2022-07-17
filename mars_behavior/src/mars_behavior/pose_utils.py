@@ -44,7 +44,8 @@ def normalize(x):
 def get_transform(source_frame : str, target_frame : str,tf_listener : TransformListener):
     try:
         (trans,rot) = tf_listener.lookupTransform(target_frame, source_frame, rospy.Time(0))
-    except (tf.LookupException, tf.ConnectivityException, tf.ExtrapolationException):
+    except (tf.LookupException, tf.ConnectivityException, tf.ExtrapolationException) as e:
+        print(e)
         return 
 
     pose = Pose()
@@ -77,6 +78,13 @@ def rotate_mat_from_euler(angles,rot_mat):
     quat = quat / np.linalg.norm(quat)
     mat = quaternion_matrix(quat)
     return mat 
+
+def vec_to_hom_mat(vec : np.ndarray):
+    T = np.identity(4) 
+    X = np.ones(4)
+    X[:3] = vec
+    T[:,3] = X 
+    return T
 
 def rot_from_a_to_b(a : np.ndarray, b : np.ndarray):
     cross_1_2 = np.cross(a,b)

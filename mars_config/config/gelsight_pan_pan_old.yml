@@ -24,7 +24,7 @@ depth:
 markers:
   enable: true
   topic_name: "markers"
-  publish_image: true
+  publish_image: false 
   threshold_block_size: 33
   threshold_neg_bias: 15
   marker_neighborhood_size: 20

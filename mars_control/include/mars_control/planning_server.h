@@ -6,19 +6,24 @@
 #include <moveit/planning_scene_interface/planning_scene_interface.h>
 #include <moveit_visual_tools/moveit_visual_tools.h>
 #include <stdlib.h>
+#include <algorithm>
 
 #pragma once
 
 #define SERVER_NAME "move_to"
 
-class PlanningServer {
+#define DEFAULT_PLANNING_GROUP "panda_arm"
 
-    private:
-        ros::NodeHandle nh_;
-        std::string planning_group_, base_link_, ee_link_;
-        actionlib::SimpleActionServer<mars_msgs::MoveToAction> as_;
+class PlanningServer
+{
 
-    public:
-        PlanningServer();
-        void execute(const mars_msgs::MoveToGoalConstPtr &goal);
+private:
+    ros::NodeHandle nh_;
+    std::string global_planning_group_;
+    actionlib::SimpleActionServer<mars_msgs::MoveToAction> as_;
+
+public:
+    PlanningServer();
+    void execute(const mars_msgs::MoveToGoalConstPtr &goal);
+    void set_combined_traj(moveit_msgs::RobotTrajectory &traj, std::string planning_group);
 };

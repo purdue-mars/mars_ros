@@ -12,6 +12,7 @@
         "./mars_perception/src",
         "./mars_behavior/src",
         "./mars_behavior/src",
+        "./mars_behavior/src",
         "./mars_behavior/src"
     ]
 }

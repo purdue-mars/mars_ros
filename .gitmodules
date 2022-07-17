@@ -16,3 +16,6 @@
 [submodule "mars_panda"]
 	path = mars_panda
 	url = https://github.com/purdue-mars/mars_panda
+[submodule "third_party/moveit"]
+	path = third_party/moveit
+	url = https://github.com/ros-planning/moveit

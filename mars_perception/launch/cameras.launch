@@ -7,7 +7,7 @@
   <arg name="sim" default="false" />
 
   <arg name="d455_1_en" default="true"/>
-  <arg name="d405_en" default="true"/>
+  <arg name="d405_en" default="false"/>
   <arg name="d455_0_en" default="true"/>
 
   <arg name="robot_id" default="panda"/>
