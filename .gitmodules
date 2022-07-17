@@ -1,9 +1,6 @@
 [submodule "mars_sim/realsense_ros_gazebo"]
 	path = mars_sim/realsense_ros_gazebo
 	url = https://github.com/nilseuropa/realsense_ros_gazebo
-[submodule "mars_sim/nist_board_gazebo"]
-	path = mars_sim/nist_board_gazebo
-	url = https://github.com/purdue-mars/nist_board_gazebo 
 [submodule "third_party/detectron2_ros"]
 	path = third_party/detectron2_ros
 	url = https://github.com/raghavauppuluri13/detectron2_ros
@@ -19,3 +16,6 @@
 [submodule "third_party/moveit"]
 	path = third_party/moveit
 	url = https://github.com/ros-planning/moveit
+[submodule "mars_sim/nist_board_gazebo"]
+	path = mars_sim/nist_board_gazebo
+	url = https://github.com/purdue-mars/nist_board_gazebo
