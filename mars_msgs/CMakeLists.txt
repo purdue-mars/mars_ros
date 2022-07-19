@@ -17,7 +17,7 @@ find_package(catkin REQUIRED COMPONENTS
 add_service_files(
   DIRECTORY srv
   FILES
-  ICPMeshTF.srv
+  PointCorrTF.srv
 )
 
 add_message_files(

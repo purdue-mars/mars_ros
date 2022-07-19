@@ -7,6 +7,8 @@ import tf
 from typing import Dict, List
 import actionlib
 from moveit_commander import MoveGroupCommander
+from controller_manager_msgs.srv import SwitchController, LoadController, ListControllers
+from controller_manager_msgs.msg import ControllerState
 from mars_msgs.msg import MoveToAction, MoveToGoal
 from geometry_msgs.msg import (Pose, PoseStamped)
 import ros_numpy
@@ -48,7 +50,42 @@ class ArmTF:
     @property 
     def grasp_frame(self):
         return self.grasp_frame_
+    
+    
+class ControlTaskInterface:
+    cur_task: str = 'moveit'
 
+    def __init__(self, task_controller_dict : Dict[str,str]) -> None:
+        rospy.wait_for_service('controller_manager/switch_controller')
+        rospy.wait_for_service('controller_manager/load_controller')
+
+        self.switch_controller_ = rospy.ServiceProxy(
+            'controller_manager/switch_controller', SwitchController)
+        self.load_controller_ = rospy.ServiceProxy(
+            'controller_manager/load_controller', LoadController)
+        self.list_controllers_ = rospy.ServiceProxy(
+            'controller_manager/list_controllers', ListControllers)
+        
+        self.task_controller_dict_ = task_controller_dict
+        controller_list: List[ControllerState] = self.list_controllers_().controller
+        for key in task_controller_dict:
+            name = task_controller_dict[key] 
+            controller_names = [c.name for c in controller_list]
+            if not name in controller_names:
+                self.load_controller_(name)
+
+
+    def run_task(self, task : str):
+        rospy.loginfo(f"RUNNING TASK: {task}")
+        if not task in self.task_controller_dict_:
+            rospy.logerr(f'Invalid task: {task}')
+            rospy.loginfo(f'Valid tasks: {self.task_controller_dict_.keys()}')
+            return False
+        task_controller = self.task_controller_dict_[task]
+        cur_controller = self.task_controller_dict_[self.cur_task]
+        self.switch_controller_(start_controllers=[task_controller],stop_controllers=[cur_controller],strictness=2)
+        self.cur_task = task
+        return True
 
 class ArmInterface:
 
@@ -62,6 +99,8 @@ class ArmInterface:
         rospy.loginfo('waiting for move_to server')
         self.move.wait_for_server()
         self.commander = MoveGroupCommander(self.planning_group_)
+        task_controller_dict: Dict[str,str] = rospy.get_param('/task_controller_dict')
+        self.task_interface = ControlTaskInterface(task_controller_dict)
 
     def execute_planned_goals(self,arm_tf : ArmTF):
         goal = MoveToGoal(targets=self.planning_goals_[arm_tf.id],
@@ -90,6 +129,12 @@ class ArmInterface:
         if goal.header.frame_id != self.base_frame_:
             g = self.to_base(g)
         self.planning_goals_[arm_tf.id].append(g.pose)
+    
+    def run_task(self,task,callback):
+        success = self.task_interface.run_task(task)
+        if success:
+            callback()
+        self.task_interface.run_task('moveit')
 
     @property 
     def base_frame(self):

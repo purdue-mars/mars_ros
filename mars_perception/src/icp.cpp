@@ -1,12 +1,11 @@
 #include <mars_perception/icp.h>
 
-
-ICP::ICP() : mesh_pc_(new PointCloud), scene_pc_(new PointCloud), tf_(TFMatrix::Identity())
+ICP::ICP() : scene_pc_(new PointCloud), tf_(TFMatrix::Identity())
 {
-    ros::param::param<double>("~max_correspondence_distance", max_corresp_dist_,0.5);
-    ros::param::param<double>("~transformation_epsilon", transf_epsilon_,1e-11);
-    ros::param::param<double>("~fitness_epsilon", fitness_epsilon_,1e-3);
-    ros::param::param<double>("~max_iterations", max_iter_,100);
+    ros::param::param<double>("~max_correspondence_distance", max_corresp_dist_, 0.5);
+    ros::param::param<double>("~transformation_epsilon", transf_epsilon_, 1e-11);
+    ros::param::param<double>("~fitness_epsilon", fitness_epsilon_, 1e-3);
+    ros::param::param<double>("~max_iterations", max_iter_, 100);
     ros::param::get("base_link", base_frame_);
 
     std::string scene_pc_topic;
@@ -22,68 +21,25 @@ void ICP::scene_pc_cb_(const PointCloudMsg::ConstPtr &msg)
     pcl::fromROSMsg(*msg, *scene_pc_);
 }
 
-void ICP::set_mesh_(std::string mesh_name)
+void ICP::run()
 {
-    std::string mesh_param_name = "/perception/mesh_directory/" + mesh_name;
-    if(ros::param::has(mesh_param_name)) {
-        std::string mesh_path;
-        ros::param::get(mesh_param_name, mesh_path);
-        std::cout << "Mesh name: " << mesh_name << "\n";
-        std::cout << "Mesh path: " << mesh_path << "\n";
-        pcl::PolygonMesh mesh;
-        pcl::io::loadPolygonFileSTL(mesh_path, mesh);
-        polygon_mesh_to_pc(&mesh, mesh_pc_);
-
-        for (int i = 0; i < mesh_pc_->points.size(); i++)
-        {
-            mesh_pc_->points[i].x /= 1000;
-            mesh_pc_->points[i].y /= 1000;
-            mesh_pc_->points[i].z /= 1000;
-        }
-
-        float centroid_x = 0.0;
-        float centroid_y = 0.0;
-        float centroid_z = 0.0;
-
-        for (int i = 0; i < mesh_pc_->points.size(); i++)
-        {
-        centroid_x += mesh_pc_->points[i].x;
-        centroid_y += mesh_pc_->points[i].y;
-        centroid_z += mesh_pc_->points[i].z;
-        }
-
-        centroid_x /= mesh_pc_->points.size();
-        centroid_y /= mesh_pc_->points.size();
-        centroid_z /= mesh_pc_->points.size();
-
-        std::cout << centroid_x << " " << centroid_y << " " << centroid_z << "\n";
-
-        for (int i = 0; i < mesh_pc_->points.size(); i++)
-        {
-            mesh_pc_->points[i].x -= centroid_x;
-            mesh_pc_->points[i].y -= centroid_y;
-            mesh_pc_->points[i].z -= centroid_z;
-        }
-    }
-}
-
-void ICP::run() {
     try
     {
-        if (scene_pc_->empty() || mesh_pc_->empty())
+        PointCloudPtr mesh_ptr = mesh_.get_pc_ptr();
+        if (scene_pc_->empty() || mesh_ptr->empty())
         {
-            return; 
+            return;
         }
-        pcl::IterativeClosestPoint<ICP::Point, ICP::Point> icp;
-        icp.setInputSource(mesh_pc_);
+        pcl::IterativeClosestPoint<Point, Point> icp;
+        icp.setInputSource(mesh_ptr);
         icp.setInputTarget(scene_pc_);
 
-        icp.align(*mesh_pc_);
+        icp.align(*mesh_ptr);
 
         tf_ = icp.getFinalTransformation() * tf_;
 
         tf::Transform transform;
-        std::string frame_id = mesh_name_;
+        std::string frame_id = mesh_.get_name();
         geometry_msgs::TransformStamped tf;
         Eigen::Quaternionf q(tf_.topLeftCorner<3, 3>());
         transform.setOrigin(tf::Vector3(tf_.col(3)(0), tf_.col(3)(1), tf_.col(3)(2)));
@@ -100,26 +56,30 @@ void ICP::run() {
         tf.transform.rotation.w = q.w();
         br_.sendTransform(tf);
 
-        mesh_pc_->header.frame_id = base_frame_;
-        mesh_pub_.publish(mesh_pc_);
+        mesh_ptr->header.frame_id = base_frame_;
+        mesh_pub_.publish(mesh_ptr);
     }
-    catch(const std::exception& e)
+    catch (const std::exception &e)
     {
         std::cerr << e.what() << '\n';
     }
 }
 
-bool ICP::mesh_icp_srv(mars_msgs::ICPMeshTF::Request &req, mars_msgs::ICPMeshTF::Response &resp)
+bool ICP::mesh_icp_srv(mars_msgs::PointCorrTF::Request &req, mars_msgs::PointCorrTF::Response &resp)
 {
-    set_mesh_(req.mesh_name);
-    tf_ = TFMatrix::Identity();
-    mesh_name_ = req.mesh_name;
+    bool result = mesh_.update_mesh(req.mesh_name);
+    if(!result) {
+        ROS_ERROR("Update mesh failed! Double check that mesh .obj file is valid!");
+        return false;
+    }
 
-    std::cout << mesh_name_ << "\n"; 
-    for(int i = 0; i < 10; i++) {
+    tf_ = TFMatrix::Identity();
+
+    for (int i = 0; i < 10; i++)
+    {
         run();
     }
-    resp.tf.header.frame_id = mesh_name_;
+    resp.tf.header.frame_id = req.mesh_name;
     resp.tf.header.stamp = ros::Time::now();
     Eigen::Quaternionf q(tf_.topLeftCorner<3, 3>());
     resp.tf.pose.position.x = tf_.col(3)(0);

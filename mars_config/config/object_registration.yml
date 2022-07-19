@@ -21,9 +21,9 @@ median_enabled: false
 # voxel filter
 voxel_enabled: false
 leaf_sizes:
-  - [0.001, 0.001, 0.001]
-  - [0.001, 0.001, 0.001]
-  - [0.001, 0.001, 0.001]
+  - [0.0001, 0.0001, 0.001]
+  - [0.0001, 0.0001, 0.001]
+  - [0.0001, 0.0001, 0.001]
 
 # Box Filter
 box_enabled: false

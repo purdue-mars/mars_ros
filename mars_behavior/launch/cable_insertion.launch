@@ -5,10 +5,13 @@
         <node name="cable_insertion" type="cable_insertion" pkg="mars_behavior" output="screen">
             <param name="robot_ids" value="[panda]" />
         </node>
+        <rosparam command="load" file="$(find icra18)/config/controllers.yaml"/> 
     </group>
     <group ns="$(arg robot_id)" if="$(arg dual_arm)">
         <node name="cable_insertion" type="cable_insertion_dual" pkg="mars_behavior" output="screen">
             <param name="robot_ids" value="[pan_pan,an_an]" />
         </node>
+        <rosparam command="load" file="$(find icra18)/config/dual_controllers.yaml" /> 
     </group>
+    <node name="rqt_reconfigure" pkg="rqt_reconfigure" type="rqt_reconfigure" required="false" /> 
 </launch>

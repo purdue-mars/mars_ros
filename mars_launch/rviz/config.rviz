@@ -8,9 +8,11 @@ Panels:
         - /MotionPlanning1/Planning Request1
         - /TF1/Frames1
         - /TF1/Tree1
+        - /PointCloud21
+        - /PointCloud22
         - /Image4
       Splitter Ratio: 0.7425600290298462
-    Tree Height: 140
+    Tree Height: 209
   - Class: rviz/Help
     Name: Help
   - Class: rviz/Views
@@ -76,20 +78,6 @@ Visualization Manager:
           Expand Link Details: false
           Expand Tree: false
           Link Tree Style: Links in Alphabetic Order
-          panda_hand:
-            Alpha: 1
-            Show Axes: false
-            Show Trail: false
-            Value: true
-          panda_hand_tcp:
-            Alpha: 1
-            Show Axes: false
-            Show Trail: false
-          panda_leftfinger:
-            Alpha: 1
-            Show Axes: false
-            Show Trail: false
-            Value: true
           panda_link0:
             Alpha: 1
             Show Axes: false
@@ -131,11 +119,6 @@ Visualization Manager:
             Show Trail: false
             Value: true
           panda_link8:
-            Alpha: 1
-            Show Axes: false
-            Show Trail: false
-            Value: true
-          panda_rightfinger:
             Alpha: 1
             Show Axes: false
             Show Trail: false
@@ -186,20 +169,6 @@ Visualization Manager:
           Expand Link Details: false
           Expand Tree: false
           Link Tree Style: Links in Alphabetic Order
-          panda_hand:
-            Alpha: 1
-            Show Axes: false
-            Show Trail: false
-            Value: true
-          panda_hand_tcp:
-            Alpha: 1
-            Show Axes: false
-            Show Trail: false
-          panda_leftfinger:
-            Alpha: 1
-            Show Axes: false
-            Show Trail: false
-            Value: true
           panda_link0:
             Alpha: 1
             Show Axes: false
@@ -245,11 +214,6 @@ Visualization Manager:
             Show Axes: false
             Show Trail: false
             Value: true
-          panda_rightfinger:
-            Alpha: 1
-            Show Axes: false
-            Show Trail: false
-            Value: true
         Robot Alpha: 1
         Show Robot Collision: false
         Show Robot Visual: true
@@ -268,16 +232,8 @@ Visualization Manager:
       Frame Timeout: 60
       Frames:
         All Enabled: false
-        d405_aligned_depth_to_color_frame:
-          Value: false
-        d405_color_frame:
-          Value: false
-        d405_color_optical_frame:
-          Value: false
-        d405_depth_frame:
-          Value: false
-        d405_depth_optical_frame:
-          Value: false
+        cable_female:
+          Value: true
         d405_link:
           Value: false
         d455_0_aligned_depth_to_color_frame:
@@ -292,6 +248,16 @@ Visualization Manager:
           Value: false
         d455_0_link:
           Value: false
+        d455_1_aligned_depth_to_color_frame:
+          Value: true
+        d455_1_color_frame:
+          Value: true
+        d455_1_color_optical_frame:
+          Value: true
+        d455_1_depth_frame:
+          Value: true
+        d455_1_depth_optical_frame:
+          Value: true
         d455_1_link:
           Value: false
         panda_EE:
@@ -302,12 +268,6 @@ Visualization Manager:
           Value: false
         panda_gelsight_pad:
           Value: true
-        panda_hand:
-          Value: false
-        panda_hand_tcp:
-          Value: false
-        panda_leftfinger:
-          Value: false
         panda_link0:
           Value: false
         panda_link1:
@@ -326,8 +286,6 @@ Visualization Manager:
           Value: false
         panda_link8:
           Value: false
-        panda_rightfinger:
-          Value: false
         world:
           Value: false
       Marker Alpha: 1
@@ -339,6 +297,8 @@ Visualization Manager:
       Tree:
         world:
           panda_link0:
+            cable_female:
+              {}
             d455_0_color_optical_frame:
               {}
             d455_0_link:
@@ -350,7 +310,14 @@ Visualization Manager:
                 d455_0_depth_optical_frame:
                   {}
             d455_1_link:
-              {}
+              d455_1_aligned_depth_to_color_frame:
+                d455_1_color_optical_frame:
+                  {}
+              d455_1_color_frame:
+                {}
+              d455_1_depth_frame:
+                d455_1_depth_optical_frame:
+                  {}
             panda_link1:
               panda_link2:
                 panda_link3:
@@ -360,27 +327,13 @@ Visualization Manager:
                         panda_link7:
                           panda_link8:
                             d405_link:
-                              d405_aligned_depth_to_color_frame:
-                                d405_color_optical_frame:
-                                  {}
-                              d405_color_frame:
-                                {}
-                              d405_depth_frame:
-                                d405_depth_optical_frame:
-                                  {}
+                              {}
                             panda_NE:
                               panda_EE:
                                 panda_K:
                                   {}
-                            panda_hand:
-                              panda_gelsight_pad:
-                                {}
-                              panda_hand_tcp:
-                                {}
-                              panda_leftfinger:
-                                {}
-                              panda_rightfinger:
-                                {}
+                            panda_gelsight_pad:
+                              {}
       Update Interval: 0
       Value: true
     - Alpha: 1
@@ -406,7 +359,7 @@ Visualization Manager:
       Size (Pixels): 3
       Size (m): 0.009999999776482582
       Style: Points
-      Topic: /perception/scene_filtered_points
+      Topic: /perception/filtered_object_points
       Unreliable: false
       Use Fixed Frame: true
       Use rainbow: true
@@ -433,7 +386,7 @@ Visualization Manager:
       Selectable: true
       Size (Pixels): 3
       Size (m): 0.009999999776482582
-      Style: Flat Squares
+      Style: Points
       Topic: /perception/object_mesh_pc
       Unreliable: false
       Use Fixed Frame: true
@@ -458,7 +411,7 @@ Visualization Manager:
       Value: true
       base: panda_link0
       camera_info_topic: ""
-      eef: panda_hand
+      eef: ""
       group: panda_arm
       image_topic: ""
       marker border (bits): 1
@@ -486,7 +439,7 @@ Visualization Manager:
       Unreliable: false
       Value: true
     - Class: rviz/Image
-      Enabled: true
+      Enabled: false
       Image Topic: /perception/flow_image
       Max Value: 1
       Median window: 5
@@ -496,7 +449,7 @@ Visualization Manager:
       Queue Size: 2
       Transport Hint: raw
       Unreliable: false
-      Value: true
+      Value: false
     - Alpha: 1
       Axes Length: 0.10000000149011612
       Axes Radius: 0.009999999776482582
@@ -527,7 +480,7 @@ Visualization Manager:
       Value: true
     - Class: rviz/Image
       Enabled: true
-      Image Topic: /perception/d405/camera/color/image_raw
+      Image Topic: /perception/gelsight_panda/flow_image
       Max Value: 1
       Median window: 5
       Min Value: 0
@@ -560,7 +513,7 @@ Visualization Manager:
   Views:
     Current:
       Class: rviz/XYOrbit
-      Distance: 1.8177988529205322
+      Distance: 0.6847069263458252
       Enable Stereo Rendering:
         Stereo Eye Separation: 0.05999999865889549
         Stereo Focal Distance: 1
@@ -568,24 +521,24 @@ Visualization Manager:
         Value: false
       Field of View: 0.7853981852531433
       Focal Point:
-        X: 0.3904402256011963
-        Y: 0.03542479872703552
+        X: 0.5478309392929077
+        Y: -0.14055414497852325
         Z: -1.4900578548804333e-08
       Focal Shape Fixed Size: true
       Focal Shape Size: 0.05000000074505806
       Invert Z Axis: false
       Name: Current View
       Near Clip Distance: 0.009999999776482582
-      Pitch: 0.44979438185691833
+      Pitch: 0.6197944283485413
       Target Frame: panda_link0
-      Yaw: 0.24359071254730225
+      Yaw: 4.426776885986328
     Saved: ~
 Window Geometry:
   Displays:
     collapsed: false
   HandEye Calibration:
     collapsed: false
-  Height: 1383
+  Height: 1401
   Help:
     collapsed: false
   Hide Left Dock: false
@@ -596,11 +549,11 @@ Window Geometry:
     collapsed: false
   MotionPlanning - Trajectory Slider:
     collapsed: false
-  QMainWindow State: 000000ff00000000fd00000002000000000000029600000511fc0200000014fb000000100044006900730070006c006100790073010000003b000000c7000000c700fffffffb0000000800480065006c00700000000342000000bb0000006e00fffffffb0000000a00560069006500770073000000026d000000b5000000a000fffffffb0000000c00430061006d00650072006100000002ff000001610000000000000000fb0000001e004d006f00740069006f006e00200050006c0061006e006e0069006e00670100000374000001890000000000000000fb0000002e004d006f00740069006f006e0050006c0061006e006e0069006e00670020002d00200053006c0069006400650072010000026f000000480000000000000000fb0000001c004d006f00740069006f006e0050006c0061006e006e0069006e00670000000294000002410000016900fffffffb00000024005200760069007a00560069007300750061006c0054006f006f006c007300470075006900000004a5000000950000006e00fffffffb0000001c004d006f00740069006f006e0050006c0061006e006e0069006e0067010000034f000001fb0000000000000000fb000000120020002d00200053006c006900640065007201000002df000000480000000000000000fb0000001c004d006f00740069006f006e0050006c0061006e006e0069006e0067010000032d000001fb0000000000000000fb00000044004d006f00740069006f006e0050006c0061006e006e0069006e00670020002d0020005400720061006a006500630074006f0072007900200053006c00690064006500720000000000ffffffff0000001600000016fb000000280020002d0020005400720061006a006500630074006f0072007900200053006c00690064006500720000000000ffffffff0000000000000000fb0000003c005400720061006a006500630074006f007200790020002d0020005400720061006a006500630074006f0072007900200053006c00690064006500720000000000ffffffff0000000000000000fb000000280020002d0020005400720061006a006500630074006f0072007900200053006c00690064006500720000000000ffffffff0000000000000000fb0000001c004d006f00740069006f006e0050006c0061006e006e0069006e006701000003b4000001740000000000000000fb0000002600480061006e0064004500790065002000430061006c006900620072006100740069006f006e000000013a000001e1000001e100fffffffb0000000a0049006d0061006700650100000108000001820000001600fffffffb0000000a0049006d0061006700650100000290000001370000001600fffffffb0000000a0049006d00610067006501000003cd0000017f0000001600ffffff00000001000001a300000511fc0200000001fb0000000a0049006d006100670065010000003b000005110000001600ffffff000005b70000051100000001000000020000000100000002fc0000000100000002000000010000000a0054006f006f006c00730100000000ffffffff0000000000000000
+  QMainWindow State: 000000ff00000000fd00000002000000000000029600000523fc0200000014fb000000100044006900730070006c006100790073010000003b0000010c000000c700fffffffb0000000800480065006c00700000000342000000bb0000006e00fffffffb0000000a00560069006500770073000000026d000000b5000000a000fffffffb0000000c00430061006d00650072006100000002ff000001610000000000000000fb0000001e004d006f00740069006f006e00200050006c0061006e006e0069006e00670100000374000001890000000000000000fb0000002e004d006f00740069006f006e0050006c0061006e006e0069006e00670020002d00200053006c0069006400650072010000026f000000480000000000000000fb0000001c004d006f00740069006f006e0050006c0061006e006e0069006e00670000000294000002410000016900fffffffb00000024005200760069007a00560069007300750061006c0054006f006f006c007300470075006900000004a5000000950000006e00fffffffb0000001c004d006f00740069006f006e0050006c0061006e006e0069006e0067010000034f000001fb0000000000000000fb000000120020002d00200053006c006900640065007201000002df000000480000000000000000fb0000001c004d006f00740069006f006e0050006c0061006e006e0069006e0067010000032d000001fb0000000000000000fb00000044004d006f00740069006f006e0050006c0061006e006e0069006e00670020002d0020005400720061006a006500630074006f0072007900200053006c00690064006500720000000000ffffffff0000001600000016fb000000280020002d0020005400720061006a006500630074006f0072007900200053006c00690064006500720000000000ffffffff0000000000000000fb0000003c005400720061006a006500630074006f007200790020002d0020005400720061006a006500630074006f0072007900200053006c00690064006500720000000000ffffffff0000000000000000fb000000280020002d0020005400720061006a006500630074006f0072007900200053006c00690064006500720000000000ffffffff0000000000000000fb0000001c004d006f00740069006f006e0050006c0061006e006e0069006e006701000003b4000001740000000000000000fb0000002600480061006e0064004500790065002000430061006c006900620072006100740069006f006e000000013a000001e1000001e100fffffffb0000000a0049006d006100670065010000014d000002080000001600fffffffb0000000a0049006d00610067006500000002980000013c0000001600fffffffb0000000a0049006d006100670065010000035b000002030000001600ffffff00000001000001a300000523fc0200000001fb0000000a0049006d006100670065010000003b000005230000001600ffffff000005b70000052300000001000000020000000100000002fc0000000100000002000000010000000a0054006f006f006c00730100000000ffffffff0000000000000000
   RvizVisualToolsGui:
     collapsed: false
   Views:
     collapsed: false
   Width: 2556
   X: 0
-  Y: 36
+  Y: 18

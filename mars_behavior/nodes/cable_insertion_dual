@@ -4,111 +4,138 @@ from copy import deepcopy
 
 import numpy as np
 from mars_behavior.arm import ArmInterface, ArmTF
-from mars_behavior.gripper import WSGInterface 
+from mars_behavior.gripper import WSGInterface
 import rospy
 import ros_numpy
 import tf
 from geometry_msgs.msg import PoseStamped, Pose
-from mars_behavior.pose_utils import (AXIS_X, AXIS_Y, AXIS_Z, get_transform,
-                                      rot_from_a_to_b,
-                                      rot_from_a_to_b_preserve_axis,
-                                      rotate_mat_from_euler,
-                                      tf_mat_to_quat_stamped, transform_vector, vec_to_hom_mat)
-from mars_msgs.srv import ICPMeshTF
+from mars_behavior.pose_utils import (
+    AXIS_X,
+    AXIS_Y,
+    AXIS_Z,
+    get_transform,
+    rot_from_a_to_b,
+    rot_from_a_to_b_preserve_axis,
+    rotate_mat_from_euler,
+    tf_mat_to_quat_stamped,
+    transform_vector,
+    vec_to_hom_mat,
+)
+from mars_msgs.srv import PointCorrTF
+
 
 class CableInsertionNode:
     GRASP_HEIGHT_OFFSET_ = 0.2
 
     def __init__(self):
-        robot_ids = rospy.get_param('/robot_ids', ['panda'])
-        planning_group = rospy.get_param('/planning_group', 'panda_arm')
-        base_frame = rospy.get_param('/base_frame', 'panda_link0')
-        self.pan_pan_gripper: WSGInterface = WSGInterface('pan_pan')
-        self.an_an_gripper: WSGInterface = WSGInterface('an_an')
-        self.arm_: ArmInterface = ArmInterface(planning_group,base_frame) 
+        robot_ids = rospy.get_param("/robot_ids", ["panda"])
+        planning_group = rospy.get_param("/planning_group", "panda_arm")
+        base_frame = rospy.get_param("/base_frame", "panda_link0")
+        self.pan_pan_gripper: WSGInterface = WSGInterface("pan_pan")
+        self.an_an_gripper: WSGInterface = WSGInterface("an_an")
+        self.arm_: ArmInterface = ArmInterface(planning_group, base_frame)
         self.arm_tfs_ = {id: ArmTF(id) for id in robot_ids}
-        self.debug_goal = rospy.Publisher('test_cable_eef_pose',PoseStamped,queue_size=1)
-        self.icp = rospy.ServiceProxy('/perception/icp_mesh_tf',ICPMeshTF) 
+        self.debug_goal = rospy.Publisher(
+            "test_cable_eef_pose", PoseStamped, queue_size=1
+        )
+        self.icp = rospy.ServiceProxy("/perception/icp_mesh_tf", PointCorrTF)
         self.tf_listener = tf.TransformListener()
 
     def run_icp_(self, mesh_name: str):
-        rospy.set_param('/detect_class_names',mesh_name)
-        rospy.sleep(0.1)
+        rospy.set_param("/perception/detect_class_names", mesh_name)
+        rospy.sleep(0.5)
         self.icp(mesh_name)
-        rospy.sleep(3.0) # time to converge
-    
+        rospy.sleep(4.0)  # time to converge
+
     def reset(self):
         self.arm_.go_to()
 
-    def cable_pick(self,robot_id):
+    def cable_pick(self, robot_id):
         # Get pose of object
-        robot: ArmTF = self.arm_tfs_[robot_id] 
+        robot: ArmTF = self.arm_tfs_[robot_id]
 
         rospy.loginfo("Starting cable pick")
-        self.run_icp_('cable_male')
-        #cable_male_grasp_pose = get_transform('cable_male', robot.grasp_frame, self.tf_listener)
+        self.run_icp_("cable_male")
 
-        grasp_pose_on_obj = ros_numpy.msgify(Pose,vec_to_hom_mat([0,0.025,0]))
-        cable_male_grasp_pose = robot.grasp_pose_from_object(grasp_pose_on_obj,'cable_male').pose
+        grasp_pose_on_obj = ros_numpy.msgify(Pose, vec_to_hom_mat([0, 0, 0.03]))
+        cable_male_grasp_pose = robot.grasp_pose_from_object(
+            grasp_pose_on_obj, "cable_male"
+        ).pose
 
-        hover_pose: PoseStamped = PoseStamped() 
+        hover_pose: PoseStamped = PoseStamped()
         hover_pose.header.frame_id = robot.grasp_frame
         hover_pose.pose = deepcopy(cable_male_grasp_pose)
 
-        grasp_pose = PoseStamped(header=hover_pose.header) 
-        grasp_pose.pose = deepcopy(cable_male_grasp_pose) 
-        y_axis_cable_in_hand = transform_vector(-AXIS_Y,'cable_male',robot.grasp_frame,self.tf_listener)
+        grasp_pose = PoseStamped(header=hover_pose.header)
+        grasp_pose.pose = deepcopy(cable_male_grasp_pose)
+        z_axis_cable_in_hand = transform_vector(
+            AXIS_Z, "cable_male", robot.grasp_frame, self.tf_listener
+        )
 
-        tf_mat = rot_from_a_to_b_preserve_axis(AXIS_Y, y_axis_cable_in_hand,AXIS_Z)
-            
-        grasp_pose.pose.orientation = tf_mat_to_quat_stamped(tf_mat,robot.grasp_frame).quaternion
-        hover_pose.pose.orientation = tf_mat_to_quat_stamped(tf_mat,robot.grasp_frame).quaternion
+        tf_mat = rot_from_a_to_b_preserve_axis(-AXIS_Y, z_axis_cable_in_hand, AXIS_Z)
+
+        grasp_pose.pose.orientation = tf_mat_to_quat_stamped(
+            tf_mat, robot.grasp_frame
+        ).quaternion
+        hover_pose.pose.orientation = tf_mat_to_quat_stamped(
+            tf_mat, robot.grasp_frame
+        ).quaternion
 
         hover_pose = self.arm_.to_base(robot.grasp_to_eef_frame(hover_pose))
         grasp_pose = self.arm_.to_base(robot.grasp_to_eef_frame(grasp_pose))
-        hover_pose.pose.position.z += self.GRASP_HEIGHT_OFFSET_ 
+        hover_pose.pose.position.z += self.GRASP_HEIGHT_OFFSET_
 
         self.debug_goal.publish(grasp_pose)
 
-        self.arm_.add_goal(hover_pose,robot)
-        self.arm_.add_goal(grasp_pose,robot)
+        self.arm_.add_goal(hover_pose, robot)
+        self.arm_.add_goal(grasp_pose, robot)
         self.arm_.execute_planned_goals(robot)
 
         self.pan_pan_gripper.grasp()
 
-        self.arm_.add_goal(hover_pose,robot)
+        self.arm_.add_goal(hover_pose, robot)
         self.arm_.execute_planned_goals(robot)
-    
-    def cable_handover(self,robot_from, robot_to):
-        from_robot: ArmTF = self.arm_tfs_[robot_from] 
-        to_robot: ArmTF = self.arm_tfs_[robot_to] 
 
-        # define specified handoff pose   
+    def cable_handover(self, robot_from, robot_to):
+        from_robot: ArmTF = self.arm_tfs_[robot_from]
+        to_robot: ArmTF = self.arm_tfs_[robot_to]
+
+        # define specified handoff pose
         handoff_pose_pan_pan: PoseStamped = PoseStamped()
         handoff_pose_pan_pan.header.frame_id = from_robot.grasp_frame
         handoff_pose_pan_pan.pose.position.x = 0
         handoff_pose_pan_pan.pose.position.y = 0
         handoff_pose_pan_pan.pose.position.z = 0.01
-        peg_ori = transform_vector(AXIS_Y,self.arm_.base_frame,from_robot.grasp_frame,self.tf_listener)
-        tf_mat = rot_from_a_to_b_preserve_axis(AXIS_Y, peg_ori,AXIS_Z)
-        handoff_pose_pan_pan.pose.orientation = tf_mat_to_quat_stamped(tf_mat,from_robot.grasp_frame).quaternion
-        handoff_pose_pan_pan = self.arm_.to_base(from_robot.grasp_to_eef_frame(handoff_pose_pan_pan))
+        peg_ori = transform_vector(
+            AXIS_Y, self.arm_.base_frame, from_robot.grasp_frame, self.tf_listener
+        )
+        tf_mat = rot_from_a_to_b_preserve_axis(AXIS_Y, peg_ori, AXIS_Z)
+        handoff_pose_pan_pan.pose.orientation = tf_mat_to_quat_stamped(
+            tf_mat, from_robot.grasp_frame
+        ).quaternion
+        handoff_pose_pan_pan = self.arm_.to_base(
+            from_robot.grasp_to_eef_frame(handoff_pose_pan_pan)
+        )
         handoff_pose_pan_pan.pose.position.x = 0.129
         handoff_pose_pan_pan.pose.position.y = -0.263
         handoff_pose_pan_pan.pose.position.z = 1.420
-        self.arm_.add_goal(handoff_pose_pan_pan,from_robot)
+        self.arm_.add_goal(handoff_pose_pan_pan, from_robot)
         self.arm_.execute_planned_goals(from_robot)
 
-        grasp_pose_on_obj = ros_numpy.msgify(Pose,vec_to_hom_mat([0,0.043,0]))
-        handoff_pose_an_an = to_robot.grasp_pose_from_object(grasp_pose_on_obj,from_robot.grasp_frame)
-        peg_ori = transform_vector(-AXIS_Y,from_robot.grasp_frame,to_robot.grasp_frame,self.tf_listener)
+        grasp_pose_on_obj = ros_numpy.msgify(Pose, vec_to_hom_mat([0, 0.043, 0]))
+        handoff_pose_an_an = to_robot.grasp_pose_from_object(
+            grasp_pose_on_obj, from_robot.grasp_frame
+        )
+        peg_ori = transform_vector(
+            -AXIS_Y, from_robot.grasp_frame, to_robot.grasp_frame, self.tf_listener
+        )
         tf_mat = rot_from_a_to_b(AXIS_Z, peg_ori)
-        handoff_pose_an_an.pose.orientation = tf_mat_to_quat_stamped(tf_mat,to_robot.grasp_frame).quaternion
-        handoff_pose_an_an = self.arm_.to_base(to_robot.grasp_to_eef_frame(handoff_pose_an_an))
+        handoff_pose_an_an.pose.orientation = tf_mat_to_quat_stamped(
+            tf_mat, to_robot.grasp_frame
+        ).quaternion
+        # self.debug_goal.publish(handoff_pose_an_an)
 
-        #self.debug_goal.publish(handoff_pose_an_an)
-
-        self.arm_.add_goal(handoff_pose_an_an,to_robot)
+        self.arm_.add_goal(self.arm_.to_base(to_robot.grasp_to_eef_frame(handoff_pose_an_an)),to_robot)
         self.arm_.execute_planned_goals(to_robot)
 
         self.an_an_gripper.grasp()
@@ -118,48 +145,62 @@ class CableInsertionNode:
         handoff_pose_pan_pan.pose.position.x = 0
         handoff_pose_pan_pan.pose.position.y = 0
         handoff_pose_pan_pan.pose.position.z = 0
-        handoff_pose_pan_pan.pose.orientation = tf_mat_to_quat_stamped(tf_mat,from_robot.grasp_frame).quaternion
-        handoff_pose_pan_pan = self.arm_.to_base(from_robot.grasp_to_eef_frame(handoff_pose_pan_pan))
-
-        self.arm_.add_goal(handoff_pose_pan_pan,from_robot)
+        handoff_pose_pan_pan.pose.orientation = tf_mat_to_quat_stamped(
+            tf_mat, from_robot.grasp_frame
+        ).quaternion
+        handoff_pose_pan_pan = self.arm_.to_base(
+            from_robot.grasp_to_eef_frame(handoff_pose_pan_pan)
+        )
+        handoff_pose_pan_pan.pose.position.z -= 0.01
+        self.arm_.add_goal(handoff_pose_pan_pan, from_robot)
         self.arm_.execute_planned_goals(from_robot)
 
         self.pan_pan_gripper.grasp()
         self.an_an_gripper.home()
 
-    def cable_insert(self, robot_id) -> None:
-        robot: ArmTF = self.arm_tfs_[robot_id] 
+        retreat_pose_an_an = PoseStamped()
+        retreat_pose_an_an.header.frame_id = to_robot.grasp_frame
+        retreat_pose_an_an.pose.position.z -= 0.10
+        self.arm_.add_goal(self.arm_.to_base(to_robot.grasp_to_eef_frame(retreat_pose_an_an)),to_robot)
+        self.arm_.execute_planned_goals(to_robot)
 
-        self.run_icp_('cable_female')
-        cable_female_pose = get_transform('cable_female', robot.grasp_frame, self.tf_listener)
+    def cable_insert_homing(self, robot_id) -> None:
+        robot: ArmTF = self.arm_tfs_[robot_id]
+        insertion.reset()
+        self.run_icp_("cable_female")
+        cable_female_pose = get_transform(
+            "cable_female", robot.grasp_frame, self.tf_listener
+        )
 
-        hover_pose = PoseStamped() 
+        hover_pose = PoseStamped()
         hover_pose.header.frame_id = robot.grasp_frame
         hover_pose.pose = deepcopy(cable_female_pose)
 
-        aligned_pose = deepcopy(hover_pose)
-        aligned_pose.pose = deepcopy(cable_female_pose)
-        down_ori = transform_vector(-AXIS_Z,self.arm_.base_frame,robot.grasp_frame,self.tf_listener)
-        tf_mat = rot_from_a_to_b(AXIS_Z, down_ori)
-        hover_pose.pose.orientation = tf_mat_to_quat_stamped(tf_mat,robot.grasp_frame).quaternion
-        aligned_pose.pose.orientation = tf_mat_to_quat_stamped(tf_mat,robot.grasp_frame).quaternion
+        hover_pose.pose.orientation.x = 0
+        hover_pose.pose.orientation.y = 0
+        hover_pose.pose.orientation.z = 0
+        hover_pose.pose.orientation.w = 1
 
         hover_pose = self.arm_.to_base(robot.grasp_to_eef_frame(hover_pose))
-        hover_pose.pose.position.z += self.GRASP_HEIGHT_OFFSET_ 
-
-        self.arm_.add_goal(hover_pose,robot)
-
+        hover_pose.pose.position.z += 0.05
+        self.arm_.add_goal(hover_pose, robot)
         self.arm_.execute_planned_goals(robot)
 
-if __name__ == '__main__':
-    rospy.init_node('cable_insertion_node')
+def wait_until_killed():
+    r = rospy.Rate(10)
+    while not rospy.is_shutdown():    
+        r.sleep()
+
+if __name__ == "__main__":
+    rospy.init_node("cable_insertion_node")
     insertion = CableInsertionNode()
     rospy.sleep(rospy.Duration(2.0))
-    insertion.reset()
-    insertion.pan_pan_gripper.home()
-    insertion.an_an_gripper.home()
-    insertion.cable_pick('pan_pan')
-    insertion.cable_handover('pan_pan','an_an')
-    insertion.reset()
-    #insertion.cable_insert('pan_pan')
+    #insertion.pan_pan_gripper.home()
+    #insertion.an_an_gripper.home()
+    #insertion.reset()
+    #insertion.cable_pick("pan_pan")
+    #insertion.cable_handover("pan_pan", "an_an")
+    #insertion.cable_insert_homing("pan_pan")
+    insertion.pan_pan_gripper.grasp()
+    insertion.arm_.run_task('insert',callback=wait_until_killed)
     rospy.spin()

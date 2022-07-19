@@ -1,9 +1,9 @@
 stream:
-  url: "http://192.168.0.171:8080/?action=stream"
+  url: "http://192.168.0.170:8080/?action=stream"
   height: 160
   width: 120
   mmpp: 0.1896
-  roi: [[115, 139], [388, 142], [358, 480], [134, 483]] # TL, TR, BR, BL
+  roi: [[110, 125], [360, 125], [340, 465], [130, 465]] # TL, TR, BR, BL
   # # Uncomment to publish
   # topic_name: "raw_image"
 diff:
@@ -19,9 +19,9 @@ depth:
   topic_name: "depth"
 markers:
   enable: true
-  threshold_block_size: 33
-  threshold_neg_bias: 22
-  marker_neighborhood_size: 20
+  threshold_block_size: 55
+  threshold_neg_bias: 15
+  marker_neighborhood_size: 16
   # Comment to not publish
   topic_name: "markers"
   publish_image: true # Will be published to "(topic_name)_image"

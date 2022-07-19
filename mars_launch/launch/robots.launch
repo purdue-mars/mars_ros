@@ -9,6 +9,7 @@
         <node pkg="mars_control" name="panda_planning_server" type="planning_server" output="screen">
             <param name="combined_planning_group" value="$(arg robot_id)" />
         </node>
+        <rosparam command="load" file="$(find icra18)/config/controllers.yaml" /> 
 
         <include ns="pan_pan" file="$(find wsg_50_driver)/launch/wsg_50_ip.launch">
             <arg name="ip" default="192.168.0.150" />

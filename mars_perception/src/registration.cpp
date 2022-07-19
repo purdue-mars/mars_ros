@@ -78,10 +78,12 @@ void PCRegistration::pointcloud_callback(const PointCloudMsgT::ConstPtr &msg1, c
           // median_filter.setInputCloud(cloud_sources[i]);
           // median_filter.filter(*cloud_sources[i]);
 
-          pcl::VoxelGrid<PointT> voxel_filter;
-          voxel_filter.setInputCloud(cloud_sources[i]);
-          voxel_filter.setLeafSize((double)leaf_sizes_[i][0], (double)leaf_sizes_[i][1], (double)leaf_sizes_[i][2]);
-          voxel_filter.filter(*cloud_sources[i]);
+          if(voxel_enabled_) {
+            pcl::VoxelGrid<PointT> voxel_filter;
+            voxel_filter.setInputCloud(cloud_sources[i]);
+            voxel_filter.setLeafSize((double)leaf_sizes_[i][0], (double)leaf_sizes_[i][1], (double)leaf_sizes_[i][2]);
+            voxel_filter.filter(*cloud_sources[i]);
+          }
       }
     }
   }
@@ -100,15 +102,17 @@ void PCRegistration::pointcloud_callback(const PointCloudMsgT::ConstPtr &msg1, c
       {
         try
         {
-          pcl::IterativeClosestPoint<PointT, PointT> icp;
-          icp.setInputSource(cloud_sources[i]);
-          icp.setInputTarget(cloud_sources[0]);
-          icp.setMaxCorrespondenceDistance(max_corresp_dist_);
-          icp.setMaximumIterations(max_iter_);
-          icp.setTransformationEpsilon(transf_epsilon_);
-          icp.setRANSACOutlierRejectionThreshold(reject_thres_);
-          icp.setEuclideanFitnessEpsilon(fitness_epsilon_);
-          icp.align(*cloud_sources[i]);
+          if(icp_enabled_) {
+            pcl::IterativeClosestPoint<PointT, PointT> icp;
+            icp.setInputSource(cloud_sources[i]);
+            icp.setInputTarget(cloud_sources[0]);
+            icp.setMaxCorrespondenceDistance(max_corresp_dist_);
+            icp.setMaximumIterations(max_iter_);
+            icp.setTransformationEpsilon(transf_epsilon_);
+            icp.setRANSACOutlierRejectionThreshold(reject_thres_);
+            icp.setEuclideanFitnessEpsilon(fitness_epsilon_);
+            icp.align(*cloud_sources[i]);
+          }
         }
         catch(const std::exception& e)
         {

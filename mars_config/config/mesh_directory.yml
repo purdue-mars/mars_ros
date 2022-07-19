@@ -1,7 +1,7 @@
 # mesh paths as params
-square_peg: $(find nist_board_gazebo)/models/mesh/KET8-1.STL
-large_round_peg: $(find nist_board_gazebo)/models/mesh/RGOCG16-50_16mm-1.STL
-bolt_rack: $(find nist_board_gazebo)/models/mesh/bolt_rack-1.STL
-plate: $(find nist_board_gazebo)/models/mesh/ICRA2022_Practice_Base-1.STL
-cable_female: $(find nist_board_gazebo)/models/mesh/2PinHousing-2.STL 
-cable_male: $(find nist_board_gazebo)/models/mesh/AT04_2P-1 AT04_2P_5-1.STL 
+# square_peg: $(find nist_board_gazebo)/models/mesh/KET8-1.STL
+# large_round_peg: $(find nist_board_gazebo)/models/mesh/RGOCG16-50_16mm-1.STL
+# bolt_rack: $(find nist_board_gazebo)/models/mesh/bolt_rack-1.STL
+# plate: $(find nist_board_gazebo)/models/mesh/ICRA2022_Practice_Base-1.STL
+cable_female: $(find nist_board_gazebo)/models/cable-connector-female/1.obj
+cable_male: $(find nist_board_gazebo)/models/cable-connector-male/1.obj

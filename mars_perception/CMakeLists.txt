@@ -68,7 +68,7 @@ target_link_libraries(${PROJECT_NAME}_reg
   ${PCL_LIBRARIES}
 )
 
-add_executable(${PROJECT_NAME}_icp_server nodes/icp_server.cpp src/icp.cpp src/mesh_sampling.cpp)
+add_executable(${PROJECT_NAME}_icp_server nodes/icp_server.cpp src/icp.cpp src/mesh_sampling.cpp src/common.cpp)
 set_target_properties(${PROJECT_NAME}_icp_server PROPERTIES OUTPUT_NAME icp_server PREFIX "")
 add_dependencies(${PROJECT_NAME}_icp_server ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
 target_link_libraries(${PROJECT_NAME}_icp_server

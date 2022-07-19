@@ -5,23 +5,25 @@
     <arg name="robot_id" default="panda"/>
 
     <node pkg="tf2_ros" type="static_transform_publisher" name="world_arm_broadcaster" args="0 0 0 0 0 0 world $(arg robot_id)_link0" />
+    <rosparam file="$(find mars_config)/config/planning_single_arm.yml" command="load" subst_value="true" />
 
     <group ns="$(arg robot_id)">
         <include file="$(find franka_control)/launch/franka_control.launch">
             <arg name="robot_ip" value="$(arg robot_ip)" />
             <arg name="load_gripper" value="$(arg load_gripper)" />
         </include>
-
+        <rosparam command="load" file="$(find icra18)/config/controllers.yaml" /> 
         <include file="$(find panda_moveit_config)/launch/panda_moveit.launch">
             <arg name="load_gripper" value="$(arg load_gripper)" />
         </include>
 
-        <include file="$(find wsg_50_driver)/launch/wsg_50_ip.launch">
+        <!-- <include file="$(find wsg_50_driver)/launch/wsg_50_ip.launch">
             <arg name="ip" default="192.168.0.150" />
+            <arg name="port" default="1001" />
             <arg name="com_mode" default="script" />
             <arg name="home_at_start" default="false" />
             <arg name="force" default="30" />
-        </include>
+        </include> -->
 
         <include file="$(find mars_control)/launch/planning_server.launch" />
 
@@ -29,11 +31,10 @@
     </group>
 
     <group ns="perception">
-        <include file="$(find mars_launch)/launch/perception.launch"/>
         <include file="$(find mars_launch)/launch/gelsight.launch" >
             <arg name="robot_id" value="$(arg robot_id)"/>
-            <arg name="gripper_pose" value="$(arg gripper_pose)"/>
         </include>
+        <include file="$(find mars_launch)/launch/perception.launch"/>
     </group>
 
 </launch>

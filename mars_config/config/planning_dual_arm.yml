@@ -1,3 +1,7 @@
 robot_ids: ['pan_pan','an_an']
 base_frame: 'base'
 planning_group: 'combined_arms'
+
+task_controller_dict:
+  insert: 'dual_plug_in_controller' 
+  moveit: 'combined_arms_controller'
