@@ -19,3 +19,5 @@
 [submodule "mars_sim/nist_board_gazebo"]
 	path = mars_sim/nist_board_gazebo
 	url = https://github.com/purdue-mars/nist_board_gazebo
+[submodule "third_party/wsg50-ros-pkg"]
+	url = https://github.com/hmccarty/wsg50-ros-pkg
