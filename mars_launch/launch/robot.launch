@@ -2,12 +2,12 @@
     <arg name="robot_ip" default="172.16.1.2" />
     <arg name="load_gripper" default="false" />
     <arg name="rviz" default="true" />
-    <arg name="robot_id" default="panda"/>
+    <arg name="root_id" default="panda"/>
+    <arg name="robot_id" default="pan_pan"/>
 
-    <node pkg="tf2_ros" type="static_transform_publisher" name="world_arm_broadcaster" args="0 0 0 0 0 0 world $(arg robot_id)_link0" />
-    <rosparam file="$(find mars_config)/config/planning_single_arm.yml" command="load" subst_value="true" />
+    <rosparam file="$(find mars_config)/config/robot_config.yml" command="load" subst_value="true" />
 
-    <group ns="$(arg robot_id)">
+    <group ns="$(arg root_id)">
         <include file="$(find franka_control)/launch/franka_control.launch">
             <arg name="robot_ip" value="$(arg robot_ip)" />
             <arg name="load_gripper" value="$(arg load_gripper)" />
@@ -17,14 +17,10 @@
             <arg name="load_gripper" value="$(arg load_gripper)" />
         </include>
 
-        <!-- <include file="$(find wsg_50_driver)/launch/wsg_50_ip.launch">
-            <arg name="ip" default="192.168.0.150" />
-            <arg name="port" default="1001" />
-            <arg name="com_mode" default="script" />
-            <arg name="home_at_start" default="false" />
-            <arg name="force" default="30" />
-        </include> -->
-
+        <include file="$(find mars_gripper)/launch/gripper.launch">
+            <arg name="robot_id" value="$(arg robot_id)" />
+        </include>
+        
         <include file="$(find mars_control)/launch/planning_server.launch" />
 
         <node pkg="rviz" type="rviz" name="rviz" args="-d $(find mars_launch)/rviz/config.rviz" />
@@ -32,7 +28,7 @@
 
     <group ns="perception">
         <include file="$(find mars_launch)/launch/gelsight.launch" >
-            <arg name="robot_id" value="$(arg robot_id)"/>
+            <arg name="robot_id" value="$(arg root_id)"/>
         </include>
         <include file="$(find mars_launch)/launch/perception.launch"/>
     </group>

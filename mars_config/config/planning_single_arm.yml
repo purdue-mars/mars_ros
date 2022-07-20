@@ -1,7 +1,0 @@
-robot_ids: ['panda']
-base_frame: 'panda_link0'
-planning_group: 'panda_arm'
-
-task_controller_dict:
-  insert: 'plug_in_controller' 
-  moveit: 'position_joint_trajectory_controller'

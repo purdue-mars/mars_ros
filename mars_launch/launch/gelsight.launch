@@ -1,11 +1,6 @@
 <launch>
-    <arg name="robot_id" default="panda"/>
-    <arg name="gripper_pose" default="0 0 0.1596 0 0 0 $(arg robot_id)_link8 $(arg robot_id)_gelsight_pad"/>
-    <arg name="config_file" default="gelsight_pan_pan.yml"/>
-
-    <node pkg="tf2_ros" type="static_transform_publisher" name="$(arg robot_id)_gelsight_broadcaster" args="$(arg gripper_pose)" />
+    <arg name="config_file"/>
     <include file="$(find gelsight_ros)/launch/gelsight.launch">
         <arg name="config" value="$(find mars_config)/config/$(arg config_file)"/>
-        <arg name="name" value="gelsight_$(arg robot_id)"/>
     </include>
 </launch>

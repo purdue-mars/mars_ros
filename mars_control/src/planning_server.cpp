@@ -2,8 +2,10 @@
 
 PlanningServer::PlanningServer() : as_(nh_, SERVER_NAME, boost::bind(&PlanningServer::execute, this, _1), false)
 {
-  ros::param::param<std::string>("/planning_group", global_planning_group_, DEFAULT_PLANNING_GROUP);
-  as_.start();
+  bool valid = ros::param::get("planning_group", global_planning_group_);
+  if(valid) {
+    as_.start();
+  }
 }
 
 void copy_vector(std::vector<double> &from, std::vector<double> &to, int at)
@@ -63,35 +65,37 @@ void PlanningServer::execute(const mars_msgs::MoveToGoalConstPtr &goal)
                                              0.00,  // jump_threshold
                                              trajectory);
 
+  bool execution_success = true;
   if (fraction == -1)
   {
-    as_.setAborted();
-    return;
+    execution_success = false;
   }
   else
   {
 
-  robot_trajectory::RobotTrajectory rt(mgi.getCurrentState()->getRobotModel(), goal->planning_group);
-  rt.setRobotTrajectoryMsg(*mgi.getCurrentState(), trajectory);
-  
-  trajectory_processing::IterativeParabolicTimeParameterization iptp;
-  bool time_stamp_success = iptp.computeTimeStamps(rt,0.3,0.3);
-  ROS_INFO("Computed time stamp %s", time_stamp_success ? "SUCCEEDED":"FAILED");
+    robot_trajectory::RobotTrajectory rt(mgi.getCurrentState()->getRobotModel(), goal->planning_group);
+    rt.setRobotTrajectoryMsg(*mgi.getCurrentState(), trajectory);
+    
+    trajectory_processing::IterativeParabolicTimeParameterization iptp;
+    bool time_stamp_success = iptp.computeTimeStamps(rt,0.3,0.3);
+    ROS_INFO("Computed time stamp %s", time_stamp_success ? "SUCCEEDED":"FAILED");
 
-  rt.getRobotTrajectoryMsg(trajectory);
-
+    rt.getRobotTrajectoryMsg(trajectory);
     if (global_planning_group_ == goal->planning_group)
     {
-      mgi.execute(trajectory);
+      execution_success = mgi.execute(trajectory) == moveit::core::MoveItErrorCode::SUCCESS;
     }
     else
     {
       moveit::planning_interface::MoveGroupInterface combined_mgi(global_planning_group_);
       set_combined_traj(trajectory, goal->planning_group);
-      combined_mgi.execute(trajectory);
+      execution_success = combined_mgi.execute(trajectory) == moveit::core::MoveItErrorCode::SUCCESS;
     }
-    as_.setSucceeded();
   }
+
+  mars_msgs::MoveToResult res;
+  res.was_success = execution_success;
+  as_.setSucceeded(res);
 }
 
 int main(int argc, char **argv)
