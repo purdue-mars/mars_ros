@@ -10,12 +10,14 @@
 #include <franka_hw/franka_state_interface.h>
 #include <hardware_interface/robot_hw.h>
 #include <mars_msgs/CableFollowingData.h>
+#include <random>
 #include <realtime_tools/realtime_buffer.h>
 #include <realtime_tools/realtime_publisher.h>
 #include <ros/node_handle.h>
 #include <ros/time.h>
 #include <geometry_msgs/Pose.h>
 #include <geometry_msgs/PoseStamped.h>
+#include <std_srvs/Empty.h>
 
 #include <franka_hw/franka_cartesian_command_interface.h>
 
@@ -30,7 +32,9 @@ namespace mars_control
         bool init(hardware_interface::RobotHW *robot_hardware, ros::NodeHandle &node_handle) override;
         void starting(const ros::Time &) override;
         void update(const ros::Time &, const ros::Duration &period) override;
+        void stopping(const ros::Time &) override;
         void gelsightCallback(const geometry_msgs::PoseStamped &);
+        bool slowToStop(std_srvs::Empty::Request& req, std_srvs::Empty::Response& resp);
 
     private:
         franka_hw::FrankaVelocityCartesianInterface *cartesian_velocity_interface_;
@@ -55,5 +59,11 @@ namespace mars_control
         };
         realtime_tools::RealtimeBuffer<GelsightUpdate> gelsight_update_;
         GelsightUpdate gelsight_update_struct_;
+        ros::ServiceServer slow_srv_;
+        bool start_to_slow_;
+        float last_y_vel_;
+        float last_x_vel_;
+        std::mt19937 rand_gen_;
+        std::uniform_real_distribution<> rand_dis_;
     };
 }

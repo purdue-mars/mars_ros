@@ -1,0 +1,14 @@
+<launch>
+    <arg name="ip" default="172.19.1.2"/>
+    <arg name="port" default="1000"/>
+
+    <include file="$(find wsg_50_driver)/launch/wsg_50_ip.launch">
+        <arg name="ip" value="$(arg ip)" />
+        <arg name="port" value="$(arg port)"/>
+        <arg name="home_at_start" value="false" />
+        <arg name="com_mode" value="polling" />
+        <arg name="rate" value="20"/>
+    </include>
+
+    <node name="ack_node" pkg="mars_control" type="ack_wsg.py"/>
+</launch>

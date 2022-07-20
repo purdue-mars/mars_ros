@@ -10,7 +10,7 @@ POS_MIN = 4.0
 POS_MAX = 50.0
 MAX_SPEED = 10.0
 FRICTION_SETPOINT = 5.0
-P_GAIN = -0.4
+P_GAIN = -0.2
 D_GAIN = -1.0
 RATE = 30.0
 
@@ -32,7 +32,7 @@ if __name__ == "__main__":
     rospy.init_node("gripper_controller")
     rate = rospy.Rate(RATE)
     rospy.Subscriber("/wsg_50_driver/status", Status, pos_cb)
-    rospy.Subscriber("/flow", GelsightFlowStamped, friction_cb)
+    rospy.Subscriber("/gelsight/flow", GelsightFlowStamped, friction_cb)
     pub = rospy.Publisher("/wsg_50_driver/goal_speed", Float32, queue_size=1, latch=True)
 
     e_pub = rospy.Publisher("/data/e_pub", Float32, queue_size=3)
