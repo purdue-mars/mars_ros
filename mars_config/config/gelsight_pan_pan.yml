@@ -3,9 +3,9 @@ stream:
   height: 160
   width: 120
   mmpp: 0.1896
-  roi: [[110, 125], [360, 125], [340, 465], [130, 465]] # TL, TR, BR, BL
+  roi: [[110, 125], [360, 125], [340, 455], [130, 455]] # TL, TR, BR, BL
   # # Uncomment to publish
-  # topic_name: "raw_image"
+  topic_name: "raw_image"
 diff:
   enable: false
   # # Uncomment to publish 

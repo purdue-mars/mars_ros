@@ -17,7 +17,7 @@
             <arg name="load_gripper" value="$(arg load_gripper)" />
         </include>
 
-        <include file="$(find mars_gripper)/launch/gripper.launch">
+        <include file="$(find mars_launch)/launch/gripper.launch">
             <arg name="robot_id" value="$(arg robot_id)" />
         </include>
         
@@ -26,11 +26,6 @@
         <node pkg="rviz" type="rviz" name="rviz" args="-d $(find mars_launch)/rviz/config.rviz" />
     </group>
 
-    <group ns="perception">
-        <include file="$(find mars_launch)/launch/gelsight.launch" >
-            <arg name="robot_id" value="$(arg root_id)"/>
-        </include>
-        <include file="$(find mars_launch)/launch/perception.launch"/>
-    </group>
+    <include ns="perception" file="$(find mars_launch)/launch/perception.launch"/>
 
 </launch>

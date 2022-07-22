@@ -6,6 +6,7 @@ Panels:
       Expanded:
         - /MotionPlanning1/Scene Geometry1
         - /MotionPlanning1/Planning Request1
+        - /TF1
         - /TF1/Frames1
         - /TF1/Tree1
         - /PointCloud21
@@ -123,6 +124,47 @@ Visualization Manager:
             Show Axes: false
             Show Trail: false
             Value: true
+          panda_wsg_base_link:
+            Alpha: 1
+            Show Axes: false
+            Show Trail: false
+            Value: true
+          panda_wsg_base_link_gripper_left:
+            Alpha: 1
+            Show Axes: false
+            Show Trail: false
+            Value: true
+          panda_wsg_base_link_gripper_right:
+            Alpha: 1
+            Show Axes: false
+            Show Trail: false
+            Value: true
+          panda_wsg_grasp_link:
+            Alpha: 1
+            Show Axes: false
+            Show Trail: false
+          panda_wsg_left_gelsight_finger_link:
+            Alpha: 1
+            Show Axes: false
+            Show Trail: false
+            Value: true
+          panda_wsg_left_gelsight_finger_pad:
+            Alpha: 1
+            Show Axes: false
+            Show Trail: false
+          panda_wsg_right_gelsight_finger_link:
+            Alpha: 1
+            Show Axes: false
+            Show Trail: false
+            Value: true
+          panda_wsg_right_gelsight_finger_pad:
+            Alpha: 1
+            Show Axes: false
+            Show Trail: false
+          world:
+            Alpha: 1
+            Show Axes: false
+            Show Trail: false
         Loop Animation: true
         Robot Alpha: 0.5
         Robot Color: 150; 50; 150
@@ -214,6 +256,47 @@ Visualization Manager:
             Show Axes: false
             Show Trail: false
             Value: true
+          panda_wsg_base_link:
+            Alpha: 1
+            Show Axes: false
+            Show Trail: false
+            Value: true
+          panda_wsg_base_link_gripper_left:
+            Alpha: 1
+            Show Axes: false
+            Show Trail: false
+            Value: true
+          panda_wsg_base_link_gripper_right:
+            Alpha: 1
+            Show Axes: false
+            Show Trail: false
+            Value: true
+          panda_wsg_grasp_link:
+            Alpha: 1
+            Show Axes: false
+            Show Trail: false
+          panda_wsg_left_gelsight_finger_link:
+            Alpha: 1
+            Show Axes: false
+            Show Trail: false
+            Value: true
+          panda_wsg_left_gelsight_finger_pad:
+            Alpha: 1
+            Show Axes: false
+            Show Trail: false
+          panda_wsg_right_gelsight_finger_link:
+            Alpha: 1
+            Show Axes: false
+            Show Trail: false
+            Value: true
+          panda_wsg_right_gelsight_finger_pad:
+            Alpha: 1
+            Show Axes: false
+            Show Trail: false
+          world:
+            Alpha: 1
+            Show Axes: false
+            Show Trail: false
         Robot Alpha: 1
         Show Robot Collision: false
         Show Robot Visual: true
@@ -226,14 +309,13 @@ Visualization Manager:
       Name: Axes
       Radius: 0.009999999776482582
       Reference Frame: <Fixed Frame>
+      Show Trail: false
       Value: false
     - Class: rviz/TF
       Enabled: true
       Frame Timeout: 60
       Frames:
         All Enabled: false
-        cable_female:
-          Value: true
         d405_link:
           Value: false
         d455_0_aligned_depth_to_color_frame:
@@ -266,8 +348,6 @@ Visualization Manager:
           Value: false
         panda_NE:
           Value: false
-        panda_gelsight_pad:
-          Value: true
         panda_link0:
           Value: false
         panda_link1:
@@ -285,6 +365,22 @@ Visualization Manager:
         panda_link7:
           Value: false
         panda_link8:
+          Value: true
+        panda_wsg_base_link:
+          Value: false
+        panda_wsg_base_link_gripper_left:
+          Value: false
+        panda_wsg_base_link_gripper_right:
+          Value: false
+        panda_wsg_grasp_link:
+          Value: true
+        panda_wsg_left_gelsight_finger_link:
+          Value: false
+        panda_wsg_left_gelsight_finger_pad:
+          Value: false
+        panda_wsg_right_gelsight_finger_link:
+          Value: false
+        panda_wsg_right_gelsight_finger_pad:
           Value: false
         world:
           Value: false
@@ -297,13 +393,10 @@ Visualization Manager:
       Tree:
         world:
           panda_link0:
-            cable_female:
-              {}
-            d455_0_color_optical_frame:
-              {}
             d455_0_link:
               d455_0_aligned_depth_to_color_frame:
-                {}
+                d455_0_color_optical_frame:
+                  {}
               d455_0_color_frame:
                 {}
               d455_0_depth_frame:
@@ -332,8 +425,17 @@ Visualization Manager:
                               panda_EE:
                                 panda_K:
                                   {}
-                            panda_gelsight_pad:
-                              {}
+                            panda_wsg_base_link:
+                              panda_wsg_base_link_gripper_left:
+                                panda_wsg_left_gelsight_finger_link:
+                                  panda_wsg_left_gelsight_finger_pad:
+                                    {}
+                              panda_wsg_base_link_gripper_right:
+                                panda_wsg_right_gelsight_finger_link:
+                                  panda_wsg_right_gelsight_finger_pad:
+                                    {}
+                              panda_wsg_grasp_link:
+                                {}
       Update Interval: 0
       Value: true
     - Alpha: 1
@@ -422,7 +524,7 @@ Visualization Manager:
       measured marker size (m): 0.026600
       measured separation (m): 0.003000
       object: ""
-      sensor: d455_0_color_optical_frame
+      sensor: ""
       sensor_mount_type: 0
       solver: crigroup/Daniilidis1999
       target_type: HandEyeTarget/Aruco
@@ -513,7 +615,7 @@ Visualization Manager:
   Views:
     Current:
       Class: rviz/XYOrbit
-      Distance: 0.6847069263458252
+      Distance: 1.6478475332260132
       Enable Stereo Rendering:
         Stereo Eye Separation: 0.05999999865889549
         Stereo Focal Distance: 1
@@ -521,17 +623,17 @@ Visualization Manager:
         Value: false
       Field of View: 0.7853981852531433
       Focal Point:
-        X: 0.5478309392929077
-        Y: -0.14055414497852325
-        Z: -1.4900578548804333e-08
+        X: 0.40559136867523193
+        Y: 0.01869000494480133
+        Z: 1.490174383889098e-08
       Focal Shape Fixed Size: true
       Focal Shape Size: 0.05000000074505806
       Invert Z Axis: false
       Name: Current View
       Near Clip Distance: 0.009999999776482582
-      Pitch: 0.6197944283485413
+      Pitch: 0.11979440599679947
       Target Frame: panda_link0
-      Yaw: 4.426776885986328
+      Yaw: 5.731775760650635
     Saved: ~
 Window Geometry:
   Displays:

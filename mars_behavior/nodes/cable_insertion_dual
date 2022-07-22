@@ -11,7 +11,7 @@ from mars_behavior.arm import ArmInterface
 from mars_behavior.arm_tf import ArmTF
 from mars_behavior.gripper import WSGInterface
 from mars_behavior.perception import PerceptionInterface
-from mars_behavior.pose_utils import (AXIS_Y, AXIS_Z, rot_from_a_to_b,
+from mars_behavior.pose_utils import (AXIS_X, AXIS_Y, AXIS_Z, rot_from_a_to_b,
                                       rot_from_a_to_b_preserve_axis,
                                       tf_mat_to_quat_stamped, vec_to_hom_mat)
 
@@ -40,7 +40,7 @@ class CableInsertionNode:
 
         grasp_pose_on_obj = ros_numpy.msgify(Pose, vec_to_hom_mat([0, 0, 0.03]))
         cable_male_grasp_pose = robot.grasp_pose_from_object(
-            grasp_pose_on_obj, "cable_male"
+            "cable_male", grasp_pose_on_obj
         ).pose
 
         hover_pose: PoseStamped = PoseStamped()
@@ -53,7 +53,7 @@ class CableInsertionNode:
             AXIS_Z, "cable_male", robot.grasp_frame
         )
 
-        tf_mat = rot_from_a_to_b_preserve_axis(-AXIS_Y, z_axis_cable_in_hand, AXIS_Z)
+        tf_mat = rot_from_a_to_b_preserve_axis(AXIS_X, z_axis_cable_in_hand, AXIS_Z)
 
         grasp_pose.pose.orientation = tf_mat_to_quat_stamped(
             tf_mat, robot.grasp_frame
@@ -68,14 +68,14 @@ class CableInsertionNode:
 
         self.debug_goal.publish(grasp_pose)
 
-        self.arm_.add_goal(hover_pose, robot)
-        self.arm_.add_goal(grasp_pose, robot)
-        assert self.arm_.execute_planned_goals(robot)
+        self.arm_.add_goal(hover_pose, robot_id)
+        self.arm_.add_goal(grasp_pose, robot_id)
+        assert self.arm_.execute_planned_goals(robot_id)
 
         self.pan_pan_gripper.grasp()
 
-        self.arm_.add_goal(hover_pose, robot)
-        assert self.arm_.execute_planned_goals(robot)
+        self.arm_.add_goal(hover_pose, robot_id)
+        assert self.arm_.execute_planned_goals(robot_id)
 
     def cable_handover(self, from_robot_id, to_robot_id):
         from_robot: ArmTF = self.arm_.get_arm_tf(from_robot_id)
@@ -84,28 +84,29 @@ class CableInsertionNode:
         # define specified handoff pose
         handoff_pose_pan_pan: PoseStamped = PoseStamped()
         handoff_pose_pan_pan.header.frame_id = from_robot.grasp_frame
-        handoff_pose_pan_pan.pose.position = ros_numpy.msgify(
-            Point, np.array([0.129, -0.263, 1.420])
-        )
+        handoff_pose_pan_pan.pose.position = ros_numpy.msgify(Point,np.array([0,0,0]))
 
         peg_ori = from_robot.transform_vector(
             AXIS_Y, from_robot.base_frame, from_robot.grasp_frame
         )
-        tf_mat = rot_from_a_to_b_preserve_axis(AXIS_Y, peg_ori, AXIS_Z)
+        tf_mat = rot_from_a_to_b_preserve_axis(AXIS_X, peg_ori, AXIS_Z)
         handoff_pose_pan_pan.pose.orientation = tf_mat_to_quat_stamped(
             tf_mat, from_robot.grasp_frame
         ).quaternion
         handoff_pose_pan_pan = from_robot.to_base(handoff_pose_pan_pan)
+        handoff_pose_pan_pan.pose.position = ros_numpy.msgify(
+            Point, np.array([0.419, 0.222, 0.354])
+        )
 
         self.arm_.add_goal(handoff_pose_pan_pan, from_robot_id)
         assert self.arm_.execute_planned_goals(from_robot_id)
 
-        grasp_pose_on_obj = ros_numpy.msgify(Pose, vec_to_hom_mat([0, 0.043, 0]))
+        grasp_pose_on_obj = ros_numpy.msgify(Pose, vec_to_hom_mat([0.043, 0, 0]))
         handoff_pose_an_an = to_robot.grasp_pose_from_object(
-            grasp_pose_on_obj, from_robot.grasp_frame
+            from_robot.grasp_frame, grasp_pose_on_obj
         )
         peg_ori = to_robot.transform_vector(
-            -AXIS_Y, from_robot.grasp_frame, to_robot.grasp_frame
+            -AXIS_X, from_robot.grasp_frame, to_robot.grasp_frame
         )
         tf_mat = rot_from_a_to_b(AXIS_Z, peg_ori)
         handoff_pose_an_an.pose.orientation = tf_mat_to_quat_stamped(
@@ -119,7 +120,7 @@ class CableInsertionNode:
         self.an_an_gripper.grasp()
         self.pan_pan_gripper.home()
 
-        tf_mat = rot_from_a_to_b(AXIS_Z, AXIS_Y)
+        tf_mat = rot_from_a_to_b(AXIS_Z, AXIS_X)
         handoff_pose_pan_pan.pose.position = ros_numpy.msgify(
             Point, np.array([0, 0, 0])
         )
@@ -169,9 +170,9 @@ if __name__ == "__main__":
     rospy.init_node("cable_insertion_node")
     insertion = CableInsertionNode()
     rospy.sleep(rospy.Duration(2.0))
+    insertion.reset()
     insertion.pan_pan_gripper.home()
     insertion.an_an_gripper.home()
-    insertion.reset()
     insertion.cable_pick("pan_pan")
     insertion.cable_handover("pan_pan", "an_an")
     insertion.cable_insert_homing("pan_pan")

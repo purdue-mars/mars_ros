@@ -17,7 +17,7 @@ class ArmTF:
         self.tf_listener_ = tf_listener
 
     def to_base(self, pose: PoseStamped):
-        if pose.header.frame_id == self.eef_frame_:
+        if pose.header.frame_id == self.grasp_frame_:
             pose = self.grasp_pose_to_eef_pose(pose)
         try:
             pose = self.tf_listener_.transformPose(self.base_frame_, pose)
@@ -41,13 +41,13 @@ class ArmTF:
 
         pose = PoseStamped()
         pose.header.frame_id = target_frame
-        pose.position.x = trans[0]
-        pose.position.y = trans[1]
-        pose.position.z = trans[2]
-        pose.orientation.x = rot[0]
-        pose.orientation.y = rot[1]
-        pose.orientation.z = rot[2]
-        pose.orientation.w = rot[3]
+        pose.pose.position.x = trans[0]
+        pose.pose.position.y = trans[1]
+        pose.pose.position.z = trans[2]
+        pose.pose.orientation.x = rot[0]
+        pose.pose.orientation.y = rot[1]
+        pose.pose.orientation.z = rot[2]
+        pose.pose.orientation.w = rot[3]
         return pose
 
     def transform_vector(self, v: np.ndarray, from_frame: str, target_frame: str):
@@ -80,7 +80,8 @@ class ArmTF:
         """Generates pose in the grasp frame corresponding to a pose relative to the object"""
         object_frame_rel_grasp_frame: PoseStamped = self.get_transform(
             object_frame, self.grasp_frame_
-        )
+        ).pose
+        assert object_frame_rel_grasp_frame is not None
         if grasp_point_rel_obj is None:
             return object_frame_rel_grasp_frame
         X_GO: np.ndarray = ros_numpy.numpify(object_frame_rel_grasp_frame)

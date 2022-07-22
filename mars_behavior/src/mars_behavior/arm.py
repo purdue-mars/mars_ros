@@ -98,7 +98,8 @@ class ArmInterface:
         self.commander_.set_named_target(named_target)
         self.commander_.go(wait=True)
 
-    def add_goal(self, goal: PoseStamped, arm_tf: ArmTF):
+    def add_goal(self, goal: PoseStamped, robot_id: str):
+        arm_tf = self.get_arm_tf(robot_id)
         g = deepcopy(goal)
         if goal.header.frame_id != arm_tf.base_frame:
             g = arm_tf.to_base(g)
