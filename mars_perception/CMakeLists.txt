@@ -18,7 +18,6 @@ find_package(catkin REQUIRED COMPONENTS
 
 find_package(PCL REQUIRED) # This includes all modules
 find_package(Eigen3 REQUIRED)
-# find_package(teaserpp REQUIRED)
 
 
 find_package(realsense2 2.50.0)
@@ -68,17 +67,13 @@ target_link_libraries(${PROJECT_NAME}_processor
   ${catkin_LIBRARIES}
   ${PCL_LIBRARIES}
 )
-file(GLOB REGISTRATION_FILES 
-     "src/registration/*.cpp"
-)
-add_executable(${PROJECT_NAME}_registration src/registration_server.cpp ${REGISTRATION_FILES} src/mesh_sampling.cpp src/common.cpp)
+add_executable(${PROJECT_NAME}_registration src/registration_server.cpp src/registration/icp.cpp src/mesh_sampling.cpp src/common.cpp)
 set_target_properties(${PROJECT_NAME}_registration PROPERTIES OUTPUT_NAME registration_server PREFIX "")
 add_dependencies(${PROJECT_NAME}_registration ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
 target_link_libraries(${PROJECT_NAME}_registration
   ${catkin_LIBRARIES}
   ${PCL_LIBRARIES}
   ${Eigen3_LIBRARIES}
-  # teaserpp::teaser_registration
 )
 
 add_executable(${PROJECT_NAME}_registration_test src/registration_test.cpp)

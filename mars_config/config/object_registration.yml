@@ -1,8 +1,6 @@
 point_cloud_topics:
   [
-    "d455_0/camera/aligned_depth_to_color/color/masked_points",
-    "d455_0/camera/aligned_depth_to_color/color/masked_points",
-    "d455_0/camera/aligned_depth_to_color/color/masked_points",
+    "d455_0/camera/aligned_depth_to_color/color/masked_points"
   ]
 filtered_points_topic: "filtered_object_points"
 

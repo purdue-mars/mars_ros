@@ -28,18 +28,21 @@ PointCloudProcesser::PointCloudProcesser() : nh_(), tf_listener_(), cloud_concat
   ros::param::get("~max_iterations", max_iter_);
   ros::param::get("~ransac_rejection_threshold", reject_thres_);
 
-  if (point_cloud_topics.size() > CAM_CNT || point_cloud_topics.size() == 0)
+
+  int topic_cnt = point_cloud_topics.size();
+  if (topic_cnt > CAM_CNT || topic_cnt == 0)
   {
-    ROS_ERROR("The size of camera_topics must be less than %d", CAM_CNT);
     ros::shutdown();
   }
-  else if (point_cloud_topics.size() < CAM_CNT)
+  else if (topic_cnt < CAM_CNT)
   {
+
     // fills in rest of topics with first topic
     // TODO: restructure to dynamically load topics
-    for (int i = 0; i < CAM_CNT - point_cloud_topics.size(); i++)
+    for (int i = 0; i < CAM_CNT - topic_cnt; i++)
     {
-      point_cloud_topics.push_back(point_cloud_topics[0]);
+      std::string s = point_cloud_topics[0];
+      point_cloud_topics.push_back(s);
     }
   }
 

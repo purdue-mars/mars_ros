@@ -9,11 +9,11 @@
         <arg name="robot_id" value="$(arg robot_id)"/>
     </include>
 
-    <node name="global_pc_registration" type="pc_registration" pkg="mars_perception" output="screen">
+    <node name="global_pc_processor" type="pc_processor" pkg="mars_perception" output="screen">
         <rosparam file="$(find mars_config)/config/scene_registration.yml" command="load" />
     </node>
 
-    <node name="pc_registration" type="pc_registration" pkg="mars_perception" output="screen">
+    <node name="object_pc_processor" type="pc_processor" pkg="mars_perception" output="screen">
         <rosparam file="$(find mars_config)/config/object_registration.yml" command="load" />
     </node>
 
