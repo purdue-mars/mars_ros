@@ -38,7 +38,7 @@
 #include <yaml-cpp/yaml.h>
 
 #define CAM_CNT 3
-class PCRegistration
+class PointCloudProcesser
 {
 public:
   typedef pcl::PointXYZRGB PointT;
@@ -46,7 +46,7 @@ public:
   typedef sensor_msgs::PointCloud2 PointCloudMsgT;
   typedef message_filters::sync_policies::ApproximateTime<PointCloudMsgT, PointCloudMsgT, PointCloudMsgT>
       SyncPolicyT;
-  PCRegistration();
+  PointCloudProcesser();
 
   PointCloudT::Ptr cloud_concatenated;
 

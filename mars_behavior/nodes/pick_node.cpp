@@ -2,7 +2,7 @@
 #include <actionlib/client/simple_action_client.h>
 #include <tf/tf.h>
 #include <tf/transform_listener.h>
-#include <mars_msgs/PointCorrTF.h>
+#include <mars_msgs/RegistrationSrv.h>
 #include <mars_msgs/MoveToAction.h>
 #include <sensor_msgs/JointState.h>
 #include <franka_gripper/MoveAction.h>
@@ -39,7 +39,7 @@ public:
     {
         gelsight_sub = n.subscribe("/grasped", 10, &PickNode::gelsight_cb, this);
         gripper_joints_sub = n.subscribe("/franka_gripper/joint_states", 10, &PickNode::gripper_joints_cb, this);
-        client = n.serviceClient<mars_msgs::PointCorrTF>("icp_mesh_tf");
+        client = n.serviceClient<mars_msgs::RegistrationSrv>("icp_mesh_tf");
         client.waitForExistence();
         move_to_act.waitForServer();
         grip_stop_act.waitForServer();
@@ -56,7 +56,7 @@ public:
     bool move_to_object()
     {
         // Get pose of object
-        mars_msgs::PointCorrTF srv;
+        mars_msgs::RegistrationSrv srv;
         std::string mesh_name = "cable_male";
         geometry_msgs::PoseStamped p;
 

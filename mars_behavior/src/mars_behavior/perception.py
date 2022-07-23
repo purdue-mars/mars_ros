@@ -1,6 +1,6 @@
 import rospy
 
-from mars_msgs.srv import PointCorrTF
+from mars_msgs.srv import RegistrationSrv
 
 
 class PerceptionInterface:
@@ -8,7 +8,7 @@ class PerceptionInterface:
         self.ns_ = ns
         self.registration_srvs = {}
         self.registration_srvs["icp"] = rospy.ServiceProxy(
-            f"/{self.ns_}/icp_mesh_tf", PointCorrTF
+            f"/{self.ns_}/icp_mesh_tf", RegistrationSrv
         )
 
     def run_object_registration(self, mesh_name: str, alg="icp"):

@@ -1,6 +1,6 @@
-#include <mars_perception/registration.h>
+#include <mars_perception/pc_processor.h>
 
-PCRegistration::PCRegistration() : nh_(), tf_listener_(), cloud_concatenated(new PointCloudT)
+PointCloudProcesser::PointCloudProcesser() : nh_(), tf_listener_(), cloud_concatenated(new PointCloudT)
 {
   std::vector<std::string> point_cloud_topics;
   std::string output_topic;
@@ -28,10 +28,19 @@ PCRegistration::PCRegistration() : nh_(), tf_listener_(), cloud_concatenated(new
   ros::param::get("~max_iterations", max_iter_);
   ros::param::get("~ransac_rejection_threshold", reject_thres_);
 
-  if (point_cloud_topics.size() != CAM_CNT)
+  if (point_cloud_topics.size() > CAM_CNT || point_cloud_topics.size() == 0)
   {
-    ROS_ERROR("The size of camera_topics must be between 2");
+    ROS_ERROR("The size of camera_topics must be less than %d", CAM_CNT);
     ros::shutdown();
+  }
+  else if (point_cloud_topics.size() < CAM_CNT)
+  {
+    // fills in rest of topics with first topic
+    // TODO: restructure to dynamically load topics
+    for (int i = 0; i < CAM_CNT - point_cloud_topics.size(); i++)
+    {
+      point_cloud_topics.push_back(point_cloud_topics[0]);
+    }
   }
 
   for (size_t i = 0; i < CAM_CNT; ++i)
@@ -44,11 +53,11 @@ PCRegistration::PCRegistration() : nh_(), tf_listener_(), cloud_concatenated(new
       SyncPolicyT(10), *cloud_subscribers_[0], *cloud_subscribers_[1], *cloud_subscribers_[2]);
 
   cloud_synchronizer_->registerCallback(
-      boost::bind(&PCRegistration::pointcloud_callback, this, _1, _2, _3));
+      boost::bind(&PointCloudProcesser::pointcloud_callback, this, _1, _2, _3));
   cloud_publisher_ = nh_.advertise<PointCloudMsgT>(output_topic, 1);
 }
 
-void PCRegistration::pointcloud_callback(const PointCloudMsgT::ConstPtr &msg1, const PointCloudMsgT::ConstPtr &msg2, const PointCloudMsgT::ConstPtr &msg3)
+void PointCloudProcesser::pointcloud_callback(const PointCloudMsgT::ConstPtr &msg1, const PointCloudMsgT::ConstPtr &msg2, const PointCloudMsgT::ConstPtr &msg3)
 {
 
   PointCloudMsgT::ConstPtr msgs[CAM_CNT] = {msg1, msg2, msg3};
@@ -68,22 +77,23 @@ void PCRegistration::pointcloud_callback(const PointCloudMsgT::ConstPtr &msg1, c
 
       if (cloud_sources[i]->size() != 0)
       {
-          pcl::CropBox<PointT> box_filter;
-          box_filter.setInputCloud(cloud_sources[i]);
-          box_filter.setMin(Eigen::Vector4f(box_min_[0], box_min_[1], box_min_[2], 1.0));
-          box_filter.setMax(Eigen::Vector4f(box_max_[0], box_max_[1], box_max_[2], 1.0));
-          box_filter.filter(*cloud_sources[i]);
+        pcl::CropBox<PointT> box_filter;
+        box_filter.setInputCloud(cloud_sources[i]);
+        box_filter.setMin(Eigen::Vector4f(box_min_[0], box_min_[1], box_min_[2], 1.0));
+        box_filter.setMax(Eigen::Vector4f(box_max_[0], box_max_[1], box_max_[2], 1.0));
+        box_filter.filter(*cloud_sources[i]);
 
-          // pcl::MedianFilter<PointT> median_filter;
-          // median_filter.setInputCloud(cloud_sources[i]);
-          // median_filter.filter(*cloud_sources[i]);
+        // pcl::MedianFilter<PointT> median_filter;
+        // median_filter.setInputCloud(cloud_sources[i]);
+        // median_filter.filter(*cloud_sources[i]);
 
-          if(voxel_enabled_) {
-            pcl::VoxelGrid<PointT> voxel_filter;
-            voxel_filter.setInputCloud(cloud_sources[i]);
-            voxel_filter.setLeafSize((double)leaf_sizes_[i][0], (double)leaf_sizes_[i][1], (double)leaf_sizes_[i][2]);
-            voxel_filter.filter(*cloud_sources[i]);
-          }
+        if (voxel_enabled_)
+        {
+          pcl::VoxelGrid<PointT> voxel_filter;
+          voxel_filter.setInputCloud(cloud_sources[i]);
+          voxel_filter.setLeafSize((double)leaf_sizes_[i][0], (double)leaf_sizes_[i][1], (double)leaf_sizes_[i][2]);
+          voxel_filter.filter(*cloud_sources[i]);
+        }
       }
     }
   }
@@ -102,7 +112,8 @@ void PCRegistration::pointcloud_callback(const PointCloudMsgT::ConstPtr &msg1, c
       {
         try
         {
-          if(icp_enabled_) {
+          if (icp_enabled_)
+          {
             pcl::IterativeClosestPoint<PointT, PointT> icp;
             icp.setInputSource(cloud_sources[i]);
             icp.setInputTarget(cloud_sources[0]);
@@ -114,7 +125,7 @@ void PCRegistration::pointcloud_callback(const PointCloudMsgT::ConstPtr &msg1, c
             icp.align(*cloud_sources[i]);
           }
         }
-        catch(const std::exception& e)
+        catch (const std::exception &e)
         {
           std::cerr << e.what() << '\n';
         }
@@ -127,4 +138,11 @@ void PCRegistration::pointcloud_callback(const PointCloudMsgT::ConstPtr &msg1, c
   cloud_concatenated->header = pcl_conversions::toPCL(msgs[0]->header);
   cloud_concatenated->header.frame_id = base_frame_;
   cloud_publisher_.publish(cloud_concatenated);
+}
+
+int main(int argc, char **argv)
+{
+    ros::init(argc, argv, "pc_processor");
+    PointCloudProcesser processor;
+    ros::spin();
 }

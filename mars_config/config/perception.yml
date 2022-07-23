@@ -1,5 +1,6 @@
 cameras_ns: ["d455_0", "d455_1", "d405"]
-filtered_points_topic: "/points"
+
+# Topics relative to /{camera_ns}/camera used for detection
 mask_topic: "detection/result"
 depth_topic: "aligned_depth_to_color/image_raw"
 color_topic: "color/image_raw"
