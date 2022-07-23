@@ -8,12 +8,18 @@ from geometry_msgs.msg import Point, Pose, PoseStamped, Quaternion
 
 import ros_numpy
 from mars_behavior.arm import ArmInterface
-from mars_behavior.arm_tf import ArmTF
+from mars_behavior.tf import TFInterface
 from mars_behavior.gripper import WSGInterface
 from mars_behavior.perception import PerceptionInterface
-from mars_behavior.pose_utils import (AXIS_X, AXIS_Y, AXIS_Z, rot_from_a_to_b,
-                                      rot_from_a_to_b_preserve_axis,
-                                      tf_mat_to_quat_stamped, vec_to_hom_mat)
+from mars_behavior.pose_utils import (
+    AXIS_X,
+    AXIS_Y,
+    AXIS_Z,
+    rot_from_a_to_b,
+    rot_from_a_to_b_preserve_axis,
+    tf_mat_to_quat_stamped,
+    vec_to_hom_mat,
+)
 
 
 class CableInsertionNode:
@@ -33,7 +39,7 @@ class CableInsertionNode:
 
     def cable_pick(self, robot_id):
         # Get pose of object
-        robot: ArmTF = self.arm_.get_arm_tf(robot_id)
+        robot: TFInterface = self.arm_.get_arm_tf(robot_id)
 
         rospy.loginfo("Starting cable pick")
         self.perception_.run_object_registration("cable_male")
@@ -78,13 +84,15 @@ class CableInsertionNode:
         assert self.arm_.execute_planned_goals(robot_id)
 
     def cable_handover(self, from_robot_id, to_robot_id):
-        from_robot: ArmTF = self.arm_.get_arm_tf(from_robot_id)
-        to_robot: ArmTF = self.arm_.get_arm_tf(to_robot_id)
+        from_robot: TFInterface = self.arm_.get_arm_tf(from_robot_id)
+        to_robot: TFInterface = self.arm_.get_arm_tf(to_robot_id)
 
         # define specified handoff pose
         handoff_pose_pan_pan: PoseStamped = PoseStamped()
         handoff_pose_pan_pan.header.frame_id = from_robot.grasp_frame
-        handoff_pose_pan_pan.pose.position = ros_numpy.msgify(Point,np.array([0,0,0]))
+        handoff_pose_pan_pan.pose.position = ros_numpy.msgify(
+            Point, np.array([0, 0, 0])
+        )
 
         peg_ori = from_robot.transform_vector(
             AXIS_Y, from_robot.base_frame, from_robot.grasp_frame
@@ -143,7 +151,7 @@ class CableInsertionNode:
         assert self.arm_.execute_planned_goals(to_robot_id)
 
     def cable_insert_homing(self, robot_id):
-        robot: ArmTF = self.arm_.get_arm_tf(robot_id)
+        robot: TFInterface = self.arm_.get_arm_tf(robot_id)
         insertion.reset()
         self.perception_.run_object_registration("cable_female")
         cable_female_grasp_pose = robot.grasp_pose_from_object("cable_female").pose

@@ -38,7 +38,6 @@ PointCloudProcesser::PointCloudProcesser() : nh_(), tf_listener_(), cloud_concat
   {
 
     // fills in rest of topics with first topic
-    // TODO: restructure to dynamically load topics
     for (int i = 0; i < CAM_CNT - topic_cnt; i++)
     {
       std::string s = point_cloud_topics[0];

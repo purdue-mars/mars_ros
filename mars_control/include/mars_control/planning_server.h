@@ -26,4 +26,5 @@ public:
     PlanningServer();
     void execute(const mars_msgs::MoveToGoalConstPtr &goal);
     void set_combined_traj(moveit_msgs::RobotTrajectory &traj, std::string planning_group);
+    double eef_step_, jump_threshold_, vel_scaling_factor_, accel_scaling_factor_;
 };

@@ -5,14 +5,11 @@
     <arg name="root_id" default="panda"/>
     <arg name="robot_id" default="pan_pan"/>
 
-    <rosparam file="$(find mars_config)/config/robot_config.yml" command="load" subst_value="true" />
-
     <group ns="$(arg root_id)">
         <include file="$(find franka_control)/launch/franka_control.launch">
             <arg name="robot_ip" value="$(arg robot_ip)" />
             <arg name="load_gripper" value="$(arg load_gripper)" />
         </include>
-        <rosparam command="load" file="$(find icra18)/config/controllers.yaml" /> 
         <include file="$(find panda_moveit_config)/launch/panda_moveit.launch">
             <arg name="load_gripper" value="$(arg load_gripper)" />
         </include>
@@ -24,6 +21,9 @@
         <include file="$(find mars_control)/launch/planning_server.launch" />
 
         <node pkg="rviz" type="rviz" name="rviz" args="-d $(find mars_launch)/rviz/config.rviz" />
+
+        <!-- LOAD CONTROLLER CONFIGS HERE-->
+        <rosparam command="load" file="$(find icra18)/config/controllers.yaml" /> 
     </group>
 
     <include ns="perception" file="$(find mars_launch)/launch/perception.launch"/>

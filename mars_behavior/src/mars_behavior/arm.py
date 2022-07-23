@@ -6,14 +6,17 @@ import actionlib
 import rospy
 import tf
 from controller_manager_msgs.msg import ControllerState
-from controller_manager_msgs.srv import (ListControllers, LoadController,
-                                         SwitchController)
+from controller_manager_msgs.srv import (
+    ListControllers,
+    LoadController,
+    SwitchController,
+)
 from geometry_msgs.msg import Pose, PoseStamped
 from moveit_commander import MoveGroupCommander
 
 from mars_msgs.msg import MoveToAction, MoveToGoal, MoveToResult
 
-from .arm_tf import ArmTF
+from .tf import TFInterface
 
 
 class ControlTaskInterface:
@@ -21,19 +24,19 @@ class ControlTaskInterface:
     cur_task: str = MOVEIT_TASK
 
     def __init__(self) -> None:
-        self.task_controller_dict_ = rospy.get_param("task_controller_dict")
-
-        rospy.wait_for_service("controller_manager/switch_controller")
-        rospy.wait_for_service("controller_manager/load_controller")
+        root_id = rospy.get_param("/root_id")
+        self.task_controller_dict_ = rospy.get_param("/{root_id}/task_controller_dict")
+        rospy.wait_for_service(f"/{root_id}/controller_manager/switch_controller")
+        rospy.wait_for_service(f"/{root_id}/controller_manager/load_controller")
 
         self.switch_controller_ = rospy.ServiceProxy(
-            "controller_manager/switch_controller", SwitchController
+            f"/{root_id}/controller_manager/switch_controller", SwitchController
         )
         self.load_controller_ = rospy.ServiceProxy(
-            "controller_manager/load_controller", LoadController
+            f"/{root_id}/controller_manager/load_controller", LoadController
         )
         self.list_controllers_ = rospy.ServiceProxy(
-            "controller_manager/list_controllers", ListControllers
+            f"/{root_id}/controller_manager/list_controllers", ListControllers
         )
 
         controller_list: List[ControllerState] = self.list_controllers_().controller
@@ -65,12 +68,16 @@ class ArmInterface:
 
     def __init__(self):
         self.task_interface_ = ControlTaskInterface()
-        self.commander_ = MoveGroupCommander(rospy.get_param("planning_group"))
-        self.move_ = actionlib.SimpleActionClient("move_to", MoveToAction)
+        root_id = rospy.get_param("/root_id")
+        self.commander_ = MoveGroupCommander(
+            rospy.get_param(f"{root_id}/planning_group")
+        )
+
+        self.move_ = actionlib.SimpleActionClient(f"/{root_id}/move_to", MoveToAction)
 
         self.tf_listener = tf.TransformListener()
-        self.robot_ids = rospy.get_param("robot_ids")
-        self.arm_tfs_ = {id: ArmTF(self.tf_listener, id) for id in self.robot_ids}
+        self.robot_ids = rospy.get_param(f"{root_id}/robot_ids")
+        self.arm_tfs_ = {id: TFInterface(self.tf_listener, id) for id in self.robot_ids}
         rospy.loginfo("waiting for move_to server")
         self.move_.wait_for_server()
 

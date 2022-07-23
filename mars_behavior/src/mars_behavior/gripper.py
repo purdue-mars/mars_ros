@@ -88,11 +88,12 @@ class WSGInterface(GripperInterface):
 
     def __init__(self, robot_id: str) -> None:
         super().__init__()
+        root_id = rospy.get_param("root_id")
         self.grasping_ = rospy.Publisher(
-            f"{robot_id}/wsg/goal_speed", Float32, queue_size=1
+            f"/{root_id}/{robot_id}/wsg/goal_speed", Float32, queue_size=1
         )
         self.is_moving_ = rospy.Subscriber(
-            f"{robot_id}/wsg/moving", Bool, self.is_moving_cb_
+            f"/{root_id}/{robot_id}/wsg/moving", Bool, self.is_moving_cb_
         )
         self.width_: float = 0.0
 

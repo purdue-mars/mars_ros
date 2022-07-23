@@ -2,6 +2,10 @@
 
 PlanningServer::PlanningServer() : as_(nh_, SERVER_NAME, boost::bind(&PlanningServer::execute, this, _1), false)
 {
+  ros::param::param<double>("~eef_step",eef_step_,0.001);
+  ros::param::param<double>("~jump_threshold",jump_threshold_,0.0);
+  ros::param::param<double>("~velocity_scaling_factor",vel_scaling_factor_,0.3);
+  ros::param::param<double>("~acceleration_scaling_factor",accel_scaling_factor_,0.3);
   bool valid = ros::param::get("planning_group", global_planning_group_);
   if(valid) {
     as_.start();
@@ -61,8 +65,8 @@ void PlanningServer::execute(const mars_msgs::MoveToGoalConstPtr &goal)
   mgi.setEndEffectorLink(goal->ee_frame);
   mgi.setPoseReferenceFrame(goal->base_frame);
   double fraction = mgi.computeCartesianPath(goal->targets,
-                                             0.001, // eef_step
-                                             0.00,  // jump_threshold
+                                             eef_step_,
+                                             jump_threshold_,
                                              trajectory);
 
   bool execution_success = true;
@@ -77,7 +81,7 @@ void PlanningServer::execute(const mars_msgs::MoveToGoalConstPtr &goal)
     rt.setRobotTrajectoryMsg(*mgi.getCurrentState(), trajectory);
     
     trajectory_processing::IterativeParabolicTimeParameterization iptp;
-    bool time_stamp_success = iptp.computeTimeStamps(rt,0.3,0.3);
+    bool time_stamp_success = iptp.computeTimeStamps(rt,vel_scaling_factor_,accel_scaling_factor_);
     ROS_INFO("Computed time stamp %s", time_stamp_success ? "SUCCEEDED":"FAILED");
 
     rt.getRobotTrajectoryMsg(trajectory);
