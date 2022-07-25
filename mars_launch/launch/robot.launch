@@ -18,6 +18,7 @@
 
         <include file="$(find mars_launch)/launch/gripper.launch">
             <arg name="robot_id" value="$(arg robot_id)" />
+            <arg name="tf_prefix_id" value="$(arg root_id)" />
         </include>
         
         <include file="$(find mars_control)/launch/planning_server.launch" />
