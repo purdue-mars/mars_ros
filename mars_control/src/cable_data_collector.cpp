@@ -148,9 +148,9 @@ namespace mars_control
       last_y_vel_ = y_vel;
 
       std::array<double, 6>
-          cmd = {x_vel,
+          cmd = {0.0,
+                x_vel,
                 y_vel,
-                0.0,
                 0.0,
                 0.0,
                 0.0};
@@ -202,9 +202,9 @@ namespace mars_control
     
     // Create command
     std::array<double, 6>
-        cmd = {v_norm,
+        cmd = {0.0,
+               v_norm,
                y_vel,
-               0.0,
                0.0,
                0.0,
                0.0};
