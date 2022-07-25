@@ -12,6 +12,9 @@
 
       <node name="wsg" pkg="wsg_50_driver" type="wsg_50_ip" if="$(arg wsg_en)">
         <rosparam file="$(find mars_config)/config/$(arg wsg_config_file)" command="load" subst_value="true" />
+        <param name="left_finger_joint" type="string" value="$(arg robot_id)_wsg_base_joint_gripper_left"/>
+        <param name="right_finger_joint" type="string" value="$(arg robot_id)_wsg_base_joint_gripper_right"/>
+        <param name="base_link" type="string" value="$(arg robot_id)_wsg_base_link"/>
       </node>
     </group>
 </launch>

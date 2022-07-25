@@ -1,4 +1,5 @@
 from collections import defaultdict
+import os
 from copy import deepcopy
 from typing import Dict, List
 
@@ -25,7 +26,7 @@ class ControlTaskInterface:
 
     def __init__(self) -> None:
         root_id = rospy.get_param("/root_id")
-        self.task_controller_dict_ = rospy.get_param("/{root_id}/task_controller_dict")
+        self.task_controller_dict_ = rospy.get_param(f"/{root_id}/task_controller_dict")
         rospy.wait_for_service(f"/{root_id}/controller_manager/switch_controller")
         rospy.wait_for_service(f"/{root_id}/controller_manager/load_controller")
 
@@ -67,16 +68,17 @@ class ArmInterface:
     planning_goals_: Dict[str, List[Pose]] = defaultdict(list)  # key is robot_id
 
     def __init__(self):
-        self.task_interface_ = ControlTaskInterface()
         root_id = rospy.get_param("/root_id")
+        os.environ['ROS_NAMESPACE'] = root_id
+        self.task_interface_ = ControlTaskInterface()
         self.commander_ = MoveGroupCommander(
-            rospy.get_param(f"{root_id}/planning_group")
+            rospy.get_param(f"~{root_id}/planning_group")
         )
 
         self.move_ = actionlib.SimpleActionClient(f"/{root_id}/move_to", MoveToAction)
 
         self.tf_listener = tf.TransformListener()
-        self.robot_ids = rospy.get_param(f"{root_id}/robot_ids")
+        self.robot_ids = rospy.get_param(f"~{root_id}/robot_ids")
         self.arm_tfs_ = {id: TFInterface(self.tf_listener, id) for id in self.robot_ids}
         rospy.loginfo("waiting for move_to server")
         self.move_.wait_for_server()
@@ -98,7 +100,7 @@ class ArmInterface:
         self.move_.send_goal(goal)
         self.move_.wait_for_result()
         res: MoveToResult = self.move_.get_result()
-        self.planning_goals_[arm_tf.id] = []
+        self.planning_goals_[robot_id] = []
         return res.was_success
 
     def go_to(self, named_target="ready"):

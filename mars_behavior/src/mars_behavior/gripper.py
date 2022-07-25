@@ -11,7 +11,7 @@ from std_srvs.srv import Empty
 
 from gelsight_ros.msg import GelsightFlowStamped
 from wsg_50_common.msg import Cmd, Status
-from wsg_50_common.srv import Move
+from wsg_50_common.srv import Home
 
 
 class GripperInterface:
@@ -88,21 +88,23 @@ class WSGInterface(GripperInterface):
 
     def __init__(self, robot_id: str) -> None:
         super().__init__()
-        root_id = rospy.get_param("root_id")
+        root_id = rospy.get_param("/root_id")
         self.grasping_ = rospy.Publisher(
             f"/{root_id}/{robot_id}/wsg/goal_speed", Float32, queue_size=1
         )
         self.is_moving_ = rospy.Subscriber(
             f"/{root_id}/{robot_id}/wsg/moving", Bool, self.is_moving_cb_
         )
+        self.homing_ = rospy.ServiceProxy(f'/{root_id}/{robot_id}/wsg/homing',Empty)
         self.width_: float = 0.0
 
     def is_moving_cb_(self, msg: Bool):
         self.is_moving_ = msg.data
 
     def home(self):
+        self.homing_()
         self.grasping_.publish(self.DEFAULT_SPEED)
-        rospy.sleep(rospy.Duration(3))
+        rospy.sleep(rospy.Duration(2))
 
     def stop(self):
         self.grasping_.publish(0.0)

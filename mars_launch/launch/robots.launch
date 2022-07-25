@@ -6,9 +6,9 @@
     <group ns="$(arg root_id)">
         <include file="$(find dual_mars_arm_moveit_config)/launch/move_group.launch"/>
         <node pkg="rviz" type="rviz" name="rviz" args="-d $(find mars_launch)/rviz/dual_config.rviz" />
-        <node pkg="mars_control" name="panda_planning_server" type="planning_server" output="screen">
-            <param name="combined_planning_group" value="$(arg root_id)" />
-        </node>
+
+        <include file="$(find mars_control)/launch/planning_server.launch" />
+
         <include file="$(find mars_launch)/launch/gripper.launch">
             <arg name="robot_id" value="pan_pan" />
         </include>

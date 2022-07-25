@@ -17,7 +17,7 @@
   <arg name="class_names" default="[n/a, cable_male, cable_female]"/>
   <arg name="detect_class_names" default="[cable_male]"/>
 
-  <arg name="detection_camera_ns" default="[d455_0]"/>
+  <arg name="detection_camera_ns" default="[d455_0,d405]"/>
 
   <include file="$(find detectron2_ros)/launch/detectron2_ros.launch">
     <arg name="detection_threshold" value="$(arg detection_threshold)" />

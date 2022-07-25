@@ -103,7 +103,7 @@ class CableInsertionNode:
         ).quaternion
         handoff_pose_pan_pan = from_robot.to_base(handoff_pose_pan_pan)
         handoff_pose_pan_pan.pose.position = ros_numpy.msgify(
-            Point, np.array([0.419, 0.222, 0.354])
+            Point, np.array([0.404, 0.396, 0.454])
         )
 
         self.arm_.add_goal(handoff_pose_pan_pan, from_robot_id)
@@ -114,13 +114,12 @@ class CableInsertionNode:
             from_robot.grasp_frame, grasp_pose_on_obj
         )
         peg_ori = to_robot.transform_vector(
-            -AXIS_X, from_robot.grasp_frame, to_robot.grasp_frame
+            AXIS_X, from_robot.base_frame, to_robot.grasp_frame
         )
         tf_mat = rot_from_a_to_b(AXIS_Z, peg_ori)
         handoff_pose_an_an.pose.orientation = tf_mat_to_quat_stamped(
             tf_mat, to_robot.grasp_frame
         ).quaternion
-        # self.debug_goal.publish(handoff_pose_an_an)
 
         self.arm_.add_goal(to_robot.to_base(handoff_pose_an_an), to_robot_id)
         self.arm_.execute_planned_goals(to_robot_id)
@@ -128,7 +127,7 @@ class CableInsertionNode:
         self.an_an_gripper.grasp()
         self.pan_pan_gripper.home()
 
-        tf_mat = rot_from_a_to_b(AXIS_Z, AXIS_X)
+        tf_mat = rot_from_a_to_b_preserve_axis(AXIS_Z, AXIS_X,AXIS_Y)
         handoff_pose_pan_pan.pose.position = ros_numpy.msgify(
             Point, np.array([0, 0, 0])
         )
@@ -137,7 +136,7 @@ class CableInsertionNode:
         ).quaternion
 
         handoff_pose_pan_pan = from_robot.to_base(handoff_pose_pan_pan)
-        handoff_pose_pan_pan.pose.position.z -= 0.01
+        self.debug_goal.publish(handoff_pose_pan_pan)
         self.arm_.add_goal(handoff_pose_pan_pan, from_robot_id)
         assert self.arm_.execute_planned_goals(from_robot_id)
 
@@ -181,7 +180,7 @@ if __name__ == "__main__":
     insertion.reset()
     insertion.pan_pan_gripper.home()
     insertion.an_an_gripper.home()
-    insertion.cable_pick("pan_pan")
+    #insertion.cable_pick("pan_pan")
     insertion.cable_handover("pan_pan", "an_an")
     insertion.cable_insert_homing("pan_pan")
     insertion.pan_pan_gripper.grasp()

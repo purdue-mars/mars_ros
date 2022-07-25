@@ -1,13 +1,13 @@
 <launch>
   <arg name="serial_no_d455_0" default="146222252184" />
-  <arg name="serial_no_d405" default="126122270852" />
+  <arg name="serial_no_d405" default="126122270992" />
   <arg name="serial_no_d455_1" default="146222254752" />
   <arg name="d405_clip_dist" default="0.3" />
   <arg name="initial_reset" default="false" />
   <arg name="sim" default="false" />
 
   <arg name="d455_1_en" default="true"/>
-  <arg name="d405_en" default="false"/>
+  <arg name="d405_en" default="true"/>
   <arg name="d455_0_en" default="true"/>
 
   <arg name="robot_id" default="panda"/>

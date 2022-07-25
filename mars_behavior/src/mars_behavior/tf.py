@@ -9,9 +9,9 @@ import ros_numpy
 class TFInterface:
     def __init__(self, tf_listener: tf.TransformListener, robot_id: str = "panda"):
         self.robot_id_ = robot_id
-        self.base_frame_: str = robot_id + rospy.get_param("base_frame_postfix")
-        self.eef_frame_: str = robot_id + rospy.get_param("eef_frame_postfix")
-        self.grasp_frame_: str = robot_id + rospy.get_param("grasp_frame_postfix")
+        self.base_frame_: str = robot_id + rospy.get_param("~base_frame_postfix")
+        self.eef_frame_: str = robot_id + rospy.get_param("~eef_frame_postfix")
+        self.grasp_frame_: str = robot_id + rospy.get_param("~grasp_frame_postfix")
         self.tf_listener_ = tf_listener
 
     def to_base(self, pose: PoseStamped):
@@ -63,6 +63,8 @@ class TFInterface:
         eef_frame_rel_grasp_frame = self.get_transform(
             self.eef_frame_, self.grasp_frame_
         ).pose
+
+        # G = grasp frame, E = eef_frame
         X_GE: np.ndarray = ros_numpy.numpify(eef_frame_rel_grasp_frame)
         X_GcurGnew: np.ndarray = ros_numpy.numpify(new_grasp_to_cur_grasp.pose)
         X_EcurEnew = ros_numpy.msgify(
@@ -82,6 +84,7 @@ class TFInterface:
         assert object_frame_rel_grasp_frame is not None
         if grasp_point_rel_obj is None:
             return object_frame_rel_grasp_frame
+        # G = grasp frame, O = object frame, P = grasp point on object frame
         X_GO: np.ndarray = ros_numpy.numpify(object_frame_rel_grasp_frame)
         X_OP: np.ndarray = ros_numpy.numpify(grasp_point_rel_obj)
         X_GP = ros_numpy.msgify(Pose, np.matmul(X_GO, X_OP))
