@@ -1,6 +1,6 @@
 <launch>
-    <node name="gelsight_proc" type="gelsight_proc.py" pkg="gelsight_ros" output="screen">
-        <rosparam command="load" file="$(find mars_config)/config/gelsight/gelsight_proc.yml"/>
-        <param name="nn_path" value="$(find gelsight_ros)/data/nnr15.pt"/>
-    </node>
+    <arg name="config_file"/>
+    <include file="$(find gelsight_ros)/launch/gelsight.launch">
+        <arg name="config" value="$(find mars_config)/config/$(arg config_file)"/>
+    </include>
 </launch>

@@ -60,27 +60,26 @@ include_directories(
 link_directories(${PCL_LIBRARY_DIRS})
 add_definitions(${PCL_DEFINITIONS})
 
-add_executable(${PROJECT_NAME}_reg nodes/pc_registration_node.cpp src/registration.cpp)
-set_target_properties(${PROJECT_NAME}_reg PROPERTIES OUTPUT_NAME pc_registration PREFIX "")
-add_dependencies(${PROJECT_NAME}_reg ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
-target_link_libraries(${PROJECT_NAME}_reg
+add_executable(${PROJECT_NAME}_processor src/pc_processor_node.cpp)
+set_target_properties(${PROJECT_NAME}_processor PROPERTIES OUTPUT_NAME pc_processor PREFIX "")
+add_dependencies(${PROJECT_NAME}_processor ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
+target_link_libraries(${PROJECT_NAME}_processor
   ${catkin_LIBRARIES}
   ${PCL_LIBRARIES}
 )
-
-add_executable(${PROJECT_NAME}_icp_server nodes/icp_server.cpp src/icp.cpp src/mesh_sampling.cpp)
-set_target_properties(${PROJECT_NAME}_icp_server PROPERTIES OUTPUT_NAME icp_server PREFIX "")
-add_dependencies(${PROJECT_NAME}_icp_server ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
-target_link_libraries(${PROJECT_NAME}_icp_server
+add_executable(${PROJECT_NAME}_registration src/registration_server.cpp src/registration/icp.cpp src/mesh_sampling.cpp src/common.cpp)
+set_target_properties(${PROJECT_NAME}_registration PROPERTIES OUTPUT_NAME registration_server PREFIX "")
+add_dependencies(${PROJECT_NAME}_registration ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
+target_link_libraries(${PROJECT_NAME}_registration
   ${catkin_LIBRARIES}
   ${PCL_LIBRARIES}
   ${Eigen3_LIBRARIES}
 )
 
-add_executable(${PROJECT_NAME}_icp_client nodes/icp_client_test.cpp)
-set_target_properties(${PROJECT_NAME}_icp_client PROPERTIES OUTPUT_NAME icp_client PREFIX "")
-add_dependencies(${PROJECT_NAME}_icp_client ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
-target_link_libraries(${PROJECT_NAME}_icp_client
+add_executable(${PROJECT_NAME}_registration_test src/registration_test.cpp)
+set_target_properties(${PROJECT_NAME}_registration_test PROPERTIES OUTPUT_NAME registration_test PREFIX "")
+add_dependencies(${PROJECT_NAME}_registration_test ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
+target_link_libraries(${PROJECT_NAME}_registration_test
   ${catkin_LIBRARIES}
 )
 

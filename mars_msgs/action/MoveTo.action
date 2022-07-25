@@ -1,4 +1,7 @@
 geometry_msgs/Pose[] targets
+string planning_group 
+string base_frame 
+string ee_frame
 ---
 bool was_success
 ---

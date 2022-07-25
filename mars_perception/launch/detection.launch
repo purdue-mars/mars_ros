@@ -17,7 +17,7 @@
   <arg name="class_names" default="[n/a, cable_male, cable_female]"/>
   <arg name="detect_class_names" default="[cable_male]"/>
 
-  <arg name="detection_camera_ns" default="[d455_0]"/>
+  <arg name="detection_camera_ns" default="[d455_0,d405]"/>
 
   <include file="$(find detectron2_ros)/launch/detectron2_ros.launch">
     <arg name="detection_threshold" value="$(arg detection_threshold)" />
@@ -28,12 +28,12 @@
     <arg name="detection_camera_ns" value="$(arg detection_camera_ns)"/>
   </include>
 
-  <rosparam param="/detect_class_names" subst_value="True">$(arg detect_class_names)</rosparam> 
+  <rosparam param="detect_class_names" subst_value="True">$(arg detect_class_names)</rosparam> 
   <node pkg="mars_perception" name="detect_mask" type="detect_mask_node" output="screen">
       <rosparam param="camera_ns" subst_value="True">$(arg detection_camera_ns)</rosparam> 
   </node>
 
-  <group ns="/d455_0/camera" if="$(arg d455_0_en)">
+  <group ns="d455_0/camera" if="$(arg d455_0_en)">
     <node pkg="nodelet" type="nodelet" args="manager" name="d455_0_detect_nodelet" output="screen"/>
     <node pkg="nodelet" type="nodelet" name="d455_0_depth_proc_nodelet"
             args="load depth_image_proc/point_cloud_xyzrgb d455_0_detect_nodelet --no-bond">
@@ -45,7 +45,7 @@
     </node>
   </group>
 
-  <group ns="/d455_1/camera" if="$(arg d455_1_en)">
+  <group ns="d455_1/camera" if="$(arg d455_1_en)">
     <node pkg="nodelet" type="nodelet" args="manager" name="d455_1_detect_nodelet" output="screen"/>
     <node pkg="nodelet" type="nodelet" name="d455_1_depth_proc_nodelet"
             args="load depth_image_proc/point_cloud_xyzrgb d455_1_detect_nodelet">
@@ -57,7 +57,7 @@
     </node>
   </group>
 
-  <group ns="/d405/camera" if="$(arg d405_en)">
+  <group ns="d405/camera" if="$(arg d405_en)">
     <node pkg="nodelet" type="nodelet" args="manager" name="d405_detect_nodelet" output="screen"/>
     <node pkg="nodelet" type="nodelet" name="d405_depth_proc_nodelet"
             args="load depth_image_proc/point_cloud_xyzrgb d405_detect_nodelet">
