@@ -62,7 +62,7 @@ include_directories(
 
 # Specify header include paths
 add_executable(${PROJECT_NAME}_planning_server
-  src/planning_server.cpp src/kinematics.cpp
+  src/planning_server.cpp
 )
 set_target_properties(${PROJECT_NAME}_planning_server PROPERTIES
   OUTPUT_NAME planning_server

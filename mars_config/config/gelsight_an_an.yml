@@ -1,0 +1,44 @@
+stream:
+  url: "http://192.168.0.171:8080/?action=stream"
+  height: 160
+  width: 120
+  mmpp: 0.1896
+  roi: [[115, 139], [388, 142], [358, 480], [134, 483]] # TL, TR, BR, BL
+  # # Uncomment to publish
+  # topic_name: "raw_image"
+diff:
+  enable: false
+  # # Uncomment to publish 
+  # topic_name: "diff_image"
+depth:
+  enable: false
+  method: "model" # Either 'functional' or 'model'
+  compute_type: "cuda" # Either 'cuda' or 'cpu'
+  model_path: $(find gelsight_ros)/data/model-13-59-40.pth
+  # Comment to not publish
+  topic_name: "depth"
+markers:
+  enable: true
+  threshold_block_size: 31
+  threshold_neg_bias: 19
+  marker_neighborhood_size: 24
+  # Comment to not publish
+  topic_name: "markers"
+  publish_image: true # Will be published to "(topic_name)_image"
+flow:
+  enable: true
+  n: 10
+  m: 14
+  x0: 13
+  y0: 6
+  dx: 11
+  dy: 11
+  # Comment to not publish
+  topic_name: "flow"
+  publish_image: true # Will be published to "(topic_name)_flow"
+pose:
+  enable: true
+  method: "depth" # Either 'markers' or 'depth'
+  rolling_avg: 1 # Must be 1 or greater
+  # Comment to not publish
+  topic_name: "pose"

@@ -1,6 +1,6 @@
 <launch>
   <arg name="serial_no_d455_0" default="146222252184" />
-  <arg name="serial_no_d405" default="126122270852" />
+  <arg name="serial_no_d405" default="126122270992" />
   <arg name="serial_no_d455_1" default="146222254752" />
   <arg name="d405_clip_dist" default="0.3" />
   <arg name="initial_reset" default="false" />
@@ -9,6 +9,8 @@
   <arg name="d455_1_en" default="true"/>
   <arg name="d405_en" default="true"/>
   <arg name="d455_0_en" default="true"/>
+
+  <arg name="robot_id" default="panda"/>
 
   <group ns="d455_0" if="$(arg d455_0_en)">
     <include file="$(find realsense2_camera)/launch/rs_camera.launch">
@@ -42,13 +44,12 @@
     </include>
   </group>
 
-  <node pkg="tf2_ros" type="static_transform_publisher" name="d405_broadcaster" args="0.0419262 -0.0542951 0.0249049  0.6312052481455493 -0.2611933430046631  0.677071864422379 0.2718384236028734 panda_link8 d405_link" />
-
+  <node pkg="tf2_ros" type="static_transform_publisher" name="d405_broadcaster" args="0.0419262 -0.0542951 0.0249049  0.6312052481455493 -0.2611933430046631  0.677071864422379 0.2718384236028734 $(arg robot_id)_link8 d405_link" />
 
   <node pkg="tf2_ros" type="static_transform_publisher" name="d455_0_broad"
-    args="0.14920791195950264 -0.24468079160915554 0.2661905924670789 -0.1091336001416634 0.3721667609345948 0.28487836048578946 0.8766010383647533 panda_link0 d455_0_link" />
+    args="0.14920791195950264 -0.24468079160915554 0.2661905924670789 -0.1091336001416634 0.3721667609345948 0.28487836048578946 0.8766010383647533 $(arg robot_id)_link0 d455_0_link" />
 
   <node pkg="tf2_ros" type="static_transform_publisher" name="d455_1_broad"
-    args="0.8175863931033199 0.25702932306461 0.48049229461672 -0.39566308267346856 -0.13387794417220533 0.8573474921572588 -0.30080870761926926 panda_link0 d455_1_link" />
+    args="0.7825863931033199 0.27702932306461 0.46049229461672 -0.39566308267346856 -0.13387794417220533 0.8573474921572588 -0.30080870761926926 $(arg robot_id)_link0 d455_1_link" />
 
 </launch>
