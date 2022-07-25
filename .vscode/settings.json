@@ -10,6 +10,9 @@
         "/home/raghava/catkin_ws/devel/lib/python3/dist-packages",
         "./mars_perception/src",
         "./mars_perception/src",
+        "./mars_behavior/src",
+        "./mars_behavior/src",
+        "./mars_behavior/src",
         "./mars_behavior/src"
     ]
 }

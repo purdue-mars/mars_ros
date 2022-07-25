@@ -1,0 +1,19 @@
+base_frame_postfix: _link0
+grasp_frame_postfix: _wsg_grasp_link
+eef_frame_postfix: _link8
+
+combined_arms:
+  root_id: combined_arms
+  robot_ids: ['pan_pan','an_an']
+  planning_group: 'combined_arms'
+  task_controller_dict:
+    insert: 'dual_plug_in_controller' 
+    moveit: 'combined_arms_controller'
+
+panda:
+  root_id: panda
+  robot_ids: ['panda']
+  planning_group: 'panda_arm'
+  task_controller_dict:
+    insert: 'plug_in_controller' 
+    moveit: 'position_joint_trajectory_controller'

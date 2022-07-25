@@ -53,6 +53,7 @@
   <depend>sensor_msgs</depend>
   <depend>roscpp</depend>
   <depend>pcl_ros</depend>
+  <!-- <depend>teaserpp</depend> -->
   <depend>pcl_conversions</depend>
   <depend>mars_msgs</depend>
   <depend>detectron2_ros</depend>

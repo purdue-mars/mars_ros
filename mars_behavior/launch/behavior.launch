@@ -1,0 +1,8 @@
+<launch>
+    <arg name="behavior_name"/>
+    <group ns="behavior">
+        <node name="$(arg behavior_name)" type="$(arg behavior_name)" pkg="mars_behavior" output="screen">
+            <rosparam command="load" file="$(find mars_config)/config/behavior.yml"/> 
+        </node>
+    </group>
+</launch>

@@ -1,8 +1,0 @@
-# Goal
-geometry_msgs/Point goal_position
----
-# Result
-bool successful
----
-# Feedback
-bool still_valid
