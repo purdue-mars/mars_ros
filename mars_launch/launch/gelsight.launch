@@ -1,6 +1,6 @@
 <launch>
     <arg name="config_file"/>
     <include file="$(find gelsight_ros)/launch/gelsight.launch">
-        <arg name="config" value="$(find mars_config)/config/$(arg config_file)"/>
+        <arg name="config" value="$(find mars_config)/config/gelsight/$(arg config_file)"/>
     </include>
 </launch>
