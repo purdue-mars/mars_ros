@@ -41,6 +41,7 @@ namespace mars_control
         std::unique_ptr<franka_hw::FrankaCartesianVelocityHandle> cartesian_velocity_handle_;
 
         // Controller configuration
+        bool is_vertical_;
         double p_gain_;
         Eigen::Vector3d cable_origin_pos_;
         Eigen::Quaterniond cable_origin_quat_;
@@ -59,10 +60,13 @@ namespace mars_control
         };
         realtime_tools::RealtimeBuffer<GelsightUpdate> gelsight_update_;
         GelsightUpdate gelsight_update_struct_;
+        
+        // Slow to stop server 
         ros::ServiceServer slow_srv_;
         bool start_to_slow_;
-        float last_y_vel_;
-        float last_x_vel_;
+        std::array<double, 6> last_cmd_;
+        
+        // Uniform noise 
         std::mt19937 rand_gen_;
         std::uniform_real_distribution<> rand_dis_;
     };

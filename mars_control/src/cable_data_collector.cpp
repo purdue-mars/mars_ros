@@ -41,26 +41,45 @@ namespace mars_control
     rand_gen_ = std::mt19937(rd());
     rand_dis_ = std::uniform_real_distribution<>(-0.01, 0.01);
 
-    cartesian_velocity_interface_ = robot_hardware->get<franka_hw::FrankaVelocityCartesianInterface>();
-    if (cartesian_velocity_interface_ == nullptr)
-    {
-      ROS_ERROR(
-          "CableDataCollector: Could not get Cartesian Velocity "
-          "interface from hardware");
-      return false;
-    }
-
+    // Collect ROS params
     std::string arm_id;
     if (!node_handle.getParam("arm_id", arm_id))
     {
       ROS_ERROR("CableDataCollector: Could not get parameter arm_id");
       return false;
     }
-    arm_id = "an_an";
 
     if (!node_handle.getParam("p_gain", p_gain_))
     {
       ROS_ERROR("CableDataCollector: Could not get parameter p_gain");
+      return false;
+    }
+
+    if (!node_hande.getParam("is_vertical", is_vertical_))
+    {
+      ROS_ERROR("CableDataCollector: Could not get parameter is_vertical");
+      return false;
+    }
+
+    std::string gelsight_topic;
+    if (!node_handle.getParam("gelsight_topic", gelsight_topic)) {
+      ROS_ERROR("CableDataCollector: Could not get parameter gelsight_topic");
+      return false
+    }
+
+    std::string output_topic;
+    if (!node_handle.getParam("output_topic", output_topic)) {
+      ROS_ERROR("CableDataCollector: Could not get parameter output_topic");
+      return false
+    }
+
+    // Setup Franka interface
+    cartesian_velocity_interface_ = robot_hardware->get<franka_hw::FrankaVelocityCartesianInterface>();
+    if (cartesian_velocity_interface_ == nullptr)
+    {
+      ROS_ERROR(
+          "CableDataCollector: Could not get Cartesian Velocity "
+          "interface from hardware");
       return false;
     }
 
@@ -83,47 +102,27 @@ namespace mars_control
       return false;
     }
 
-    start_to_slow_ = false;
-
-    // try
-    // {
-    //   auto state_handle = state_interface->getHandle(arm_id + "_robot");
-    //   auto start_transform = poseToTransform(start_pos, start_quat);
-    //   for (size_t i = 0; i < start_transform.size(); i++)
-    //   {
-    //     if (std::abs(state_handle.getRobotState().O_T_EE[i] - start_transform[i]) > 0.1)
-    //     {
-    //       ROS_ERROR_STREAM(
-    //           "CableDataCollector: Robot is not in the expected starting position for "
-    //           << start_pose_name << ". Run `roslaunch mars_control move_to.launch "
-    //                                 "robot_ip:=<robot-ip> pose_name:="
-    //           << start_pose_name << "` first.");
-    //       return false;
-    //     }
-    //   }
-    // }
-    // catch (const hardware_interface::HardwareInterfaceException &e)
-    // {
-    //   ROS_ERROR_STREAM(
-    //       "CableDataCollector: Exception getting state handle: " << e.what());
-    //   return false;
-    // }
-
-    data_pub_ = new realtime_tools::RealtimePublisher<mars_msgs::CableFollowingData>(node_handle, "cable_data_output", 10);
-    gelsight_sub_ = node_handle.subscribe("/combined_arms/an_an/gelsight/pose", 1, &CableDataCollector::gelsightCallback, this);
+    // Slow to stop server
     slow_srv_ = node_handle.advertiseService("slow_controller", &CableDataCollector::slowToStop, this);
-    last_y_vel_ = 0.0;
+
+    // Publisher / Subscribers
+    gelsight_sub_ = node_handle.subscribe(gelsight_topic, 1, &CableDataCollector::gelsightCallback, this);
+    data_pub_ = new realtime_tools::RealtimePublisher<mars_msgs::CableFollowingData>(node_handle, output_topic, 10);
     return true;
   }
 
   void CableDataCollector::starting(const ros::Time & /* time */) {
+    // Store starting state as cable origin
     std::array<double, 16> m = cartesian_velocity_handle_->getRobotState().O_T_EE_d;
     cable_origin_pos_ = Eigen::Vector3d(m[12], m[13], m[14]);
     double w = sqrt(1.0 + m[0] + m[5] + m[10]) / 2.0;
     cable_origin_quat_ = Eigen::Quaterniond(w, (m[6] - m[9]) / (w * 4.0),
                                             (m[8] - m[2]) / (w * 4.0),
                                             (m[1] - m[4]) / (w * 4.0));
+    
+    // Reset slow to stop
     start_to_slow_ = false;
+    last_cmd_ = {0.0, 0.0, 0.0, 0.0, 0.0, 0.0};
   }
 
   void CableDataCollector::update(const ros::Time & /* time */,
@@ -132,29 +131,18 @@ namespace mars_control
     double max_accel = 1.5;
 
     if (start_to_slow_) {
-      double x_vel = 0.0;
-      if (last_x_vel_ > max_accel * period.toSec()) {
-        x_vel = last_x_vel_ - (max_accel * period.toSec());
-      } else if (last_x_vel_ < -max_accel * period.toSec()) {
-        x_vel = last_x_vel_ + (max_accel * period.toSec());
+      std::array<double, 6> cmd = last_cmd_;
+      double max_delta_vel = max_accel * period.toSec();
+      for (int i = 0; i < 6; i++) {
+        if (cmd[i] > max_delta_vel) {
+          cmd[i] -= max_delta_vel;
+        } else if (cmd[i] < -max_delta_vel) {
+          cmd[i] += max_delta_vel;
+        } else {
+          cmd[i] = 0.0;
+        }
       }
-      last_x_vel_ = x_vel;
-
-      double y_vel = 0.0;
-      if (last_y_vel_ > max_accel * period.toSec()) {
-        y_vel = last_y_vel_ - (max_accel * period.toSec());
-      } else if (last_y_vel_ < -max_accel * period.toSec()) {
-        y_vel = last_y_vel_ + (max_accel * period.toSec());
-      }
-      last_y_vel_ = y_vel;
-
-      std::array<double, 6>
-          cmd = {0.0,
-                x_vel,
-                y_vel,
-                0.0,
-                0.0,
-                0.0};
+      last_cmd_ = cmd;
       cartesian_velocity_handle_->setCommand(cmd);
       return;
     } 
@@ -184,37 +172,37 @@ namespace mars_control
     Eigen::Vector3d state(cable_y, theta, alpha);
 
     // Calculate velocity command from phi
-    double v_norm = -0.01;
-    double y_vel = p_gain_ * gelsight_update.cable_pos(1);
-    y_vel = fmin(0.1, fmax(-0.1, y_vel));
+    double fwd_vel = -0.01;
+    double norm_vel = p_gain_ * gelsight_update.cable_pos(1);
+    norm_vel = fmin(0.1, fmax(-0.1, norm_vel));
 
     // Add uniform noise
     // y_vel += rand_dis_(rand_gen_);
 
-    // Limit acceleration 
-    double accel = (y_vel - last_y_vel_) / period.toSec();
-    if (accel > max_accel) {
-      y_vel = (max_accel * period.toSec()) + last_y_vel_;
-    } else if (accel < -max_accel) {
-      y_vel = (-max_accel * period.toSec()) + last_y_vel_;
-    }
-    last_x_vel_ = v_norm;
-    last_y_vel_ = y_vel;
-    
     // Create command
-    std::array<double, 6>
-        cmd = {0.0,
-               v_norm,
-               y_vel,
-               0.0,
-               0.0,
-               0.0};
-    double phi = atan2(y_vel, v_norm) - alpha;
+    std::array<double, 6> cmd;
+    if (is_vertical_) {
+      cmd = {0.0, fwd_vel, norm_vel, 0.0, 0.0, 0.0};
+    } else {
+      cmd = {fwd_vel, norm_vel, 0.0, 0.0, 0.0};
+    }
+
+    // Limit acceleration 
+    for (int i = 0; i < 6; i++) {
+      double accel = (cmd[i] - last_cmd_[i]) / period.toSec();
+      if (accel > max_accel) {
+        cmd[i] = (max_accel * period.toSec()) + last_cmd_[i];
+      } else if (accel < -max_accel) {
+        cmd[i] = (-max_accel * period.toSec()) + last_cmd_[i]; 
+      }
+    }
 
     // Publish velocity to Franka
     cartesian_velocity_handle_->setCommand(cmd);
+    last_cmd_ = cmd;
 
     // Create pose msg
+    // double phi = atan2(, v_norm) - alpha;
     if (data_pub_->trylock())
     {
       data_pub_->msg_.ee_pose.position.x = pos(0);
