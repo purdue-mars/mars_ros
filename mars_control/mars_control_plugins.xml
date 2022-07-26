@@ -4,9 +4,4 @@
         Cable follower MARS
       </description>
   </class>
-  <class name="mars_control/CableDataCollector" type="mars_control::CableDataCollector" base_class_type="controller_interface::ControllerBase">
-    <description>
-        Cable data collector MARS
-      </description>
-  </class>
 </library>

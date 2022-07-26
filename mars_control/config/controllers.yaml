@@ -2,8 +2,8 @@ cartesian_pose_controller:
   type: mars_control/CartesianPoseController
   arm_id: panda
 
-cable_data_collector:
-  type: mars_control/CableDataCollector
+cable_follower:
+  type: mars_control/CableFollower
   arm_id: anan
   is_vertical: false 
   p_gain: -0.05
