@@ -56,6 +56,7 @@ namespace mars_control
       ROS_ERROR("CableDataCollector: Could not get parameter arm_id");
       return false;
     }
+    arm_id = "an_an";
 
     if (!node_handle.getParam("p_gain", p_gain_))
     {
@@ -109,7 +110,7 @@ namespace mars_control
     // }
 
     data_pub_ = new realtime_tools::RealtimePublisher<mars_msgs::CableFollowingData>(node_handle, "cable_data_output", 10);
-    gelsight_sub_ = node_handle.subscribe("/gelsight/pose", 1, &CableDataCollector::gelsightCallback, this);
+    gelsight_sub_ = node_handle.subscribe("/combined_arms/an_an/gelsight/pose", 1, &CableDataCollector::gelsightCallback, this);
     slow_srv_ = node_handle.advertiseService("slow_controller", &CableDataCollector::slowToStop, this);
     last_y_vel_ = 0.0;
     return true;

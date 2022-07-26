@@ -8,6 +8,7 @@ combined_arms:
   planning_group: 'combined_arms'
   task_controller_dict:
     insert: 'dual_plug_in_controller' 
+    route: 'cable_data_collector'
     moveit: 'combined_arms_controller'
 
 panda:

@@ -3,7 +3,7 @@
 import frankx
 import sys
 
-robot_ip = "172.18.1.2"
+robot_ip = "172.16.1.2"
 if len(sys.argv) > 1:
     robot_ip = sys.argv[1]
 robot = frankx.Robot(robot_ip)
