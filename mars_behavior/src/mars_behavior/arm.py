@@ -41,8 +41,7 @@ class ControlTaskInterface:
         )
 
         controller_list: List[ControllerState] = self.list_controllers_().controller
-        for key in self.task_controller_dict_:
-            name = self.task_controller_dict_[key]
+        for name in self.task_controller_dict_.values():
             controller_names = [c.name for c in controller_list]
             if not name in controller_names:
                 self.load_controller_(name)

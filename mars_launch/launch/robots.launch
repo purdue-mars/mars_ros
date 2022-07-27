@@ -5,6 +5,7 @@
     
     <arg name="load_perception" default="true" />
     <arg name="load_grippers" default="true" />
+    <arg name="load_gelsight" default="true" />
 
     <group ns="$(arg root_id)">
         <include file="$(find dual_mars_arm_moveit_config)/launch/move_group.launch"/>
@@ -12,12 +13,16 @@
 
         <include file="$(find mars_control)/launch/planning_server.launch" />
 
-        <include if="$(arg load_grippers)" file="$(find mars_launch)/launch/gripper.launch">
+        <include file="$(find mars_launch)/launch/gripper.launch">
             <arg name="robot_id" value="pan_pan" />
+            <arg name="wsg_en" value="$(arg load_grippers)"/>
+            <arg name="gelsight_en" value="$(arg load_gelsight)"/>
         </include>
 
         <include if="$(arg load_grippers)" file="$(find mars_launch)/launch/gripper.launch">
             <arg name="robot_id" value="an_an" />
+            <arg name="wsg_en" value="$(arg load_grippers)"/>
+            <arg name="gelsight_en" value="$(arg load_gelsight)"/>
         </include>
 
         <!-- LOAD CONTROLLER CONFIGS HERE-->

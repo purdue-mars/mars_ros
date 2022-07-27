@@ -105,32 +105,30 @@ class WSGInterface(GripperInterface):
 
         self.mode = mode
         if mode == WSGMode.SCRIPT:
-            rospy.Subscriber(f"/{root_id}/{robot_id}/wsg/moving", Bool, self.is_moving_cb_,
-                queue_size=1, latch=True)
-            rospy.Subscriber(f"/{root_id}/{robot_id}/wsg/status", WSGStatus, self.status_cb_,
-                queue_size=1, latch=True)
+            rospy.Subscriber(f"/{root_id}/{robot_id}/wsg/moving", Bool, self.is_moving_cb_)
+            rospy.Subscriber(f"/{root_id}/{robot_id}/wsg/status", WSGStatus, self.status_cb_)
 
             self.speed_pub = rospy.Publisher(
-                f"/{root_id}/{robot_id}/wsg/goal_speed", Float32, queue_size=1
+                f"/{root_id}/{robot_id}/wsg/goal_speed", Float32, queue_size=1, latch=True
             )
             
             self.width_: float = 0.0
             self.width_: float = 0.0
             self.force_: float = 0.0 
         elif mode == WSGMode.POLLING:
-            ropsy.wait_for_service(f'/{root_id}/{robot_id}/wsg/grasp')
-            self.grasp_srv_ = ropsy.ServiceProxy(f'/{root_id}/{robot_id}/wsg/grasp', WSGMove)
+            rospy.wait_for_service(f'/{root_id}/{robot_id}/wsg/grasp')
+            self.grasp_srv_ = rospy.ServiceProxy(f'/{root_id}/{robot_id}/wsg/grasp', WSGMove)
 
-            ropsy.wait_for_service(f'/{root_id}/{robot_id}/wsg/release')
-            self.release_srv_ = ropsy.ServiceProxy(f'/{root_id}/{robot_id}/wsg/release', WSGMove)
+            rospy.wait_for_service(f'/{root_id}/{robot_id}/wsg/release')
+            self.release_srv_ = rospy.ServiceProxy(f'/{root_id}/{robot_id}/wsg/release', WSGMove)
 
-            ropsy.wait_for_service(f'/{root_id}/{robot_id}/wsg/stop')
-            self.stop_srv_ = ropsy.ServiceProxy(f'/{root_id}/{robot_id}/wsg/stop', Empty)
+            rospy.wait_for_service(f'/{root_id}/{robot_id}/wsg/stop')
+            self.stop_srv_ = rospy.ServiceProxy(f'/{root_id}/{robot_id}/wsg/stop', Empty)
 
-            ropsy.wait_for_service(f'/{root_id}/{robot_id}/wsg/set_force')
-            self.set_force_srv_ = ropsy.ServiceProxy(f'/{root_id}/{robot_id}/wsg/set_force', WSGConf)
+            rospy.wait_for_service(f'/{root_id}/{robot_id}/wsg/set_force')
+            self.set_force_srv_ = rospy.ServiceProxy(f'/{root_id}/{robot_id}/wsg/set_force', WSGConf)
 
-            ropsy.wait_for_service(f'/{root_id}/{robot_id}/wsg/homing')
+            rospy.wait_for_service(f'/{root_id}/{robot_id}/wsg/homing')
             self.homing_srv_ = rospy.ServiceProxy(f'/{root_id}/{robot_id}/wsg/homing', Empty)
 
     def status_cb_(self, msg: WSGStatus):

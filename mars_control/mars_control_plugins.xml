@@ -4,4 +4,9 @@
         Cable follower MARS
       </description>
   </class>
+  <class name="mars_control/CableFollowerCombined" type="mars_control::CableFollowerCombined" base_class_type="controller_interface::ControllerBase">
+    <description>
+        Cable follower MARS
+      </description>
+  </class>
 </library>

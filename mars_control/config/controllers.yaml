@@ -5,3 +5,11 @@ cable_follower:
   p_gain: -0.05
   gelsight_topic: /combined_arms/an_an/gelsight/pose
   output_topic: /cable_data_collection
+
+cable_follower_combined:
+  type: mars_control/CableFollowerCombined
+  arm_id: anan
+  is_vertical: false 
+  p_gain: -0.05
+  gelsight_topic: /combined_arms/an_an/gelsight/pose
+  output_topic: /cable_data_collection

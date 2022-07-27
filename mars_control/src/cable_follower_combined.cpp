@@ -1,4 +1,4 @@
-#include <mars_control/cable_follower.h>
+#include <mars_control/cable_follower_combined.h>
 
 #include <cmath>
 #include <memory>
@@ -15,25 +15,15 @@
 #include <mars_msgs/CableFollowingData.h>
 #include <geometry_msgs/Pose.h>
 
-std::array<double, 16> poseToTransform(Eigen::Vector3d pos, Eigen::Quaterniond quat)
-{
-  Eigen::Matrix3d rot = quat.toRotationMatrix();
-
-  return {rot(0, 0), rot(1, 0), rot(2, 0), 0.0,
-          rot(0, 1), rot(1, 1), rot(2, 1), 0.0,
-          rot(0, 2), rot(1, 2), rot(2, 2), 0.0,
-          pos(0), pos(1), pos(2), 1.0};
-}
-
 namespace mars_control
 {
 
-  CableFollower::CableFollower()
+  CableFollowerCombined::CableFollowerCombined()
       : gelsight_update_struct_()
   {
   }
 
-  bool CableFollower::init(hardware_interface::RobotHW *robot_hardware,
+  bool CableFollowerCombined::init(hardware_interface::RobotHW *robot_hardware,
                                 ros::NodeHandle &node_handle)
   {
     // Obtain a seed
@@ -43,33 +33,34 @@ namespace mars_control
 
     // Collect ROS params
     std::string arm_id;
+    ROS_INFO_STREAM("CableFollowerCombined: " << arm_id);
     if (!node_handle.getParam("arm_id", arm_id))
     {
-      ROS_ERROR("CableFollower: Could not get parameter arm_id");
+      ROS_ERROR("CableFollowerCombined: Could not get parameter arm_id");
       return false;
     }
 
     if (!node_handle.getParam("p_gain", p_gain_))
     {
-      ROS_ERROR("CableFollower: Could not get parameter p_gain");
+      ROS_ERROR("CableFollowerCombined: Could not get parameter p_gain");
       return false;
     }
 
     if (!node_handle.getParam("is_vertical", is_vertical_))
     {
-      ROS_ERROR("CableFollower: Could not get parameter is_vertical");
+      ROS_ERROR("CableFollowerCombined: Could not get parameter is_vertical");
       return false;
     }
 
     std::string gelsight_topic;
     if (!node_handle.getParam("gelsight_topic", gelsight_topic)) {
-      ROS_ERROR("CableFollower: Could not get parameter gelsight_topic");
+      ROS_ERROR("CableFollowerCombined: Could not get parameter gelsight_topic");
       return false;
     }
 
     std::string output_topic;
     if (!node_handle.getParam("output_topic", output_topic)) {
-      ROS_ERROR("CableFollower: Could not get parameter output_topic");
+      ROS_ERROR("CableFollowerCombined: Could not get parameter output_topic");
       return false;
     }
 
@@ -78,7 +69,7 @@ namespace mars_control
     if (cartesian_velocity_interface_ == nullptr)
     {
       ROS_ERROR(
-          "CableFollower: Could not get Cartesian Velocity "
+          "CableFollowerCombined: Could not get Cartesian Velocity "
           "interface from hardware");
       return false;
     }
@@ -91,27 +82,27 @@ namespace mars_control
     catch (const hardware_interface::HardwareInterfaceException &e)
     {
       ROS_ERROR_STREAM(
-          "CableFollower: Exception getting Cartesian handle: " << e.what());
+          "CableFollowerCombined: Exception getting Cartesian handle: " << e.what());
       return false;
     }
 
     auto state_interface = robot_hardware->get<franka_hw::FrankaStateInterface>();
     if (state_interface == nullptr)
     {
-      ROS_ERROR("CableFollower: Could not get state interface from hardware");
+      ROS_ERROR("CableFollowerCombined: Could not get state interface from hardware");
       return false;
     }
 
     // Slow to stop server
-    slow_srv_ = node_handle.advertiseService("slow_controller", &CableFollower::slowToStop, this);
+    slow_srv_ = node_handle.advertiseService("slow_controller", &CableFollowerCombined::slowToStop, this);
 
     // Publisher / Subscribers
-    gelsight_sub_ = node_handle.subscribe(gelsight_topic, 1, &CableFollower::gelsightCallback, this);
+    gelsight_sub_ = node_handle.subscribe(gelsight_topic, 1, &CableFollowerCombined::gelsightCallback, this);
     data_pub_ = new realtime_tools::RealtimePublisher<mars_msgs::CableFollowingData>(node_handle, output_topic, 10);
     return true;
   }
 
-  void CableFollower::starting(const ros::Time & /* time */) {
+  void CableFollowerCombined::starting(const ros::Time & /* time */) {
     // Store starting state as cable origin
     std::array<double, 16> m = cartesian_velocity_handle_->getRobotState().O_T_EE_d;
     cable_origin_pos_ = Eigen::Vector3d(m[12], m[13], m[14]);
@@ -125,7 +116,7 @@ namespace mars_control
     last_cmd_ = {0.0, 0.0, 0.0, 0.0, 0.0, 0.0};
   }
 
-  void CableFollower::update(const ros::Time & /* time */,
+  void CableFollowerCombined::update(const ros::Time & /* time */,
                                   const ros::Duration &period)
   {
     double max_accel = 1.5;
@@ -221,13 +212,13 @@ namespace mars_control
     }
   }
 
-  void CableFollower::stopping(const ros::Time& /*time*/) {
+  void CableFollowerCombined::stopping(const ros::Time& /*time*/) {
     // WARNING: DO NOT SEND ZERO VELOCITIES HERE AS IN CASE OF ABORTING DURING MOTION
     // A JUMP TO ZERO WILL BE COMMANDED PUTTING HIGH LOADS ON THE ROBOT. LET THE DEFAULT
     // BUILT-IN STOPPING BEHAVIOR SLOW DOWN THE ROBOT.
   }
 
-  void CableFollower::gelsightCallback(const geometry_msgs::PoseStamped &msg)
+  void CableFollowerCombined::gelsightCallback(const geometry_msgs::PoseStamped &msg)
   {
     gelsight_update_struct_.cable_pos(0) = msg.pose.position.x;
     gelsight_update_struct_.cable_pos(1) = msg.pose.position.y;
@@ -240,13 +231,13 @@ namespace mars_control
     gelsight_update_.writeFromNonRT(gelsight_update_struct_);
   }
 
-  bool CableFollower::slowToStop(std_srvs::Empty::Request& req,
+  bool CableFollowerCombined::slowToStop(std_srvs::Empty::Request& req,
                                       std_srvs::Empty::Response& resp)
   {
     start_to_slow_ = true;
-    ROS_INFO("CableFollower: set to slow.");
+    ROS_INFO("CableFollowerCombined: set to slow.");
     return true;
   }
 }
 
-PLUGINLIB_EXPORT_CLASS(mars_control::CableFollower, controller_interface::ControllerBase)
+PLUGINLIB_EXPORT_CLASS(mars_control::CableFollowerCombined, controller_interface::ControllerBase)
