@@ -1,14 +1,16 @@
 #include <mars_control/planning_server.h>
 
-PlanningServer::PlanningServer() : as_(nh_, SERVER_NAME, boost::bind(&PlanningServer::execute, this, _1), false)
+PlanningServer::PlanningServer() : as_(nh_, "move_to", boost::bind(&PlanningServer::execute, this, _1), false)
+                                  ,target_as_(nh_, "move_to_target", boost::bind(&PlanningServer::execute_target, this, _1), false)
 {
   ros::param::param<double>("~eef_step",eef_step_,0.01);
   ros::param::param<double>("~jump_threshold",jump_threshold_,0.0);
   ros::param::param<double>("~velocity_scaling_factor",vel_scaling_factor_,0.4);
   ros::param::param<double>("~acceleration_scaling_factor",accel_scaling_factor_,0.4);
-  bool valid = ros::param::get("planning_group", global_planning_group_);
+  bool valid = ros::param::get("~planning_group", global_planning_group_);
   if(valid) {
     as_.start();
+    target_as_.start();
   }
 }
 
@@ -57,6 +59,17 @@ void PlanningServer::set_combined_traj(moveit_msgs::RobotTrajectory &traj, std::
 
   traj.joint_trajectory.joint_names = comb_jnt_names;
 }
+void PlanningServer::execute_target(const mars_msgs::MoveToTargetGoalConstPtr &goal)
+{
+  moveit::planning_interface::MoveGroupInterface mgi(global_planning_group_);
+  mgi.setNamedTarget(goal->target);
+  moveit::planning_interface::MoveGroupInterface::Plan plan;
+  mgi.plan(plan);
+  bool execution_success = mgi.execute(plan) == moveit::core::MoveItErrorCode::SUCCESS;
+  mars_msgs::MoveToTargetResult res;
+  res.success = execution_success;
+  target_as_.setSucceeded(res);
+}
 
 void PlanningServer::execute(const mars_msgs::MoveToGoalConstPtr &goal)
 {
@@ -98,7 +111,7 @@ void PlanningServer::execute(const mars_msgs::MoveToGoalConstPtr &goal)
   }
 
   mars_msgs::MoveToResult res;
-  res.was_success = execution_success;
+  res.success = execution_success;
   as_.setSucceeded(res);
 }
 

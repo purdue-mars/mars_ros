@@ -1,7 +1,0 @@
-cameras_ns: ["d455_0", "d455_1", "d405"]
-
-# Topics relative to /{camera_ns}/camera used for detection
-mask_topic: "detection/result"
-depth_topic: "aligned_depth_to_color/image_raw"
-color_topic: "color/image_raw"
-masked_out_topic: "masked_image"

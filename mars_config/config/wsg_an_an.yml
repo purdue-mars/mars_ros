@@ -1,9 +1,0 @@
-ip: 172.19.1.2
-port: 1000 
-force: 35
-protocol: tcp
-local_port: 1501
-com_mode: script
-rate: 10
-force: 35
-home_at_start: false

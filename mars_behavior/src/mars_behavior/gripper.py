@@ -10,8 +10,6 @@ from std_msgs.msg import Bool, Float32
 from std_srvs.srv import Empty
 
 from gelsight_ros.msg import GelsightFlowStamped
-from wsg_50_common.msg import Cmd, Status
-from wsg_50_common.srv import Home
 
 
 class GripperInterface:
@@ -25,6 +23,9 @@ class GripperInterface:
         raise NotImplementedError
 
     def grasp(self) -> None:
+        raise NotImplementedError
+
+    def open(self):
         raise NotImplementedError
 
 
@@ -90,33 +91,40 @@ class WSGInterface(GripperInterface):
         super().__init__()
         root_id = rospy.get_param("/root_id")
         self.grasping_ = rospy.Publisher(
-            f"/{root_id}/{robot_id}/wsg/goal_speed", Float32, queue_size=1
+            f"/{root_id}/{robot_id}/wsg/goal_speed", Float32, queue_size=1, latch=True
         )
         self.is_moving_ = rospy.Subscriber(
-            f"/{root_id}/{robot_id}/wsg/moving", Bool, self.is_moving_cb_
+            f"/{root_id}/{robot_id}/wsg/moving", Bool, self.is_moving_cb_, queue_size=1
         )
-        self.homing_ = rospy.ServiceProxy(f'/{root_id}/{robot_id}/wsg/homing',Empty)
+        #self.homing_ = rospy.ServiceProxy(f'/{root_id}/{robot_id}/wsg/homing',Empty)
         self.width_: float = 0.0
 
     def is_moving_cb_(self, msg: Bool):
         self.is_moving_ = msg.data
 
     def home(self):
-        self.homing_()
-        self.grasping_.publish(self.DEFAULT_SPEED)
+        self.grasping_.publish(-self.DEFAULT_SPEED)
         rospy.sleep(rospy.Duration(2))
+        rospy.loginfo('Done homing')
 
     def stop(self):
         self.grasping_.publish(0.0)
+        rospy.loginfo('Stopped gripper')
+    
+    def open(self):
+        self.grasping_.publish(self.DEFAULT_SPEED)
+        rospy.loginfo('Opened gripper')
 
     def grasp(self):
         self.grasping_.publish(-self.DEFAULT_SPEED)
-        rospy.sleep(rospy.Duration(2))
-        rate = rospy.Rate(30)
-        while (
-            self.is_moving_
-            and not rospy.is_shutdown()
-        ):
-            rate.sleep()
-        self.stop()
-        rospy.loginfo("GRASP COMPLETE!")
+        # if callback is None:
+        #     rate = rospy.Rate(30)
+        #     while (
+        #         self.is_moving_
+        #         and not rospy.is_shutdown()
+        #     ):
+        #         rate.sleep()
+        # else:
+        #     callback()
+        # self.stop()
+        # rospy.loginfo("GRASP COMPLETE!")

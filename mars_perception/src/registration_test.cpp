@@ -3,7 +3,7 @@
 
 int main(int argc, char **argv)
 {
-    ros::init(argc, argv, "icp_client");
+    ros::init(argc, argv, "registration_test");
 
     ros::NodeHandle n("perception");
     ros::ServiceClient client = n.serviceClient<mars_msgs::RegistrationSrv>("registration");

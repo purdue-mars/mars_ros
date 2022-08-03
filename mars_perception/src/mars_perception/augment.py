@@ -2,7 +2,6 @@ import random
 import numpy as np
 
 def color_randomize_object(imag_rgb_numpy, image_mask): 
-     
     pass
 
 # Code from https://github.com/RobotLocomotion/pytorch-dense-correspondence 

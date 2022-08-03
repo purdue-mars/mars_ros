@@ -15,7 +15,7 @@ from controller_manager_msgs.srv import (
 from geometry_msgs.msg import Pose, PoseStamped
 from moveit_commander import MoveGroupCommander
 
-from mars_msgs.msg import MoveToAction, MoveToGoal, MoveToResult
+from mars_msgs.msg import * 
 
 from .tf import TFInterface
 
@@ -26,7 +26,7 @@ class ControlTaskInterface:
 
     def __init__(self) -> None:
         root_id = rospy.get_param("/root_id")
-        self.task_controller_dict_ = rospy.get_param(f"/{root_id}/task_controller_dict")
+        self.task_controller_dict_ = rospy.get_param(f"~{root_id}/task_controller_dict")
         rospy.wait_for_service(f"/{root_id}/controller_manager/switch_controller")
         rospy.wait_for_service(f"/{root_id}/controller_manager/load_controller")
 
@@ -69,19 +69,16 @@ class ArmInterface:
 
     def __init__(self):
         root_id = rospy.get_param("/root_id")
-        os.environ['ROS_NAMESPACE'] = root_id
         self.task_interface_ = ControlTaskInterface()
-        self.commander_ = MoveGroupCommander(
-            rospy.get_param(f"~{root_id}/planning_group")
-        )
-
         self.move_ = actionlib.SimpleActionClient(f"/{root_id}/move_to", MoveToAction)
+        self.move_target_ = actionlib.SimpleActionClient(f"/{root_id}/move_to_target", MoveToTargetAction)
 
         self.tf_listener = tf.TransformListener()
         self.robot_ids = rospy.get_param(f"~{root_id}/robot_ids")
         self.arm_tfs_ = {id: TFInterface(self.tf_listener, id) for id in self.robot_ids}
         rospy.loginfo("waiting for move_to server")
         self.move_.wait_for_server()
+        self.move_target_.wait_for_server()
 
     def get_arm_tf(self, id: str):
         if not id in self.robot_ids:
@@ -101,11 +98,13 @@ class ArmInterface:
         self.move_.wait_for_result()
         res: MoveToResult = self.move_.get_result()
         self.planning_goals_[robot_id] = []
-        return res.was_success
+        return res.success
 
     def go_to(self, named_target="ready"):
-        self.commander_.set_named_target(named_target)
-        self.commander_.go(wait=True)
+        goal = MoveToTargetGoal(target=named_target)
+        self.move_target_.send_goal(goal)
+        res: MoveToTargetResult = self.move_target_.get_result()
+        return res.success
 
     def add_goal(self, goal: PoseStamped, robot_id: str):
         arm_tf = self.get_arm_tf(robot_id)
