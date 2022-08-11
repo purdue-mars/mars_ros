@@ -10,6 +10,7 @@ std::string MeshUtil::get_name()
     return mesh_name_;
 }
 
+
 void MeshUtil::stl_to_pcl_(std::string mesh_path)
 {
     pcl::PolygonMesh mesh;
@@ -17,7 +18,7 @@ void MeshUtil::stl_to_pcl_(std::string mesh_path)
     polygon_mesh_to_pc(&mesh, mesh_pc_);
 }
 
-bool MeshUtil::update_mesh(std::string name)
+bool MeshUtil::update_mesh(std::string name, Eigen::Affine3d tf)
 {
     mesh_name_ = name;
     std::string mesh_param_name = "mesh_directory/" + name;
@@ -33,6 +34,7 @@ bool MeshUtil::update_mesh(std::string name)
     try
     {
         stl_to_pcl_(mesh_path);
+        pcl::transformPointCloud(*mesh_pc_, *mesh_pc_, tf);
     }
     catch (std::exception &e)
     {

@@ -8,7 +8,9 @@
 #include <Eigen/Geometry>
 #include <pcl/io/ply_io.h>
 #include <pcl_conversions/pcl_conversions.h>
+#include <pcl/common/transforms.h>
 #include <open3d/Open3D.h>
+
 #include <mars_perception/mesh_sampling.h>
 
 typedef pcl::PointXYZRGB Point;
@@ -22,7 +24,7 @@ class MeshUtil
 public:
     std::string get_name();
     PointCloudPtr get_pc_ptr();
-    bool update_mesh(std::string name);
+    bool update_mesh(std::string name, Eigen::Affine3d tf);
     MeshUtil() : mesh_pc_(new PointCloud) {}
 
 private:

@@ -92,20 +92,15 @@ class ConstrainedICP : public RegBase
 public:
     static const std::string NAME;
 
-    ConstrainedICP() : voxel_size_(0.02), max_depth_(2), rot_axis_(0,0,1), trans_axis0_(1,0,0),trans_axis1_(0,1,0), RegBase() {}
-    ConstrainedICP(double voxel_size, double max_depth, Eigen::Vector3d rot_axis, Eigen::Vector3d trans_axis0, Eigen::Vector3d trans_axis1, PointCloudPtr scene, PointCloudPtr mesh): 
-        voxel_size_(voxel_size),
-        max_depth_(max_depth),
-        rot_axis_(rot_axis), 
-        trans_axis0_(trans_axis0), 
-        trans_axis1_(trans_axis1),
+    ConstrainedICP() : voxel_size_(0.02), max_depth_(2), rot_axis_(0,0,1), trans_axis0_(1,0,0), trans_axis1_(0,1,0),
         mesh_o3d_(std::make_shared<open3d::geometry::PointCloud>()),
         scene_o3d_(std::make_shared<open3d::geometry::PointCloud>()),
-        RegBase(scene,mesh) {
-            dist_coarse_ = voxel_size * 15;
-            dist_fine_ = voxel_size * 5;
+        RegBase() {
+            dist_coarse_ = voxel_size_ * 15;
+            dist_fine_ = voxel_size_ * 5;
         }
     void run();
+    void set_axes(int rot_i, int trans0_i, int trans1_i);
 
 private:
     double voxel_size_;

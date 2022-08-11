@@ -2,6 +2,18 @@
 
 const std::string ConstrainedICP::NAME = "CONSTRAINED_ICP";
 
+void ConstrainedICP::set_axes(int rot_i, int trans0_i, int trans1_i) {
+    assert(rot_i > 0 && rot_i < 3);
+    assert(trans0_i > 0 && trans0_i < 3);
+    assert(trans1_i > 0 && trans1_i < 3);
+    rot_axis_ = Eigen::Vector3d::Zero();
+    rot_axis_[rot_i] = 1;
+    trans_axis0_ = Eigen::Vector3d::Zero();
+    trans_axis0_[trans0_i] = 1;
+    trans_axis1_ = Eigen::Vector3d::Zero();
+    trans_axis1_[trans1_i] = 1;
+}
+
 void crop_cloud_by_depth(open3d::geometry::PointCloud& pcd, float depth)
 {
     std::vector<Eigen::Vector3d> cropped_points;
@@ -156,7 +168,7 @@ void ConstrainedICP::run() {
 
     std::vector<Eigen::Matrix4d> poses;
     poses.push_back(Eigen::Matrix4d::Identity());
-    poses.push_back(tf_mat.cast<double>());
+    poses.push_back(tf_mat_ptr->cast<double>());
 
     pcl_to_open3d(scene_ptr, *scene_o3d_);
     pcl_to_open3d(mesh_ptr, *mesh_o3d_);
@@ -180,5 +192,5 @@ void ConstrainedICP::run() {
         pcds[i]->Transform(pose_graph.nodes_[i].pose_);
     }
 
-    tf_mat = pose_graph.nodes_[1].pose_.cast<float>();
+    *tf_mat_ptr = pose_graph.nodes_[1].pose_.cast<float>();
 }

@@ -14,6 +14,8 @@ find_package(catkin REQUIRED COMPONENTS
   pcl_conversions
   pcl_ros
   mars_msgs
+  dynamic_reconfigure
+  mars_config
 )
 
 find_package(PCL REQUIRED) # This includes all modules
@@ -40,6 +42,8 @@ catkin_package(
     pcl_conversions
     pcl_ros
     mars_msgs
+    mars_config
+    dynamic_reconfigure
 
   DEPENDS EIGEN3 
 
