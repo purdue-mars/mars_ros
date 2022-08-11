@@ -42,7 +42,7 @@ class CableInsertionNode:
         self.perception_.run_object_registration("cable_male")
 
         grasp_pose_on_obj = ros_numpy.msgify(Pose, vec_to_hom_mat([0, 0, 0.025]))
-        cable_male_grasp_pose = robot_tf.grasp_pose_from_object(
+        cable_male_grasp_pose = robot_tf.pose_from_object(
             "cable_male", grasp_pose_on_obj
         ).pose
 
@@ -84,7 +84,7 @@ class CableInsertionNode:
         robot: TFInterface = self.arm_.get_arm_tf(robot_id)
         insertion.reset()
         self.perception_.run_object_registration("cable_female")
-        cable_female_grasp_pose = robot.grasp_pose_from_object("cable_female").pose
+        cable_female_grasp_pose = robot.pose_from_object("cable_female").pose
 
         hover_pose = PoseStamped()
         hover_pose.header.frame_id = robot.grasp_frame

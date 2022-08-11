@@ -29,7 +29,7 @@
     <arg name="model" value="$(arg model)" />
     <arg name="visualization" value="$(arg visualization)" />
     <arg name="class_names" value="$(arg class_names)" />
-    <arg name="detection_cameras_en" value="$(arg detection_camera_ns)"/>
+    <arg name="detection_camera_ns" value="$(arg detection_cameras_en)"/>
   </include>
 
   <!-- Mask depth/color images from detection masks  -->

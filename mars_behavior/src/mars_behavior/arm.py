@@ -68,13 +68,13 @@ class ArmInterface:
     planning_goals_: Dict[str, List[Pose]] = defaultdict(list)  # key is robot_id
 
     def __init__(self):
-        root_id = rospy.get_param("/root_id")
+        self.root_id = rospy.get_param("/root_id")
         self.task_interface_ = ControlTaskInterface()
-        self.move_ = actionlib.SimpleActionClient(f"/{root_id}/move_to", MoveToAction)
-        self.move_target_ = actionlib.SimpleActionClient(f"/{root_id}/move_to_target", MoveToTargetAction)
+        self.move_ = actionlib.SimpleActionClient(f"/{self.root_id}/move_to", MoveToAction)
+        self.move_target_ = actionlib.SimpleActionClient(f"/{self.root_id}/move_to_target", MoveToTargetAction)
 
         self.tf_listener = tf.TransformListener()
-        self.robot_ids = rospy.get_param(f"~{root_id}/robot_ids")
+        self.robot_ids = rospy.get_param(f"~{self.root_id}/robot_ids")
         self.arm_tfs_ = {id: TFInterface(self.tf_listener, id) for id in self.robot_ids}
         rospy.loginfo("waiting for move_to server")
         self.move_.wait_for_server()

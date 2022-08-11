@@ -171,8 +171,8 @@ using namespace pcl;
 using namespace pcl::io;
 using namespace pcl::console;
 
-const int default_number_samples = 100000;
-const float default_leaf_size = 0.001f;
+const int default_number_samples = 1000000;
+const float default_leaf_size = 0.0005f;
 const bool write_normals = true;
 const bool write_colors = false;
 

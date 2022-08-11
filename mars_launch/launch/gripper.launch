@@ -5,7 +5,7 @@
     <arg name="tf_prefix_id" default="$(arg robot_id)"/>
     <arg name="gelsight_config_file" default="gelsight_$(arg robot_id).yml"/>
     <arg name="wsg_config_file" default="wsg_$(arg robot_id).yml"/>
-    <arg name="gelsight_en" default="false"/>
+    <arg name="gelsight_en" default="true"/>
     <arg name="wsg_en" default="true"/>
 
     <group ns="$(arg robot_id)">

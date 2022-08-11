@@ -1,8 +1,9 @@
 point_cloud_topics:
   [
-    "d405/camera/aligned_depth_to_color/color/masked_points"
+    #"d405/camera/aligned_depth_to_color/color/masked_points"
+    "/panda/pan_pan/gelsight/pose"
   ]
-filtered_points_topic: "filtered_object_points"
+filtered_points_topic: "/panda/pan_pan/gelsight/depth"
 
 
 ## ICP for final alignment

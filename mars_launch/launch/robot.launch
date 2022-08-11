@@ -4,10 +4,11 @@
     <arg name="rviz" default="true" />
     <arg name="root_id" default="panda"/>
     <param name="root_id" value="$(arg root_id)" />
+    <arg name="perception_en" default="true"/>
 
     <arg name="robot_id" default="pan_pan"/>
 
-    <group ns="$(arg robot_id)">
+    <group ns="$(arg root_id)">
 
         <include file="$(find franka_control)/launch/franka_control.launch">
             <arg name="robot_ip" value="$(arg robot_ip)" />
@@ -32,6 +33,6 @@
         <rosparam command="load" file="$(find icra18)/config/controllers.yaml" /> 
     </group>
 
-    <include ns="perception" file="$(find mars_launch)/launch/perception.launch"/>
+    <include if="$(arg perception_en)" ns="perception" file="$(find mars_launch)/launch/perception.launch"/>
 
 </launch>

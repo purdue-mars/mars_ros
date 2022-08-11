@@ -3,6 +3,7 @@
 #include <mars_msgs/RegistrationSrv.h>
 #include <mars_perception/common.h>
 #include <pcl_ros/point_cloud.h>
+#include <pcl_ros/transforms.h>
 #include <sensor_msgs/PointCloud2.h>
 #include <mars_perception/registration/registration_base.h>
 #include <mars_perception/registration/icp.h>
@@ -59,6 +60,10 @@ RegistrationServer::RegistrationServer() : scene_pc_(new PointCloud), tf_mat_(TF
 void RegistrationServer::scene_pc_cb_(const PointCloudMsg::ConstPtr &msg)
 {
     pcl::fromROSMsg(*msg, *scene_pc_);
+    if(msg->header.frame_id != base_frame_) {
+      tf_listener_.waitForTransform(base_frame_, msg->header.frame_id, ros::Time(0), ros::Duration(1.0));
+      pcl_ros::transformPointCloud(base_frame_, ros::Time(0), *scene_pc_, msg->header.frame_id, *scene_pc_, tf_listener_);
+    }
 }
 
 bool RegistrationServer::registration_srv_cb_(mars_msgs::RegistrationSrv::Request &req, mars_msgs::RegistrationSrv::Response &resp) {
