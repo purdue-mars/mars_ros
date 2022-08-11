@@ -1,5 +1,7 @@
 #include <mars_perception/registration/icp.h>
 
+const std::string ICP::NAME = "ICP";
+
 void ICP::run()
 {
     try

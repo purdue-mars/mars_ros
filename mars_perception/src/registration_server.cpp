@@ -101,7 +101,7 @@ void RegistrationServer::publish() {
 }
 
 void RegistrationServer::run() {
-    if(alg_ == ICP_NAME) {
+    if(alg_ == icp_.NAME) {
         icp_.run();
         tf_mat_ = icp_.tf_mat;
     }
