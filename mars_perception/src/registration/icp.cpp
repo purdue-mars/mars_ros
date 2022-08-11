@@ -1,5 +1,7 @@
 #include <mars_perception/registration/icp.h>
 
+const std::string ICP::NAME = "ICP";
+
 void ICP::run()
 {
     try
@@ -13,7 +15,7 @@ void ICP::run()
         icp.setInputTarget(scene_ptr);
         icp.align(*mesh_ptr);
 
-        tf_mat = icp.getFinalTransformation() * tf_mat;
+        *tf_mat_ptr = icp.getFinalTransformation() * *tf_mat_ptr;
     }
     catch (const std::exception &e)
     {

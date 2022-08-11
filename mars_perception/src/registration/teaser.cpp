@@ -1,5 +1,7 @@
 #include <mars_perception/registration/teaser.h>
 
+const std::string Teaser::NAME = "TEASER";
+
 void Teaser::run()
 {
     try
@@ -10,7 +12,7 @@ void Teaser::run()
         }
 
         Eigen::Matrix<double, 3, Eigen::Dynamic> scene(3, scene_ptr->size());
-        for (size_t i = 0; i < scene_ptr->size(); ++i) {
+        for (size_t i = 0; i < scene_ptr->size(); ++i) {ICP
             scene.col(i) << scene_ptr->points[i].x, scene_ptr->points[i].y, scene_ptr->points[i].z;
         }
         Eigen::Matrix<double, 3, Eigen::Dynamic> mesh(3, mesh_ptr->size());
