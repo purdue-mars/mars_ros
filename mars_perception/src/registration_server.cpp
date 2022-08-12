@@ -8,7 +8,7 @@
 #include <sensor_msgs/PointCloud2.h>
 #include <mars_perception/registration/registration_base.h>
 #include <mars_perception/registration/icp.h>
-#include <mars_perception/registration/constrained_icp.h>
+// #include <mars_perception/registration/constrained_icp.h>
 #include <dynamic_reconfigure/server.h>
 #include <mars_config/RegistrationConfig.h>
 
@@ -31,7 +31,7 @@ private:
     tf::TransformListener tf_listener_;
     tf::TransformBroadcaster br_;
     ICP icp_;
-    ConstrainedICP constr_icp_;
+    // ConstrainedICP constr_icp_;
 
     std::string alg_;
     std::string base_frame_;
@@ -63,9 +63,9 @@ RegistrationServer::RegistrationServer() : scene_pc_(new PointCloud), tf_mat_ptr
     icp_.scene_ptr = scene_pc_; 
     icp_.mesh_ptr = mesh_.get_pc_ptr(); 
     icp_.tf_mat_ptr = tf_mat_ptr_;
-    constr_icp_.scene_ptr = scene_pc_; 
-    constr_icp_.mesh_ptr = mesh_.get_pc_ptr(); 
-    constr_icp_.tf_mat_ptr = tf_mat_ptr_;
+    // constr_icp_.scene_ptr = scene_pc_; 
+    // constr_icp_.mesh_ptr = mesh_.get_pc_ptr(); 
+    // constr_icp_.tf_mat_ptr = tf_mat_ptr_;
 }
 
 void RegistrationServer::scene_pc_cb_(const PointCloudMsg::ConstPtr &msg)
@@ -78,13 +78,16 @@ void RegistrationServer::scene_pc_cb_(const PointCloudMsg::ConstPtr &msg)
 }
 
 bool RegistrationServer::registration_srv_cb_(mars_msgs::RegistrationSrv::Request &req, mars_msgs::RegistrationSrv::Response &resp) {
-    icp_.reset();
+    *tf_mat_ptr_ = TFMatrix::Identity();
     Eigen::Affine3d mat;
-    mat.translation() << req.init_tf.translation.x,req.init_tf.translation.y, req.init_tf.translation.z;
-    mat.rotate(Eigen::Quaterniond(req.init_tf.rotation.x,
-                                  req.init_tf.rotation.y, 
-                                  req.init_tf.rotation.z,
-                                  req.init_tf.rotation.w));
+    geometry_msgs::Quaternion q(req.init_tf.orientation);
+    if(q.x == 0 && q.y == 0 && q.z == 0 && q.w == 0) {
+        mat = Eigen::Affine3d::Identity();
+    }
+    else {
+        mat.translation() << req.init_tf.position.x,req.init_tf.position.y, req.init_tf.position.z;
+        mat.rotate(Eigen::Quaterniond(q.x,q.y,q.z,q.w));
+    }
     bool result = mesh_.update_mesh(req.mesh_name,mat);
     *tf_mat_ptr_ = mat.matrix().cast<float>();
     if (!result)
@@ -124,11 +127,11 @@ void RegistrationServer::publish() {
 }
 
 void RegistrationServer::update_params_cb_(mars_config::RegistrationConfig &config, uint32_t level) {
-    constr_icp_.set_axes(
-        config.groups.constr_icp.rot_ax_i, 
-        config.groups.constr_icp.trans_ax0_i,
-        config.groups.constr_icp.trans_ax1_i
-    );
+    // constr_icp_.set_axes(
+    //     config.groups.constr_icp.rot_ax_i, 
+    //     config.groups.constr_icp.trans_ax0_i,
+    //     config.groups.constr_icp.trans_ax1_i
+    // );
     ROS_INFO("Reconfigure Request: %d %d %d", 
         config.groups.constr_icp.rot_ax_i, 
         config.groups.constr_icp.trans_ax0_i,
@@ -139,20 +142,22 @@ void RegistrationServer::run() {
     if(alg_ == icp_.NAME) {
         icp_.run();
     }
-    else if(alg_ == constr_icp_.NAME) {
-        constr_icp_.run();
-    }
+    // else if(alg_ == constr_icp_.NAME) {
+    //     constr_icp_.run();
+    // }
 }
 
 int main(int argc, char **argv)
 {
     ros::init(argc, argv, "registration_server");
     RegistrationServer srv;
-    ros::Rate r(50);
+    ros::Rate r(1);
     while (ros::ok())
     {
         ros::spinOnce();
+        ROS_INFO("RUNNING");
         srv.run();
+        ROS_INFO("DONE");
         srv.publish();
         r.sleep();
     }

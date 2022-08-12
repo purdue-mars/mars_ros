@@ -17,7 +17,7 @@ depth:
   method: "model" # Either 'functional' or 'model'
   depth_min: 0.005
   image_mpp: 0.0001642072150756061
-  compute_type: "cpu" # Either 'cuda' or 'cpu'
+  compute_type: "cuda" # Either 'cuda' or 'cpu'
   model_path: /home/ruppulur/.ros/pan_pan_no_markers_labels-8-8/train_xy/model-14-17-15.pth
   # Comment to not publish
   topic_name: "depth"

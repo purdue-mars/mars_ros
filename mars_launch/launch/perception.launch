@@ -27,7 +27,7 @@
     <node name="registration_server" type="registration_server" pkg="mars_perception" output="screen">
         <param name="max_iterations" value="100" />
         <param name="alg" value="$(arg registration_alg)" />
-        <rosparam file="$(find mars_config)/config/perception/object_registration.yml" command="load" />
+        <param name="filtered_points_topic" value="/panda/pan_pan/gelsight/depth" />
     </node>
 
     <group if="$(arg detection_en)">

@@ -11,8 +11,4 @@ public:
     PointCloudPtr scene_ptr;
     PointCloudPtr mesh_ptr;
     std::shared_ptr<TFMatrix> tf_mat_ptr;
-
-    void reset() {
-        *tf_mat_ptr = TFMatrix::Identity();
-    }
 };

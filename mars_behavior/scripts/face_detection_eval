@@ -33,12 +33,15 @@ class FaceDetection:
     def depth_cb(self,msg: Image):
         self.bag.write('/depth',msg)
 
-
     def face_cb(self, msg : Float32):
         face = msg.data
         if(face != -1):
             self.grasping_tab = round(face) == 0.0
-            
+        
+    def localize_face(self):
+        #arm_tf = self.interface.get_arm_tf('pan_pan')
+        #init_tf = arm_tf.pose_from_object(arm_tf.grasp_frame,result_frame=arm_tf.base_frame)
+        self.perception.run_object_registration('cable_male')
     
     def rotate_until_face_found(self):
         pan_pan_tf = self.interface.get_arm_tf('pan_pan')
@@ -78,26 +81,27 @@ class FaceDetection:
 if __name__ == '__main__':
     rospy.init_node('face_detection_eval_node')
 
-    # params
-    is_tab = False 
-    wait_duration = 1.0
-    trials = 1.0
-
     face = FaceDetection()
-    face.an_an_grip.grasp() 
-    result = []
-    while(not rospy.is_shutdown() and trials > len(result)):
-        print(f'TRIAL {len(result)}')
-        face.pan_pan_grip.open()
-        rospy.sleep(rospy.Duration(2))
-        face.pan_pan_grip.grasp()
-        rospy.sleep(rospy.Duration(wait_duration))
-        if face.grasping_tab == is_tab:
-            result.append(1)
-        else:
-            result.append(0)
-    result = np.array(result)
-    print(f"Accuracy (is_tab: {is_tab}, trials: {len(result)}): {result.mean()}")
+    face.localize_face()
+
+    # params
+    # is_tab = False 
+    # wait_duration = 1.0
+    # trials = 1.0
+    # face.an_an_grip.grasp() 
+    # result = []
+    # while(not rospy.is_shutdown() and trials > len(result)):
+    #     print(f'TRIAL {len(result)}')
+    #     face.pan_pan_grip.open()
+    #     rospy.sleep(rospy.Duration(2))
+    #     face.pan_pan_grip.grasp()
+    #     rospy.sleep(rospy.Duration(wait_duration))
+    #     if face.grasping_tab == is_tab:
+    #         result.append(1)
+    #     else:
+    #         result.append(0)
+    # result = np.array(result)
+    # print(f"Accuracy (is_tab: {is_tab}, trials: {len(result)}): {result.mean()}")
     rospy.spin()
 
 

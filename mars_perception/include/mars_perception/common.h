@@ -9,7 +9,6 @@
 #include <pcl/io/ply_io.h>
 #include <pcl_conversions/pcl_conversions.h>
 #include <pcl/common/transforms.h>
-#include <open3d/Open3D.h>
 
 #include <mars_perception/mesh_sampling.h>
 
@@ -32,5 +31,3 @@ private:
     std::string mesh_name_;
     void stl_to_pcl_(std::string mesh_path);
 };
-
-void pcl_to_open3d(PointCloudPtr pc_ptr, open3d::geometry::PointCloud& open3d_p);

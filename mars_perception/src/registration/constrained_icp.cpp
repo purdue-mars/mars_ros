@@ -161,6 +161,16 @@ void ConstrainedICP::preprocess_(std::shared_ptr<open3d::geometry::PointCloud> p
     pcd->EstimateNormals(open3d::geometry::KDTreeSearchParamHybrid(voxel_size_ * 5, 30));
 }
 
+void pcl_to_open3d(PointCloudPtr pc_ptr, open3d::geometry::PointCloud& open3d_p) {
+    size_t pc_size = pc_ptr->size();
+    open3d_p.points_.resize(pc_size);
+    for(int i = 0; i < pc_ptr->size(); i++) {
+        Eigen::Vector3d v;
+        v << pc_ptr->points[i].x, pc_ptr->points[i].y, pc_ptr->points[i].z;
+        open3d_p.points_[i] = v;
+    }
+}
+
 void ConstrainedICP::run() {
 
     std::vector<std::shared_ptr<const open3d::geometry::Geometry>> geometries;
