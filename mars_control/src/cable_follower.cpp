@@ -101,11 +101,6 @@ bool CableFollower::init(hardware_interface::RobotHW* robot_hw,
     }
   }
 
-  position_d_.setZero();
-  orientation_d_.coeffs() << 0.0, 0.0, 0.0, 1.0;
-  position_d_target_.setZero();
-  orientation_d_target_.coeffs() << 0.0, 0.0, 0.0, 1.0;
-
   cartesian_stiffness_.setZero();
   cartesian_damping_.setZero();
 
@@ -116,18 +111,17 @@ void CableFollower::starting(const ros::Time& /*time*/) {
   // compute initial velocity with jacobian and set x_attractor and q_d_nullspace
   // to initial configuration
   franka::RobotState initial_state = state_handle_->getRobotState();
+  
   // get jacobian
   std::array<double, 42> jacobian_array =
       model_handle_->getZeroJacobian(franka::Frame::kEndEffector);
+  
   // convert to eigen
   Eigen::Map<Eigen::Matrix<double, 7, 1>> q_initial(initial_state.q.data());
   Eigen::Affine3d initial_transform(Eigen::Matrix4d::Map(initial_state.O_T_EE.data()));
 
   // set equilibrium point to current state
-  position_d_ = initial_transform.translation();
-  orientation_d_ = Eigen::Quaterniond(initial_transform.linear());
-  position_d_target_ = initial_transform.translation();
-  orientation_d_target_ = Eigen::Quaterniond(initial_transform.linear());
+  velocity_d_.setZero();
 
   // set nullspace equilibrium configuration to initial q
   q_d_nullspace_ = q_initial;
@@ -151,6 +145,7 @@ void CableFollower::update(const ros::Time& /*time*/,
   Eigen::Affine3d transform(Eigen::Matrix4d::Map(robot_state.O_T_EE.data()));
   Eigen::Vector3d position(transform.translation());
   Eigen::Quaterniond orientation(transform.linear());
+  Eigen::Map<Eigen::Matrix<double, 6, 1>> velocity(jacobian * dq); 
 
   // Get cable pose from GelSight
   GelsightUpdate gelsight_update = *(gelsight_update_.readFromRT());
@@ -173,7 +168,7 @@ void CableFollower::update(const ros::Time& /*time*/,
   std::array<double, 6> cmd;
   // if (is_vertical_) {
   //  cmd = {0.0, fwd_vel, norm_vel, 0.0, 0.0, 0.0};
-    position_d_ << fwd_vel * period.toSec() + position(0), norm_vel * period.toSec() + position(1), position(2);
+  velocity_d_ << fwd_vel, norm_vel, 0.0, 0.0, 0.0, 0.0;
   // } else {
   //  position_d_ << fwd_vel * period, norm_vel * period, 0.0;
   //}
@@ -181,17 +176,7 @@ void CableFollower::update(const ros::Time& /*time*/,
   // compute error to desired pose
   // position error
   Eigen::Matrix<double, 6, 1> error;
-  error.head(3) << position - position_d_;
-
-  // orientation error
-  // if (orientation_d_.coeffs().dot(orientation.coeffs()) < 0.0) {
-  //  orientation.coeffs() << -orientation.coeffs();
-  // }
-  // "difference" quaternion
-  // Eigen::Quaterniond error_quaternion(orientation.inverse() * orientation_d_);
-  // error.tail(3) << error_quaternion.x(), error_quaternion.y(), error_quaternion.z();
-  // Transform to base frame
-  // error.tail(3) << -transform.linear() * error.tail(3);
+  error << velocity - velocity_d_;
 
   // compute control
   // allocate variables
@@ -220,14 +205,14 @@ void CableFollower::update(const ros::Time& /*time*/,
 
   // update parameters changed online either through dynamic reconfigure or through the interactive
   // target by filtering
-  cartesian_stiffness_ =
-      filter_params_ * cartesian_stiffness_target_ + (1.0 - filter_params_) * cartesian_stiffness_;
-  cartesian_damping_ =
-      filter_params_ * cartesian_damping_target_ + (1.0 - filter_params_) * cartesian_damping_;
-  nullspace_stiffness_ =
-      filter_params_ * nullspace_stiffness_target_ + (1.0 - filter_params_) * nullspace_stiffness_;
-  std::lock_guard<std::mutex> position_d_target_mutex_lock(
-      position_and_orientation_d_target_mutex_);
+  // cartesian_stiffness_ =
+  //    filter_params_ * cartesian_stiffness_target_ + (1.0 - filter_params_) * cartesian_stiffness_;
+  // cartesian_damping_ =
+  //    filter_params_ * cartesian_damping_target_ + (1.0 - filter_params_) * cartesian_damping_;
+  // nullspace_stiffness_ =
+  //    filter_params_ * nullspace_stiffness_target_ + (1.0 - filter_params_) * nullspace_stiffness_;
+  // std::lock_guard<std::mutex> position_d_target_mutex_lock(
+  //    position_and_orientation_d_target_mutex_);
   // position_d_ = filter_params_ * position_d_target_ + (1.0 - filter_params_) * position_d_;
   // orientation_d_ = orientation_d_.slerp(filter_params_, orientation_d_target_);
 }

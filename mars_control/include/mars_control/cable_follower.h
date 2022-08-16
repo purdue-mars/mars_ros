@@ -50,6 +50,13 @@ struct FrankaDataContainer {
   Eigen::Quaterniond orientation_d_target_;  ///< Unfiltered raw value.
 };
 
+struct GelsightUpdate {
+  Eigen::Vector3d cable_pos;
+  Eigen::Quaterniond cable_quat;
+
+  GelsightUpdate() : cable_pos(0.0, 0.0, 0.0), cable_quat(1.0, 0.0, 0.0, 0.0) {}
+};
+
 class CableFollower
     : public controller_interface::MultiInterfaceController<
           franka_hw::FrankaModelInterface,
@@ -72,15 +79,9 @@ class CableFollower
   double nullspace_stiffness_target_{20.0};
   const double delta_tau_max_{1.0};
   Eigen::Matrix<double, 6, 6> cartesian_stiffness_;
-  Eigen::Matrix<double, 6, 6> cartesian_stiffness_target_;
   Eigen::Matrix<double, 6, 6> cartesian_damping_;
-  Eigen::Matrix<double, 6, 6> cartesian_damping_target_;
   Eigen::Matrix<double, 7, 1> q_d_nullspace_;
-  Eigen::Vector3d position_d_;
-  Eigen::Quaterniond orientation_d_;
-  std::mutex position_and_orientation_d_target_mutex_;
-  Eigen::Vector3d position_d_target_;
-  Eigen::Quaterniond orientation_d_target_;
+  Eigen::Matrix<double, 6, 1> velocity_d_;
 
   std::map<std::string, FrankaDataContainer> arms_data_;
   std::string left_arm_id_;
@@ -97,13 +98,6 @@ class CableFollower
   ros::Subscriber gelsight_sub_;
 
   // Gelsight data
-  struct GelsightUpdate
-  {
-    Eigen::Vector3d cable_pos;
-    Eigen::Quaterniond cable_quat;
-
-    GelsightUpdate() : cable_pos(0.0, 0.0, 0.0), cable_quat(1.0, 0.0, 0.0, 0.0) {}
-  };
   realtime_tools::RealtimeBuffer<GelsightUpdate> gelsight_update_;
   GelsightUpdate gelsight_update_struct_;
     
