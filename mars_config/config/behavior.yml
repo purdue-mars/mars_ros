@@ -7,8 +7,8 @@ combined_arms:
   robot_ids: ['pan_pan','an_an']
   planning_group: 'combined_arms'
   task_controller_dict:
-    insert: 'dual_plug_in_controller' 
-    route: 'cable_follower_combined'
+    # insert: 'dual_plug_in_controller' 
+    route: 'cable_follower'
     moveit: 'combined_arms_controller'
 
 panda:
@@ -16,6 +16,6 @@ panda:
   robot_ids: ['panda']
   planning_group: 'panda_arm'
   task_controller_dict:
-    insert: 'plug_in_controller' 
+    # insert: 'plug_in_controller' 
     route: 'cable_follower'
     moveit: 'position_joint_trajectory_controller'

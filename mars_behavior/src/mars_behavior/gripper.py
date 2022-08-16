@@ -97,7 +97,7 @@ class WSGMode(enum.Enum):
 class WSGInterface(GripperInterface):
     DEFAULT_OPEN_WIDTH: float = 50 # mm
     DEFAULT_SPEED: float = 40  # mm/s
-    DEFAULT_FORCE: float = 5.0 # N
+    DEFAULT_FORCE: float = 10.0 # N
 
     def __init__(self, robot_id: str, mode: WSGMode = WSGMode.POLLING) -> None:
         super().__init__()
@@ -108,7 +108,7 @@ class WSGInterface(GripperInterface):
             rospy.Subscriber(f"/{root_id}/{robot_id}/wsg/moving", Bool, self.is_moving_cb_)
             rospy.Subscriber(f"/{root_id}/{robot_id}/wsg/status", WSGStatus, self.status_cb_)
 
-            self.speed_pub = rospy.Publisher(
+            self.speed_pub_ = rospy.Publisher(
                 f"/{root_id}/{robot_id}/wsg/goal_speed", Float32, queue_size=1, latch=True
             )
             

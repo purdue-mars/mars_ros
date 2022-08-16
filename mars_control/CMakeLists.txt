@@ -82,7 +82,6 @@ include_directories(include ${catkin_INCLUDE_DIRS})
 
 add_library(${PROJECT_NAME}
   src/cable_follower.cpp
-  src/cable_follower_combined.cpp
 )
 
 add_dependencies(${PROJECT_NAME}

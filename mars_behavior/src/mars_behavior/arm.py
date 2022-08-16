@@ -69,18 +69,18 @@ class ArmInterface:
     def __init__(self):
         root_id = rospy.get_param("/root_id")
         os.environ['ROS_NAMESPACE'] = root_id
-        self.task_interface_ = ControlTaskInterface()
-        self.commander_ = MoveGroupCommander(
-            rospy.get_param(f"~{root_id}/planning_group")
-        )
+        # self.task_interface_ = ControlTaskInterface()
+        # self.commander_ = MoveGroupCommander(
+        #    rospy.get_param(f"/{root_id}/planning_group")
+        #)
 
-        self.move_ = actionlib.SimpleActionClient(f"/{root_id}/move_to", MoveToAction)
+        # self.move_ = actionlib.SimpleActionClient(f"/{root_id}/move_to", MoveToAction)
 
         self.tf_listener = tf.TransformListener()
-        self.robot_ids = rospy.get_param(f"~{root_id}/robot_ids")
+        self.robot_ids = rospy.get_param(f"/{root_id}/robot_ids")
         self.arm_tfs_ = {id: TFInterface(self.tf_listener, id) for id in self.robot_ids}
         rospy.loginfo("waiting for move_to server")
-        self.move_.wait_for_server()
+         # self.move_.wait_for_server()
 
     def get_arm_tf(self, id: str):
         if not id in self.robot_ids:
@@ -90,17 +90,32 @@ class ArmInterface:
 
     def execute_planned_goals(self, robot_id: str):
         arm_tf = self.get_arm_tf(robot_id)
-        goal = MoveToGoal(
-            targets=self.planning_goals_[arm_tf.id],
-            planning_group=arm_tf.id + "_arm",
-            ee_frame=arm_tf.ee_frame,
-            base_frame=arm_tf.base_frame,
+        (plan, fraction) = self.commander_.compute_cartesian_path(
+                self.planning_goals_[arm_tf],   # waypoints to follow
+                0.001,        # eef_step
+                0.0)
+
+        ref_state = self.commander_.get_current_state()
+        retimed_plan = self.commander_.retime_trajectory(
+            ref_state,
+            plan,
+            velocity_scaling_factor=0.1,
+            acceleration_scaling_factor=0.1,
         )
-        self.move_.send_goal(goal)
-        self.move_.wait_for_result()
-        res: MoveToResult = self.move_.get_result()
-        self.planning_goals_[robot_id] = []
-        return res.was_success
+        self.commander_.execute(retimed_plan, wait=True)
+   
+        # arm_tf = self.get_arm_tf(robot_id)
+        # goal = MoveToGoal(
+        #     targets=self.planning_goals_[arm_tf.id],
+        #     planning_group=arm_tf.id + "_arm",
+        #     ee_frame=arm_tf.ee_frame,
+        #     base_frame=arm_tf.base_frame,
+        # )
+        # self.move_.send_goal(goal)
+        # self.move_.wait_for_result()
+        # res: MoveToResult = self.move_.get_result()
+        # self.planning_goals_[robot_id] = []
+        # return res.was_success
 
     def go_to(self, named_target="ready"):
         self.commander_.set_named_target(named_target)

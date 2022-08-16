@@ -1,9 +1,17 @@
 cable_follower:
   type: mars_control/CableFollower
-  arm_id: anan
+  arm_id: an_an
+  joint_names:
+    - an_an_joint1
+    - an_an_joint2
+    - an_an_joint3
+    - an_an_joint4
+    - an_an_joint5
+    - an_an_joint6
+    - an_an_joint7
   is_vertical: false 
-  p_gain: -0.05
-  gelsight_topic: /combined_arms/an_an/gelsight/pose
+  p_gain: 0.05
+  gelsight_topic: /gelsight/pose
   output_topic: /cable_data_collection
 
 cable_follower_combined:
@@ -11,5 +19,5 @@ cable_follower_combined:
   arm_id: anan
   is_vertical: false 
   p_gain: -0.05
-  gelsight_topic: /combined_arms/an_an/gelsight/pose
+  gelsight_topic: /gelsight/pose
   output_topic: /cable_data_collection

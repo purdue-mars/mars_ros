@@ -19,16 +19,19 @@
             <arg name="gelsight_en" value="$(arg load_gelsight)"/>
         </include>
 
-        <include if="$(arg load_grippers)" file="$(find mars_launch)/launch/gripper.launch">
+        <include file="$(find mars_launch)/launch/gripper.launch">
             <arg name="robot_id" value="an_an" />
             <arg name="wsg_en" value="$(arg load_grippers)"/>
             <arg name="gelsight_en" value="$(arg load_gelsight)"/>
         </include>
 
+
+
         <!-- LOAD CONTROLLER CONFIGS HERE-->
-        <!-- <rosparam command="load" file="$(find icra18)/config/dual_controllers.yaml" />  -->
         <rosparam command="load" file="$(find mars_control)/config/controllers.yaml" />
+        <!-- <rosparam command="load" file="$(find icra18)/config/dual_controllers.yaml" />  -->
     </group>
+
 
     <include file="$(find franka_control)/launch/mars_combined_control.launch">
         <arg name="robot_ips" value="$(arg ips)"/>

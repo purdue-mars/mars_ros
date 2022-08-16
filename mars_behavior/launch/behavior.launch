@@ -2,7 +2,7 @@
     <arg name="behavior_name"/>
 
     <rosparam command="load" file="$(find mars_config)/config/behavior.yml"/> 
-    <group ns="behavior">
+    <group ns="combined_arms">
         <node name="$(arg behavior_name)" type="$(arg behavior_name)" pkg="mars_behavior" output="screen">
         </node>
     </group>

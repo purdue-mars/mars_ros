@@ -14,6 +14,6 @@ force: 35
 protocol: tcp
 local_port: 1501
 com_mode: polling
-rate: 10
+rate: 30
 force: 35
 home_at_start: false

@@ -1,34 +1,46 @@
 <launch>
-    <arg name="robot_ip" default="172.16.1.2" />
-    <arg name="load_gripper" default="false" />
+    <arg name="robot_ip" default="172.18.1.2" />
+    <arg name="load_gripper" default="true" />
     <arg name="rviz" default="true" />
     <arg name="root_id" default="panda"/>
     <param name="root_id" value="$(arg root_id)" />
+    <arg name="perception_en" default="true"/>
+    <arg name="load_gelsight" default="true"/>
 
-    <arg name="robot_id" default="pan_pan"/>
+    <arg name="robot_id" default="an_an"/>
 
     <group ns="$(arg root_id)">
         <include file="$(find franka_control)/launch/franka_control.launch">
             <arg name="robot_ip" value="$(arg robot_ip)" />
-            <arg name="load_gripper" value="$(arg load_gripper)" />
+            <arg name="load_gripper" value="false" />
         </include>
         <include file="$(find panda_moveit_config)/launch/panda_moveit.launch">
-            <arg name="load_gripper" value="$(arg load_gripper)" />
+            <arg name="load_gripper" value="false" />
         </include>
 
         <include file="$(find mars_launch)/launch/gripper.launch">
             <arg name="robot_id" value="$(arg robot_id)" />
             <arg name="tf_prefix_id" value="$(arg root_id)" />
+            <arg name="wsg_en" value="$(arg load_gripper)" />
+            <arg name="gelsight_en" value="$(arg load_gelsight)"/>
+        </include>
+
+        <include file="$(find mars_launch)/launch/gripper.launch">
+            <arg name="robot_id" value="pan_pan" />
+            <arg name="tf_prefix_id" value="$(arg root_id)" />
+            <arg name="wsg_en" value="$(arg load_gripper)" />
+            <arg name="gelsight_en" value="$(arg load_gelsight)"/>
         </include>
         
-        <include file="$(find mars_control)/launch/planning_server.launch" />
+        <!-- <include file="$(find mars_control)/launch/planning_server.launch" /> -->
 
-        <node pkg="rviz" type="rviz" name="rviz" args="-d $(find mars_launch)/rviz/config.rviz" />
+        <!-- <node pkg="rviz" if="$(arg rviz)" type="rviz" name="rviz" args="-d $(find mars_launch)/rviz/config.rviz" /> -->
 
         <!-- LOAD CONTROLLER CONFIGS HERE-->
-        <rosparam command="load" file="$(find icra18)/config/controllers.yaml" /> 
+        <!-- <rosparam command="load" file="$(find icra18)/config/controllers.yaml" />  -->
+        <rosparam command="load" file="$(find mars_control)/config/controllers.yaml" />
     </group>
 
-    <include ns="perception" file="$(find mars_launch)/launch/perception.launch"/>
+    <include ns="perception" if="$(arg perception_en)" file="$(find mars_launch)/launch/perception.launch"/>
 
 </launch>

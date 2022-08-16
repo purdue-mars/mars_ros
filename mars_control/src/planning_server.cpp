@@ -4,8 +4,8 @@ PlanningServer::PlanningServer() : as_(nh_, SERVER_NAME, boost::bind(&PlanningSe
 {
   ros::param::param<double>("~eef_step",eef_step_,0.01);
   ros::param::param<double>("~jump_threshold",jump_threshold_,0.0);
-  ros::param::param<double>("~velocity_scaling_factor",vel_scaling_factor_,0.4);
-  ros::param::param<double>("~acceleration_scaling_factor",accel_scaling_factor_,0.4);
+  ros::param::param<double>("~velocity_scaling_factor",vel_scaling_factor_,0.1);
+  ros::param::param<double>("~acceleration_scaling_factor",accel_scaling_factor_,0.1);
   bool valid = ros::param::get("planning_group", global_planning_group_);
   if(valid) {
     as_.start();

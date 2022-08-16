@@ -32,20 +32,24 @@ bool CableFollower::init(hardware_interface::RobotHW* robot_hw,
   std::vector<double> cartesian_stiffness_vector;
   std::vector<double> cartesian_damping_vector;
 
-  // sub_equilibrium_pose_ = node_handle.subscribe(
-  //     "equilibrium_pose", 20, &CableFollower::equilibriumPoseCallback, this,
-  //     ros::TransportHints().reliable().tcpNoDelay());
-
   std::string arm_id;
   if (!node_handle.getParam("arm_id", arm_id)) {
     ROS_ERROR_STREAM("CableFollower: Could not read parameter arm_id");
     return false;
   }
+
+
   std::vector<std::string> joint_names;
   if (!node_handle.getParam("joint_names", joint_names) || joint_names.size() != 7) {
     ROS_ERROR(
         "CableFollower: Invalid or no joint_names parameters provided, "
         "aborting controller init!");
+    return false;
+  }
+
+  if (!node_handle.getParam("p_gain", p_gain_))
+  {
+    ROS_ERROR("CableFollower: Could not get parameter p_gain");
     return false;
   }
 
@@ -130,7 +134,7 @@ void CableFollower::starting(const ros::Time& /*time*/) {
 }
 
 void CableFollower::update(const ros::Time& /*time*/,
-                           const ros::Duration& /*period*/) {
+                           const ros::Duration& period) {
   // get state variables
   franka::RobotState robot_state = state_handle_->getRobotState();
   std::array<double, 7> coriolis_array = model_handle_->getCoriolis();
@@ -150,8 +154,8 @@ void CableFollower::update(const ros::Time& /*time*/,
 
   // Get cable pose from GelSight
   GelsightUpdate gelsight_update = *(gelsight_update_.readFromRT());
-  double cable_x = gelsight_update.cable_pos(0) + pos(0);
-  double cable_y = gelsight_update.cable_pos(1) + pos(1);
+  double cable_x = gelsight_update.cable_pos(0) + position(0);
+  double cable_y = gelsight_update.cable_pos(1) + position(1);
 
   Eigen::Vector3d cable_euler = gelsight_update.cable_quat.toRotationMatrix().eulerAngles(0, 1, 2);
   double theta = cable_euler[2];
@@ -167,11 +171,12 @@ void CableFollower::update(const ros::Time& /*time*/,
 
   // Create command
   std::array<double, 6> cmd;
-  if (is_vertical_) {
-    cmd = {0.0, fwd_vel, norm_vel, 0.0, 0.0, 0.0};
-  } else {
-    cmd = {fwd_vel, norm_vel, 0.0, 0.0, 0.0};
-  }
+  // if (is_vertical_) {
+  //  cmd = {0.0, fwd_vel, norm_vel, 0.0, 0.0, 0.0};
+    position_d_ << fwd_vel * period.toSec() + position(0), norm_vel * period.toSec() + position(1), position(2);
+  // } else {
+  //  position_d_ << fwd_vel * period, norm_vel * period, 0.0;
+  //}
 
   // compute error to desired pose
   // position error
@@ -179,14 +184,14 @@ void CableFollower::update(const ros::Time& /*time*/,
   error.head(3) << position - position_d_;
 
   // orientation error
-  if (orientation_d_.coeffs().dot(orientation.coeffs()) < 0.0) {
-    orientation.coeffs() << -orientation.coeffs();
-  }
+  // if (orientation_d_.coeffs().dot(orientation.coeffs()) < 0.0) {
+  //  orientation.coeffs() << -orientation.coeffs();
+  // }
   // "difference" quaternion
-  Eigen::Quaterniond error_quaternion(orientation.inverse() * orientation_d_);
-  error.tail(3) << error_quaternion.x(), error_quaternion.y(), error_quaternion.z();
+  // Eigen::Quaterniond error_quaternion(orientation.inverse() * orientation_d_);
+  // error.tail(3) << error_quaternion.x(), error_quaternion.y(), error_quaternion.z();
   // Transform to base frame
-  error.tail(3) << -transform.linear() * error.tail(3);
+  // error.tail(3) << -transform.linear() * error.tail(3);
 
   // compute control
   // allocate variables
@@ -223,8 +228,8 @@ void CableFollower::update(const ros::Time& /*time*/,
       filter_params_ * nullspace_stiffness_target_ + (1.0 - filter_params_) * nullspace_stiffness_;
   std::lock_guard<std::mutex> position_d_target_mutex_lock(
       position_and_orientation_d_target_mutex_);
-  position_d_ = filter_params_ * position_d_target_ + (1.0 - filter_params_) * position_d_;
-  orientation_d_ = orientation_d_.slerp(filter_params_, orientation_d_target_);
+  // position_d_ = filter_params_ * position_d_target_ + (1.0 - filter_params_) * position_d_;
+  // orientation_d_ = orientation_d_.slerp(filter_params_, orientation_d_target_);
 }
 
 Eigen::Matrix<double, 7, 1> CableFollower::saturateTorqueRate(
@@ -239,39 +244,26 @@ Eigen::Matrix<double, 7, 1> CableFollower::saturateTorqueRate(
   return tau_d_saturated;
 }
 
-void CableFollower::equilibriumPoseCallback(
-    const geometry_msgs::PoseStampedConstPtr& msg) {
-  std::lock_guard<std::mutex> position_d_target_mutex_lock(
-      position_and_orientation_d_target_mutex_);
-  position_d_target_ << msg->pose.position.x, msg->pose.position.y, msg->pose.position.z;
-  Eigen::Quaterniond last_orientation_d_target(orientation_d_target_);
-  orientation_d_target_.coeffs() << msg->pose.orientation.x, msg->pose.orientation.y,
-      msg->pose.orientation.z, msg->pose.orientation.w;
-  if (last_orientation_d_target.coeffs().dot(orientation_d_target_.coeffs()) < 0.0) {
-    orientation_d_target_.coeffs() << -orientation_d_target_.coeffs();
-  }
-}
-
-void CableFollowerCombined::gelsightCallback(const geometry_msgs::PoseStamped &msg)
+void CableFollower::gelsightCallback(const geometry_msgs::PoseStamped::ConstPtr& msg)
 {
-  gelsight_update_struct_.cable_pos(0) = msg.pose.position.x;
-  gelsight_update_struct_.cable_pos(1) = msg.pose.position.y;
-  gelsight_update_struct_.cable_pos(2) = msg.pose.position.z;
+  gelsight_update_struct_.cable_pos(0) = msg->pose.position.x;
+  gelsight_update_struct_.cable_pos(1) = msg->pose.position.y;
+  gelsight_update_struct_.cable_pos(2) = msg->pose.position.z;
 
-  gelsight_update_struct_.cable_quat.w() = msg.pose.orientation.w;
-  gelsight_update_struct_.cable_quat.x() = msg.pose.orientation.x;
-  gelsight_update_struct_.cable_quat.y() = msg.pose.orientation.y;
-  gelsight_update_struct_.cable_quat.z() = msg.pose.orientation.z;
+  gelsight_update_struct_.cable_quat.w() = msg->pose.orientation.w;
+  gelsight_update_struct_.cable_quat.x() = msg->pose.orientation.x;
+  gelsight_update_struct_.cable_quat.y() = msg->pose.orientation.y;
+  gelsight_update_struct_.cable_quat.z() = msg->pose.orientation.z;
   gelsight_update_.writeFromNonRT(gelsight_update_struct_);
 }
 
-bool CableFollowerCombined::slowToStop(std_srvs::Empty::Request& req,
-                                    std_srvs::Empty::Response& resp)
-{
-  start_to_slow_ = true;
-  ROS_INFO("CableFollowerCombined: set to slow.");
-  return true;
-}
+// bool CableFollowerCombined::slowToStop(std_srvs::Empty::Request& req,
+//                                     std_srvs::Empty::Response& resp)
+// {
+//   start_to_slow_ = true;
+//   ROS_INFO("CableFollowerCombined: set to slow.");
+//   return true;
+// }
 }  // namespace mars_control
 
 PLUGINLIB_EXPORT_CLASS(mars_control::CableFollower,

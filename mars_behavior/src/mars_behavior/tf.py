@@ -9,9 +9,9 @@ import ros_numpy
 class TFInterface:
     def __init__(self, tf_listener: tf.TransformListener, robot_id: str = "panda"):
         self.robot_id_ = robot_id
-        self.base_frame_: str = robot_id + rospy.get_param("~base_frame_postfix")
-        self.eef_frame_: str = robot_id + rospy.get_param("~eef_frame_postfix")
-        self.grasp_frame_: str = robot_id + rospy.get_param("~grasp_frame_postfix")
+        self.base_frame_: str = robot_id + rospy.get_param("/base_frame_postfix")
+        self.eef_frame_: str = robot_id + rospy.get_param("/eef_frame_postfix")
+        self.grasp_frame_: str = robot_id + rospy.get_param("/grasp_frame_postfix")
         self.tf_listener_ = tf_listener
 
     def to_base(self, pose: PoseStamped):
