@@ -39,9 +39,9 @@ class FaceDetection:
             self.grasping_tab = round(face) == 0.0
         
     def localize_face(self):
-        #arm_tf = self.interface.get_arm_tf('pan_pan')
-        #init_tf = arm_tf.pose_from_object(arm_tf.grasp_frame,result_frame=arm_tf.base_frame)
-        self.perception.run_object_registration('cable_male')
+        arm_tf = self.interface.get_arm_tf('panda')
+        init_tf = arm_tf.pose_from_object(arm_tf.grasp_frame,result_frame=arm_tf.base_frame)
+        self.perception.run_object_registration('cable_male',init_tf)
     
     def rotate_until_face_found(self):
         pan_pan_tf = self.interface.get_arm_tf('pan_pan')

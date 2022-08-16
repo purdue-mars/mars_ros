@@ -24,11 +24,11 @@
         </node>
     </group>
 
-    <node name="registration_server" type="registration_server" pkg="mars_perception" output="screen">
+    <!-- <node name="registration_server" type="registration_server" pkg="mars_perception" output="screen">
         <param name="max_iterations" value="100" />
         <param name="alg" value="$(arg registration_alg)" />
         <param name="filtered_points_topic" value="/panda/pan_pan/gelsight/depth" />
-    </node>
+    </node> -->
 
     <group if="$(arg detection_en)">
         <machine name="mars-linux-2" address="192.168.0.112" env-loader="~/mars_env.bash" user="ruppulur" default="true" />
