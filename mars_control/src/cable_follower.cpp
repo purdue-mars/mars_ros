@@ -2,18 +2,13 @@
 
 #include <cmath>
 #include <memory>
-#include <stdexcept>
-#include <string>
-#include <Eigen/Dense>
+
 #include <controller_interface/controller_base.h>
-#include <hardware_interface/joint_command_interface.h>
-#include <hardware_interface/hardware_interface.h>
+#include <franka/robot_state.h>
 #include <pluginlib/class_list_macros.h>
-#include <random>
-#include <realtime_tools/realtime_publisher.h>
 #include <ros/ros.h>
-#include <mars_msgs/CableFollowingData.h>
-#include <geometry_msgs/Pose.h>
+
+#include <mars_control/pseudo_inversion.h>
 
 std::array<double, 16> poseToTransform(Eigen::Vector3d pos, Eigen::Quaterniond quat)
 {
@@ -25,228 +20,259 @@ std::array<double, 16> poseToTransform(Eigen::Vector3d pos, Eigen::Quaterniond q
           pos(0), pos(1), pos(2), 1.0};
 }
 
-namespace mars_control
-{
+namespace mars_control {
 
-  CableFollower::CableFollower()
+CableFollower::CableFollower()
       : gelsight_update_struct_()
   {
   }
 
-  bool CableFollower::init(hardware_interface::RobotHW *robot_hardware,
-                                ros::NodeHandle &node_handle)
-  {
-    // Obtain a seed
-    std::random_device rd;
-    rand_gen_ = std::mt19937(rd());
-    rand_dis_ = std::uniform_real_distribution<>(-0.01, 0.01);
+bool CableFollower::init(hardware_interface::RobotHW* robot_hw,
+                         ros::NodeHandle& node_handle) {
+  std::vector<double> cartesian_stiffness_vector;
+  std::vector<double> cartesian_damping_vector;
 
-    // Collect ROS params
-    std::string arm_id;
-    if (!node_handle.getParam("arm_id", arm_id))
-    {
-      ROS_ERROR("CableFollower: Could not get parameter arm_id");
-      return false;
-    }
+  // sub_equilibrium_pose_ = node_handle.subscribe(
+  //     "equilibrium_pose", 20, &CableFollower::equilibriumPoseCallback, this,
+  //     ros::TransportHints().reliable().tcpNoDelay());
 
-    if (!node_handle.getParam("p_gain", p_gain_))
-    {
-      ROS_ERROR("CableFollower: Could not get parameter p_gain");
-      return false;
-    }
+  std::string arm_id;
+  if (!node_handle.getParam("arm_id", arm_id)) {
+    ROS_ERROR_STREAM("CableFollower: Could not read parameter arm_id");
+    return false;
+  }
+  std::vector<std::string> joint_names;
+  if (!node_handle.getParam("joint_names", joint_names) || joint_names.size() != 7) {
+    ROS_ERROR(
+        "CableFollower: Invalid or no joint_names parameters provided, "
+        "aborting controller init!");
+    return false;
+  }
 
-    if (!node_handle.getParam("is_vertical", is_vertical_))
-    {
-      ROS_ERROR("CableFollower: Could not get parameter is_vertical");
-      return false;
-    }
+  auto* model_interface = robot_hw->get<franka_hw::FrankaModelInterface>();
+  if (model_interface == nullptr) {
+    ROS_ERROR_STREAM(
+        "CableFollower: Error getting model interface from hardware");
+    return false;
+  }
+  try {
+    model_handle_ = std::make_unique<franka_hw::FrankaModelHandle>(
+        model_interface->getHandle(arm_id + "_model"));
+  } catch (hardware_interface::HardwareInterfaceException& ex) {
+    ROS_ERROR_STREAM(
+        "CableFollower: Exception getting model handle from interface: "
+        << ex.what());
+    return false;
+  }
 
-    std::string gelsight_topic;
-    if (!node_handle.getParam("gelsight_topic", gelsight_topic)) {
-      ROS_ERROR("CableFollower: Could not get parameter gelsight_topic");
-      return false;
-    }
+  auto* state_interface = robot_hw->get<franka_hw::FrankaStateInterface>();
+  if (state_interface == nullptr) {
+    ROS_ERROR_STREAM(
+        "CableFollower: Error getting state interface from hardware");
+    return false;
+  }
+  try {
+    state_handle_ = std::make_unique<franka_hw::FrankaStateHandle>(
+        state_interface->getHandle(arm_id + "_robot"));
+  } catch (hardware_interface::HardwareInterfaceException& ex) {
+    ROS_ERROR_STREAM(
+        "CableFollower: Exception getting state handle from interface: "
+        << ex.what());
+    return false;
+  }
 
-    std::string output_topic;
-    if (!node_handle.getParam("output_topic", output_topic)) {
-      ROS_ERROR("CableFollower: Could not get parameter output_topic");
-      return false;
-    }
-
-    // Setup Franka interface
-    cartesian_velocity_interface_ = robot_hardware->get<franka_hw::FrankaVelocityCartesianInterface>();
-    if (cartesian_velocity_interface_ == nullptr)
-    {
-      ROS_ERROR(
-          "CableFollower: Could not get Cartesian Velocity "
-          "interface from hardware");
-      return false;
-    }
-
-    try
-    {
-      cartesian_velocity_handle_ = std::make_unique<franka_hw::FrankaCartesianVelocityHandle>(
-          cartesian_velocity_interface_->getHandle(arm_id + "_robot"));
-    }
-    catch (const hardware_interface::HardwareInterfaceException &e)
-    {
+  auto* effort_joint_interface = robot_hw->get<hardware_interface::EffortJointInterface>();
+  if (effort_joint_interface == nullptr) {
+    ROS_ERROR_STREAM(
+        "CableFollower: Error getting effort joint interface from hardware");
+    return false;
+  }
+  for (size_t i = 0; i < 7; ++i) {
+    try {
+      joint_handles_.push_back(effort_joint_interface->getHandle(joint_names[i]));
+    } catch (const hardware_interface::HardwareInterfaceException& ex) {
       ROS_ERROR_STREAM(
-          "CableFollower: Exception getting Cartesian handle: " << e.what());
+          "CableFollower: Exception getting joint handles: " << ex.what());
       return false;
     }
-
-    auto state_interface = robot_hardware->get<franka_hw::FrankaStateInterface>();
-    if (state_interface == nullptr)
-    {
-      ROS_ERROR("CableFollower: Could not get state interface from hardware");
-      return false;
-    }
-
-    // Slow to stop server
-    slow_srv_ = node_handle.advertiseService("slow_controller", &CableFollower::slowToStop, this);
-
-    // Publisher / Subscribers
-    gelsight_sub_ = node_handle.subscribe(gelsight_topic, 1, &CableFollower::gelsightCallback, this);
-    data_pub_ = new realtime_tools::RealtimePublisher<mars_msgs::CableFollowingData>(node_handle, output_topic, 10);
-    return true;
   }
 
-  void CableFollower::starting(const ros::Time & /* time */) {
-    // Store starting state as cable origin
-    std::array<double, 16> m = cartesian_velocity_handle_->getRobotState().O_T_EE_d;
-    cable_origin_pos_ = Eigen::Vector3d(m[12], m[13], m[14]);
-    double w = sqrt(1.0 + m[0] + m[5] + m[10]) / 2.0;
-    cable_origin_quat_ = Eigen::Quaterniond(w, (m[6] - m[9]) / (w * 4.0),
-                                            (m[8] - m[2]) / (w * 4.0),
-                                            (m[1] - m[4]) / (w * 4.0));
-    
-    // Reset slow to stop
-    start_to_slow_ = false;
-    last_cmd_ = {0.0, 0.0, 0.0, 0.0, 0.0, 0.0};
+  position_d_.setZero();
+  orientation_d_.coeffs() << 0.0, 0.0, 0.0, 1.0;
+  position_d_target_.setZero();
+  orientation_d_target_.coeffs() << 0.0, 0.0, 0.0, 1.0;
+
+  cartesian_stiffness_.setZero();
+  cartesian_damping_.setZero();
+
+  return true;
+}
+
+void CableFollower::starting(const ros::Time& /*time*/) {
+  // compute initial velocity with jacobian and set x_attractor and q_d_nullspace
+  // to initial configuration
+  franka::RobotState initial_state = state_handle_->getRobotState();
+  // get jacobian
+  std::array<double, 42> jacobian_array =
+      model_handle_->getZeroJacobian(franka::Frame::kEndEffector);
+  // convert to eigen
+  Eigen::Map<Eigen::Matrix<double, 7, 1>> q_initial(initial_state.q.data());
+  Eigen::Affine3d initial_transform(Eigen::Matrix4d::Map(initial_state.O_T_EE.data()));
+
+  // set equilibrium point to current state
+  position_d_ = initial_transform.translation();
+  orientation_d_ = Eigen::Quaterniond(initial_transform.linear());
+  position_d_target_ = initial_transform.translation();
+  orientation_d_target_ = Eigen::Quaterniond(initial_transform.linear());
+
+  // set nullspace equilibrium configuration to initial q
+  q_d_nullspace_ = q_initial;
+}
+
+void CableFollower::update(const ros::Time& /*time*/,
+                           const ros::Duration& /*period*/) {
+  // get state variables
+  franka::RobotState robot_state = state_handle_->getRobotState();
+  std::array<double, 7> coriolis_array = model_handle_->getCoriolis();
+  std::array<double, 42> jacobian_array =
+      model_handle_->getZeroJacobian(franka::Frame::kEndEffector);
+
+  // convert to Eigen
+  Eigen::Map<Eigen::Matrix<double, 7, 1>> coriolis(coriolis_array.data());
+  Eigen::Map<Eigen::Matrix<double, 6, 7>> jacobian(jacobian_array.data());
+  Eigen::Map<Eigen::Matrix<double, 7, 1>> q(robot_state.q.data());
+  Eigen::Map<Eigen::Matrix<double, 7, 1>> dq(robot_state.dq.data());
+  Eigen::Map<Eigen::Matrix<double, 7, 1>> tau_J_d(  // NOLINT (readability-identifier-naming)
+      robot_state.tau_J_d.data());
+  Eigen::Affine3d transform(Eigen::Matrix4d::Map(robot_state.O_T_EE.data()));
+  Eigen::Vector3d position(transform.translation());
+  Eigen::Quaterniond orientation(transform.linear());
+
+  // Get cable pose from GelSight
+  GelsightUpdate gelsight_update = *(gelsight_update_.readFromRT());
+  double cable_x = gelsight_update.cable_pos(0) + pos(0);
+  double cable_y = gelsight_update.cable_pos(1) + pos(1);
+
+  Eigen::Vector3d cable_euler = gelsight_update.cable_quat.toRotationMatrix().eulerAngles(0, 1, 2);
+  double theta = cable_euler[2];
+
+  // Calculate model state
+  double alpha = atan2(cable_y, cable_x);
+  Eigen::Vector3d state(cable_y, theta, alpha);
+
+  // Calculate velocity command from phi
+  double fwd_vel = -0.01;
+  double norm_vel = p_gain_ * gelsight_update.cable_pos(1);
+  norm_vel = fmin(0.1, fmax(-0.1, norm_vel));
+
+  // Create command
+  std::array<double, 6> cmd;
+  if (is_vertical_) {
+    cmd = {0.0, fwd_vel, norm_vel, 0.0, 0.0, 0.0};
+  } else {
+    cmd = {fwd_vel, norm_vel, 0.0, 0.0, 0.0};
   }
 
-  void CableFollower::update(const ros::Time & /* time */,
-                                  const ros::Duration &period)
-  {
-    double max_accel = 1.5;
+  // compute error to desired pose
+  // position error
+  Eigen::Matrix<double, 6, 1> error;
+  error.head(3) << position - position_d_;
 
-    if (start_to_slow_) {
-      std::array<double, 6> cmd = last_cmd_;
-      double max_delta_vel = max_accel * period.toSec();
-      for (int i = 0; i < 6; i++) {
-        if (cmd[i] > max_delta_vel) {
-          cmd[i] -= max_delta_vel;
-        } else if (cmd[i] < -max_delta_vel) {
-          cmd[i] += max_delta_vel;
-        } else {
-          cmd[i] = 0.0;
-        }
-      }
-      last_cmd_ = cmd;
-      cartesian_velocity_handle_->setCommand(cmd);
-      return;
-    } 
-    
-    // Get current EE pose
-    std::array<double, 16> m = cartesian_velocity_handle_->getRobotState().O_T_EE_d;
-    Eigen::Vector3d pos(m[12], m[13], m[14]);
-    double w = sqrt(1.0 + m[0] + m[5] + m[10]) / 2.0;
-    Eigen::Quaterniond quat(w, (m[6] - m[9]) / (w * 4.0),
-                            (m[8] - m[2]) / (w * 4.0),
-                            (m[1] - m[4]) / (w * 4.0));
+  // orientation error
+  if (orientation_d_.coeffs().dot(orientation.coeffs()) < 0.0) {
+    orientation.coeffs() << -orientation.coeffs();
+  }
+  // "difference" quaternion
+  Eigen::Quaterniond error_quaternion(orientation.inverse() * orientation_d_);
+  error.tail(3) << error_quaternion.x(), error_quaternion.y(), error_quaternion.z();
+  // Transform to base frame
+  error.tail(3) << -transform.linear() * error.tail(3);
 
-    // Find pose wrt fixed frame
-    pos -= cable_origin_pos_;
-    quat *= cable_origin_quat_.inverse();
+  // compute control
+  // allocate variables
+  Eigen::VectorXd tau_task(7), tau_nullspace(7), tau_d(7);
 
-    // Get cable pose from GelSight
-    GelsightUpdate gelsight_update = *(gelsight_update_.readFromRT());
-    double cable_x = gelsight_update.cable_pos(0) + pos(0);
-    double cable_y = gelsight_update.cable_pos(1) + pos(1);
+  // pseudoinverse for nullspace handling
+  // kinematic pseuoinverse
+  Eigen::MatrixXd jacobian_transpose_pinv;
+  pseudoInverse(jacobian.transpose(), jacobian_transpose_pinv);
 
-    Eigen::Vector3d cable_euler = gelsight_update.cable_quat.toRotationMatrix().eulerAngles(0, 1, 2);
-    double theta = cable_euler[2];
-
-    // Calculate model state
-    double alpha = atan2(cable_y, cable_x);
-    Eigen::Vector3d state(cable_y, theta, alpha);
-
-    // Calculate velocity command from phi
-    double fwd_vel = -0.01;
-    double norm_vel = p_gain_ * gelsight_update.cable_pos(1);
-    norm_vel = fmin(0.1, fmax(-0.1, norm_vel));
-
-    // Add uniform noise
-    // y_vel += rand_dis_(rand_gen_);
-
-    // Create command
-    std::array<double, 6> cmd;
-    if (is_vertical_) {
-      cmd = {0.0, fwd_vel, norm_vel, 0.0, 0.0, 0.0};
-    } else {
-      cmd = {fwd_vel, norm_vel, 0.0, 0.0, 0.0};
-    }
-
-    // Limit acceleration 
-    for (int i = 0; i < 6; i++) {
-      double accel = (cmd[i] - last_cmd_[i]) / period.toSec();
-      if (accel > max_accel) {
-        cmd[i] = (max_accel * period.toSec()) + last_cmd_[i];
-      } else if (accel < -max_accel) {
-        cmd[i] = (-max_accel * period.toSec()) + last_cmd_[i]; 
-      }
-    }
-
-    // Publish velocity to Franka
-    cartesian_velocity_handle_->setCommand(cmd);
-    last_cmd_ = cmd;
-
-    // Create pose msg
-    // double phi = atan2(, v_norm) - alpha;
-    if (data_pub_->trylock())
-    {
-      data_pub_->msg_.ee_pose.position.x = pos(0);
-      data_pub_->msg_.ee_pose.position.y = pos(1);
-      data_pub_->msg_.ee_pose.position.z = pos(2);
-      data_pub_->msg_.ee_pose.orientation.x = quat.x();
-      data_pub_->msg_.ee_pose.orientation.y = quat.y();
-      data_pub_->msg_.ee_pose.orientation.z = quat.z();
-      data_pub_->msg_.ee_pose.orientation.w = quat.w();
-      data_pub_->msg_.cable_y = gelsight_update.cable_pos(1);
-      data_pub_->msg_.cable_theta = theta;
-      data_pub_->msg_.cable_alpha = alpha;
-      // data_pub_->msg_.output_phi = phi;
-      // data_pub_->msg_.output_v = v_norm;
-      data_pub_->unlockAndPublish();
-    }
+  // Cartesian PD control with damping ratio = 1
+  tau_task << jacobian.transpose() *
+                  (-cartesian_stiffness_ * error - cartesian_damping_ * (jacobian * dq));
+  // nullspace PD control with damping ratio = 1
+  tau_nullspace << (Eigen::MatrixXd::Identity(7, 7) -
+                    jacobian.transpose() * jacobian_transpose_pinv) *
+                       (nullspace_stiffness_ * (q_d_nullspace_ - q) -
+                        (2.0 * sqrt(nullspace_stiffness_)) * dq);
+  // Desired torque
+  tau_d << tau_task + tau_nullspace + coriolis;
+  // Saturate torque rate to avoid discontinuities
+  tau_d << saturateTorqueRate(tau_d, tau_J_d);
+  for (size_t i = 0; i < 7; ++i) {
+    joint_handles_[i].setCommand(tau_d(i));
   }
 
-  void CableFollower::stopping(const ros::Time& /*time*/) {
-    // WARNING: DO NOT SEND ZERO VELOCITIES HERE AS IN CASE OF ABORTING DURING MOTION
-    // A JUMP TO ZERO WILL BE COMMANDED PUTTING HIGH LOADS ON THE ROBOT. LET THE DEFAULT
-    // BUILT-IN STOPPING BEHAVIOR SLOW DOWN THE ROBOT.
+  // update parameters changed online either through dynamic reconfigure or through the interactive
+  // target by filtering
+  cartesian_stiffness_ =
+      filter_params_ * cartesian_stiffness_target_ + (1.0 - filter_params_) * cartesian_stiffness_;
+  cartesian_damping_ =
+      filter_params_ * cartesian_damping_target_ + (1.0 - filter_params_) * cartesian_damping_;
+  nullspace_stiffness_ =
+      filter_params_ * nullspace_stiffness_target_ + (1.0 - filter_params_) * nullspace_stiffness_;
+  std::lock_guard<std::mutex> position_d_target_mutex_lock(
+      position_and_orientation_d_target_mutex_);
+  position_d_ = filter_params_ * position_d_target_ + (1.0 - filter_params_) * position_d_;
+  orientation_d_ = orientation_d_.slerp(filter_params_, orientation_d_target_);
+}
+
+Eigen::Matrix<double, 7, 1> CableFollower::saturateTorqueRate(
+    const Eigen::Matrix<double, 7, 1>& tau_d_calculated,
+    const Eigen::Matrix<double, 7, 1>& tau_J_d) {  // NOLINT (readability-identifier-naming)
+  Eigen::Matrix<double, 7, 1> tau_d_saturated{};
+  for (size_t i = 0; i < 7; i++) {
+    double difference = tau_d_calculated[i] - tau_J_d[i];
+    tau_d_saturated[i] =
+        tau_J_d[i] + std::max(std::min(difference, delta_tau_max_), -delta_tau_max_);
   }
+  return tau_d_saturated;
+}
 
-  void CableFollower::gelsightCallback(const geometry_msgs::PoseStamped &msg)
-  {
-    gelsight_update_struct_.cable_pos(0) = msg.pose.position.x;
-    gelsight_update_struct_.cable_pos(1) = msg.pose.position.y;
-    gelsight_update_struct_.cable_pos(2) = msg.pose.position.z;
-
-    gelsight_update_struct_.cable_quat.w() = msg.pose.orientation.w;
-    gelsight_update_struct_.cable_quat.x() = msg.pose.orientation.x;
-    gelsight_update_struct_.cable_quat.y() = msg.pose.orientation.y;
-    gelsight_update_struct_.cable_quat.z() = msg.pose.orientation.z;
-    gelsight_update_.writeFromNonRT(gelsight_update_struct_);
-  }
-
-  bool CableFollower::slowToStop(std_srvs::Empty::Request& req,
-                                      std_srvs::Empty::Response& resp)
-  {
-    start_to_slow_ = true;
-    ROS_INFO("CableFollower: set to slow.");
-    return true;
+void CableFollower::equilibriumPoseCallback(
+    const geometry_msgs::PoseStampedConstPtr& msg) {
+  std::lock_guard<std::mutex> position_d_target_mutex_lock(
+      position_and_orientation_d_target_mutex_);
+  position_d_target_ << msg->pose.position.x, msg->pose.position.y, msg->pose.position.z;
+  Eigen::Quaterniond last_orientation_d_target(orientation_d_target_);
+  orientation_d_target_.coeffs() << msg->pose.orientation.x, msg->pose.orientation.y,
+      msg->pose.orientation.z, msg->pose.orientation.w;
+  if (last_orientation_d_target.coeffs().dot(orientation_d_target_.coeffs()) < 0.0) {
+    orientation_d_target_.coeffs() << -orientation_d_target_.coeffs();
   }
 }
 
-PLUGINLIB_EXPORT_CLASS(mars_control::CableFollower, controller_interface::ControllerBase)
+void CableFollowerCombined::gelsightCallback(const geometry_msgs::PoseStamped &msg)
+{
+  gelsight_update_struct_.cable_pos(0) = msg.pose.position.x;
+  gelsight_update_struct_.cable_pos(1) = msg.pose.position.y;
+  gelsight_update_struct_.cable_pos(2) = msg.pose.position.z;
+
+  gelsight_update_struct_.cable_quat.w() = msg.pose.orientation.w;
+  gelsight_update_struct_.cable_quat.x() = msg.pose.orientation.x;
+  gelsight_update_struct_.cable_quat.y() = msg.pose.orientation.y;
+  gelsight_update_struct_.cable_quat.z() = msg.pose.orientation.z;
+  gelsight_update_.writeFromNonRT(gelsight_update_struct_);
+}
+
+bool CableFollowerCombined::slowToStop(std_srvs::Empty::Request& req,
+                                    std_srvs::Empty::Response& resp)
+{
+  start_to_slow_ = true;
+  ROS_INFO("CableFollowerCombined: set to slow.");
+  return true;
+}
+}  // namespace mars_control
+
+PLUGINLIB_EXPORT_CLASS(mars_control::CableFollower,
+                       controller_interface::ControllerBase)
