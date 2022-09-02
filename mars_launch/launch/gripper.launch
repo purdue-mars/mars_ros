@@ -1,7 +1,7 @@
 <launch>
     <arg name="robot_id" />
 
-    <!-- tf_prefix_id = "robot_id" in URDF-->
+    <!-- tf_prefix_id = "robot_id" in URDF -->
     <arg name="tf_prefix_id" default="$(arg robot_id)"/>
     <arg name="gelsight_config_file" default="gelsight_$(arg robot_id).yml"/>
     <arg name="wsg_config_file" default="wsg_$(arg robot_id).yml"/>
