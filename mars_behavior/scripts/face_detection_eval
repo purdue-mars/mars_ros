@@ -3,13 +3,11 @@ import datetime
 
 from copy import deepcopy
 import rospy
-import numpy as np
-from geometry_msgs.msg import Pose, PoseStamped, Quaternion
+from geometry_msgs.msg import PoseStamped
 from std_msgs.msg import Float32 
 import rosbag
 from sensor_msgs.msg import Image
 
-import ros_numpy
 from mars_behavior.arm import ArmInterface
 from mars_behavior.tf import TFInterface
 from mars_behavior.gripper import WSGInterface
@@ -41,7 +39,7 @@ class FaceDetection:
     def localize_face(self):
         arm_tf = self.interface.get_arm_tf('panda')
         init_tf = arm_tf.pose_from_object(arm_tf.grasp_frame,result_frame=arm_tf.base_frame)
-        self.perception.run_object_registration('cable_male',init_tf)
+        self.perception.run_object_registration('cable_male_tab',init_tf)
     
     def rotate_until_face_found(self):
         pan_pan_tf = self.interface.get_arm_tf('pan_pan')
@@ -66,24 +64,16 @@ class FaceDetection:
             if self.grasping_tab:
                 self.correct_grasp = True
 
-        p = PoseStamped()
-        p.header.frame_id = pan_pan_tf.grasp_frame 
-        p.pose.position.x = 0
-        p.pose.position.y = 0
-        p.pose.position.z = self.GRASP_HEIGHT_OFFSET
-        p.pose.orientation.x = 0
-        p.pose.orientation.y = 0
-        p.pose.orientation.z = 0 
-        p.pose.orientation.w = 1 
-        self.interface.add_goal(p,pan_pan_tf.id)
-        self.interface.execute_planned_goals(pan_pan_tf.id)
-
 if __name__ == '__main__':
     rospy.init_node('face_detection_eval_node')
 
-    face = FaceDetection()
-    face.localize_face()
-
+    task = FaceDetection()
+    #task.pan_pan_grip.open()
+    task.an_an_grip.grasp()
+    #rospy.sleep(rospy.Duration(2))
+    #task.rotate_until_face_found()
+    #task.localize_face()
+    
     # params
     # is_tab = False 
     # wait_duration = 1.0

@@ -3,7 +3,8 @@ stream:
   url: "http://192.168.0.170:8080/?action=stream"
   height: 160
   width: 120
-  roi: [[95, 135], [360, 130], [340, 465], [130, 465]] # TL, TR, BR, BL
+  mmpp: 0.1546573039481141
+  roi: [[95, 135], [360, 130], [340, 470], [130, 470]] # TL, TR, BR, BL
   # # Uncomment to publish
   topic_name: "raw_image"
 

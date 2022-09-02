@@ -12,6 +12,7 @@
 
     <include file="$(find mars_perception)/launch/cameras.launch">
         <arg name="robot_id" value="$(arg robot_id)"/>
+        <arg name="d405_en" value="true"/>
     </include>
 
     <group if="$(arg pc_processing_en)">

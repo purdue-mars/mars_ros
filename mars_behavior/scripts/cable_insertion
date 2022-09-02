@@ -13,7 +13,6 @@ from mars_behavior.gripper import WSGInterface
 from mars_behavior.perception import PerceptionInterface
 from mars_behavior.pose_utils import (
     AXIS_X,
-    AXIS_Y,
     AXIS_Z,
     rot_from_a_to_b_preserve_axis,
     tf_mat_to_quat_stamped,

@@ -5,3 +5,4 @@
 # plate: $(find nist_board_gazebo)/models/mesh/ICRA2022_Practice_Base-1.STL
 cable_female: $(find nist_board_gazebo)/models/cable-connector-female/1.pcd
 cable_male: $(find nist_board_gazebo)/models/cable-connector-male/1.pcd
+cable_male_tab: $(find nist_board_gazebo)/models/cable-connector-male/1_tab.pcd
