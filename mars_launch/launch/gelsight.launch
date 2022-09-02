@@ -1,9 +1,8 @@
 <launch>
     <arg name="config_file"/>
     <arg name="tf_prefix_id"/>
-
-    <machine name="mars-linux-2" address="192.168.0.112" env-loader="~/mars_env.bash" user="ruppulur" />
     <group ns="gelsight">
+        <machine name="mars-linux-2" address="192.168.0.112" env-loader="~/mars_env.bash" user="ruppulur" />
         <rosparam command="load" file="$(find mars_config)/config/gelsight/$(arg config_file)" subst_value="true"/>
         <node machine="mars-linux-2" name="gelsight" type="gelsight.py" pkg="gelsight_ros" output="screen"/>
     </group>
