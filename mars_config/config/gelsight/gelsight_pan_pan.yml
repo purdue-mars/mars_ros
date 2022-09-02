@@ -1,0 +1,57 @@
+frame_id: '$(arg tf_prefix_id)_wsg_right_gelsight_finger_pad'
+stream:
+  url: "http://192.168.0.170:8080/?action=stream"
+  height: 160
+  width: 120
+  mmpp: 0.1546573039481141
+  roi: [[95, 135], [360, 130], [340, 470], [130, 470]] # TL, TR, BR, BL
+  # # Uncomment to publish
+  topic_name: "raw_image"
+
+diff:
+  enable: true
+  # # Uncomment to publish
+  topic_name: "diff_image"
+
+depth:
+  enable: true
+  method: "model" # Either 'functional' or 'model'
+  depth_min: 0.005
+  image_mpp: 0.0001642072150756061
+  compute_type: "cuda" # Either 'cuda' or 'cpu'
+  model_path: /home/ruppulur/.ros/pan_pan_no_markers_labels-8-8/train_xy/model-14-17-15.pth
+  # Comment to not publish
+  topic_name: "depth"
+  img:
+    enable: true
+    # # Uncomment to publish
+    topic_name: "depth_image"
+    encoding: 'mono8'
+
+markers:
+  enable: false
+  threshold_block_size: 31
+  threshold_neg_bias: 19
+  marker_neighborhood_size: 24
+  # Comment to not publish
+  topic_name: "markers"
+  # publish_image: true # Will be published to "(topic_name)_image"
+
+flow:
+  enable: false
+  n: 10
+  m: 14
+  x0: 13
+  y0: 6
+  dx: 11
+  dy: 11
+  # Comment to not publish
+  topic_name: "flow"
+  # publish_image: true # Will be published to "(topic_name)_flow"
+
+pose:
+  enable: true
+  method: "depth" # Either 'markers' or 'depth'
+  rolling_avg: 1 # Must be 1 or greater
+  # Comment to not publish
+  topic_name: "pose"

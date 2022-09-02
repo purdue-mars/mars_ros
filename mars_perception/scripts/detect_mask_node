@@ -1,17 +1,11 @@
 #!/usr/bin/env python3
 import rospy
 import numpy as np
-import pcl
-from sensor_msgs.msg import PointCloud2,Image, CameraInfo
-import sensor_msgs.point_cloud2 as pc2
-import ros_numpy
+from sensor_msgs.msg import Image, CameraInfo
 import cv2
-
-from cv_bridge import CvBridge, CvBridgeError
 
 from detectron2_ros.msg import Result
 from message_filters import Subscriber, ApproximateTimeSynchronizer
-
 
 class MaskNode:
     def __init__(self):

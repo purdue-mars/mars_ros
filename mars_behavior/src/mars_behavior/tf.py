@@ -1,3 +1,4 @@
+from unittest import result
 import numpy as np
 import rospy
 import tf
@@ -74,23 +75,25 @@ class TFInterface:
         new_eef_to_cur_eef.header.frame_id = self.eef_frame_
         return new_eef_to_cur_eef
 
-    def grasp_pose_from_object(
-        self, object_frame, grasp_point_rel_obj: Pose = None
+    def pose_from_object(
+        self, object_frame, pose_rel_obj: Pose = None, result_frame=None
     ) -> PoseStamped:
-        """Generates pose in the grasp frame corresponding to a pose relative to the object"""
-        object_frame_rel_grasp_frame: PoseStamped = self.get_transform(
-            object_frame, self.grasp_frame_
+        """Generates pose in the result frame corresponding to a pose relative to the object"""
+        if result_frame is None:
+            result_frame = self.grasp_frame_
+        object_frame_rel_result_frame: PoseStamped = self.get_transform(
+            object_frame, result_frame
         ).pose
-        assert object_frame_rel_grasp_frame is not None
-        if grasp_point_rel_obj is None:
-            return object_frame_rel_grasp_frame
-        # G = grasp frame, O = object frame, P = grasp point on object frame
-        X_GO: np.ndarray = ros_numpy.numpify(object_frame_rel_grasp_frame)
-        X_OP: np.ndarray = ros_numpy.numpify(grasp_point_rel_obj)
-        X_GP = ros_numpy.msgify(Pose, np.matmul(X_GO, X_OP))
-        grasp_point_rel_grasp_frame = PoseStamped(pose=X_GP)
-        grasp_point_rel_grasp_frame.header.frame_id = self.grasp_frame_
-        return grasp_point_rel_grasp_frame
+        assert object_frame_rel_result_frame is not None
+        if pose_rel_obj is None:
+            return object_frame_rel_result_frame
+        # R = result frame, O = object frame, P = grasp point on object frame
+        X_RO: np.ndarray = ros_numpy.numpify(object_frame_rel_result_frame)
+        X_OP: np.ndarray = ros_numpy.numpify(pose_rel_obj)
+        X_RP = ros_numpy.msgify(Pose, np.matmul(X_RO, X_OP))
+        pose_rel_result_frame = PoseStamped(pose=X_RP)
+        pose_rel_result_frame.header.frame_id = result_frame
+        return pose_rel_result_frame
 
     @property
     def ee_frame(self):

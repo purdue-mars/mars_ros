@@ -14,16 +14,16 @@ tf_listener = tf2_ros.TransformListener(tf_buffer)
 
 # transform camera_base -> optical_frame
 pose = PoseStamped()
-pose.pose.position.x = -0.059
+pose.pose.position.x = 0
 pose.pose.position.y = 0
 pose.pose.position.z = 0
 pose.pose.orientation.x = 0.501
-pose.pose.orientation.y = -0.499
-pose.pose.orientation.z = 0.499
-pose.pose.orientation.w = 0.501
+pose.pose.orientation.y = -0.501
+pose.pose.orientation.z = 0.497
+pose.pose.orientation.w = 0.502
 
-transform = tf_buffer.lookup_transform("panda_link0",
-                                   "d455_0_color_optical_frame", #source frame
+transform = tf_buffer.lookup_transform("panda_link8",
+                                   "d405_color_optical_frame", #source frame
                                    rospy.Time(0), #get the tf at first available time
                                    rospy.Duration(1.0))
 pose_transformed = tf2_geometry_msgs.do_transform_pose(pose, transform)

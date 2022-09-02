@@ -1,0 +1,124 @@
+#! /usr/bin/env python3
+from copy import deepcopy
+import os
+import rospy
+import numpy as np
+from geometry_msgs.msg import PoseStamped
+from sensor_msgs.msg import PointCloud2
+import ros_numpy
+import open3d as o3d
+
+from mars_behavior.arm import ArmInterface
+from mars_behavior.gripper import WSGInterface
+from mars_behavior.perception import PerceptionInterface
+
+def preproc(pcd,voxel_size,num_points,radius,ratio=0):
+    pcd = o3d.voxel_down_sample(pcd, voxel_size)
+    cl, ind = o3d.geometry.radius_outlier_removal(pcd, num_points, radius)
+    pcd = o3d.geometry.select_down_sample(pcd, ind)
+    if ratio > 0:
+        cl, ind = o3d.geometry.statistical_outlier_removal(pcd, 50, ratio)
+        pcd = o3d.geometry.select_down_sample(pcd, ind)
+
+class FacePointCloudBuilder:
+    def __init__(self) -> None:
+        self.interface = ArmInterface()
+        self.arm_tf = self.interface.get_arm_tf('panda')
+        self.perception = PerceptionInterface()
+        self.pan_pan_grip = WSGInterface('pan_pan')
+        self.face_sub = rospy.Subscriber(f'/{self.interface.root_id}/pan_pan/gelsight/depth', PointCloud2, callback=self.depth_cb)
+        self.patches = [] 
+        self.curr_pc: ndarray = None
+        self.save_folder = '/'.join(os.path.realpath(__file__).split('/')[:-1]) + '/out'
+
+        if not os.path.exists(self.save_folder):
+            os.mkdir(self.save_folder)
+
+        self.start_p = PoseStamped()
+        self.start_p.header.frame_id = self.arm_tf.base_frame
+        self.start_p.pose.position.x = 0.384
+        self.start_p.pose.position.y = 0.029
+        self.start_p.pose.position.z = 0.227
+        self.start_p.pose.orientation.x = 0.768 
+        self.start_p.pose.orientation.y = -0.640 
+        self.start_p.pose.orientation.z = 0.014 
+        self.start_p.pose.orientation.w = 0.018 
+    
+    def depth_cb(self,msg: PointCloud2):
+        pc = ros_numpy.numpify(msg)
+        if len(pc) != 0:
+            curr_pc = np.ones((len(pc),4))
+            curr_pc[:,0] = pc['x']
+            curr_pc[:,1] = pc['z']
+            curr_pc[:,2] = pc['y']
+            grasp_wrt_base = ros_numpy.numpify(self.arm_tf.get_transform(self.arm_tf.base_frame,'panda_wsg_right_gelsight_finger_pad').pose)
+            curr_pc = np.apply_along_axis(lambda x: np.matmul(grasp_wrt_base,x), axis = -1, arr = curr_pc)
+            self.curr_pc = curr_pc[:,:3]
+    
+    def run_collection(self):
+        p = PoseStamped()
+        p.header.frame_id = self.arm_tf.grasp_frame 
+        p.pose.position.x = 0
+        p.pose.position.y = 0
+        p.pose.position.z = 0
+        p.pose.orientation.x = 0
+        p.pose.orientation.y = 0
+        p.pose.orientation.z = 0 
+        p.pose.orientation.w = 1 
+    
+        xx = np.linspace(0,0.01,num=3)
+        zz = np.linspace(0,0.012,num=3)
+
+        goals = []
+
+        for i in range(len(zz)):
+            for j in range(len(xx)):
+                next_pos = deepcopy(p) 
+                next_pos.pose.position.x += xx[j]
+                next_pos.pose.position.z += zz[i]
+                next_pos = self.arm_tf.to_base(next_pos)
+                goals.append(next_pos)
+
+        for pose in goals:
+            self.interface.add_goal(pose,self.arm_tf.id)
+            self.interface.execute_planned_goals(self.arm_tf.id)
+            self.pan_pan_grip.grasp()
+            rospy.sleep(rospy.Duration(4))
+            if self.curr_pc is not None:
+                self.patches.append(self.curr_pc.copy())
+                self.pan_pan_grip.open()
+            else:
+                rospy.logerr("Contact pointcloud is empty! Exiting.")
+                return
+            rospy.sleep(rospy.Duration(2))
+    
+    def loop_collect(self):
+        while not rospy.is_shutdown():
+            rospy.sleep(rospy.Duration(3))
+            self.pan_pan_grip.grasp()
+            rospy.sleep(rospy.Duration(3))
+            if self.curr_pc is not None:
+                self.patches.append(self.curr_pc.copy())
+                self.pan_pan_grip.open()
+
+    
+    def save_pc_and_viz(self):
+        pcds = []
+        for i in range(len(self.patches)):
+            pcd = o3d.geometry.PointCloud()
+            pcd.points = o3d.utility.Vector3dVector(self.patches[i])
+            #pcd = preproc(pcd,0.001,1000,0.0001,ratio=0.01)
+            pcds.append(pcd)
+            o3d.io.write_point_cloud(f'{self.save_folder}/{i}.pcd', pcd)
+        mesh_frame = o3d.create_mesh_coordinate_frame(size = 0.5, origin = [0,0,0]) #original camera frame
+        o3d.visualization.draw_geometries(pcds + [mesh_frame])
+
+if __name__ == '__main__':
+    rospy.init_node('face_detection_eval_node')
+
+    face = FacePointCloudBuilder()
+    face.interface.add_goal(face.start_p,face.arm_tf.id)
+    face.interface.execute_planned_goals(face.arm_tf.id)
+    face.run_collection()
+    #face.loop_collect()
+    face.save_pc_and_viz()

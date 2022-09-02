@@ -1,0 +1,97 @@
+#! /usr/bin/env python3
+import datetime
+
+from copy import deepcopy
+import rospy
+from geometry_msgs.msg import PoseStamped
+from std_msgs.msg import Float32 
+import rosbag
+from sensor_msgs.msg import Image
+
+from mars_behavior.arm import ArmInterface
+from mars_behavior.tf import TFInterface
+from mars_behavior.gripper import WSGInterface
+from mars_behavior.perception import PerceptionInterface
+
+class FaceDetection:
+    def __init__(self) -> None:
+        self.interface = ArmInterface()
+        self.perception = PerceptionInterface()
+        self.pan_pan_grip = WSGInterface('pan_pan')
+        self.an_an_grip = WSGInterface('an_an')
+
+        self.face_sub = rospy.Subscriber(f'{self.interface.root_id}/pan_pan/gelsight/grasp_face', Float32, callback=self.face_cb)
+        self.GRASP_HEIGHT_OFFSET = 0.2
+        self.grasping_tab: bool = False 
+        self.correct_grasp = False
+        self.grasping_tab = False
+        log_folder = datetime.datetime.now().strftime("exp_%m-%d-%Y_%H-%M-%S")
+        self.bag = rosbag.Bag(log_folder,'w')
+    
+    def depth_cb(self,msg: Image):
+        self.bag.write('/depth',msg)
+
+    def face_cb(self, msg : Float32):
+        face = msg.data
+        if(face != -1):
+            self.grasping_tab = round(face) == 0.0
+        
+    def localize_face(self):
+        arm_tf = self.interface.get_arm_tf('panda')
+        init_tf = arm_tf.pose_from_object(arm_tf.grasp_frame,result_frame=arm_tf.base_frame)
+        self.perception.run_object_registration('cable_male_tab',init_tf)
+    
+    def rotate_until_face_found(self):
+        pan_pan_tf = self.interface.get_arm_tf('pan_pan')
+        while not self.correct_grasp:
+            print('opening')
+            self.pan_pan_grip.open()
+            p = PoseStamped()
+            p.header.frame_id = pan_pan_tf.ee_frame 
+            p.pose.position.x = 0
+            p.pose.position.y = 0
+            p.pose.position.z = 0
+            p.pose.orientation.x = 0
+            p.pose.orientation.y = 0
+            p.pose.orientation.z = 0.7071068
+            p.pose.orientation.w = 0.7071068
+
+            print('adding goal')
+            self.interface.add_goal(p, pan_pan_tf.id)
+            print('execute goal')
+            self.interface.execute_planned_goals(pan_pan_tf.id)
+            self.pan_pan_grip.grasp()
+            if self.grasping_tab:
+                self.correct_grasp = True
+
+if __name__ == '__main__':
+    rospy.init_node('face_detection_eval_node')
+
+    task = FaceDetection()
+    #task.pan_pan_grip.open()
+    task.an_an_grip.grasp()
+    #rospy.sleep(rospy.Duration(2))
+    #task.rotate_until_face_found()
+    #task.localize_face()
+    
+    # params
+    # is_tab = False 
+    # wait_duration = 1.0
+    # trials = 1.0
+    # face.an_an_grip.grasp() 
+    # result = []
+    # while(not rospy.is_shutdown() and trials > len(result)):
+    #     print(f'TRIAL {len(result)}')
+    #     face.pan_pan_grip.open()
+    #     rospy.sleep(rospy.Duration(2))
+    #     face.pan_pan_grip.grasp()
+    #     rospy.sleep(rospy.Duration(wait_duration))
+    #     if face.grasping_tab == is_tab:
+    #         result.append(1)
+    #     else:
+    #         result.append(0)
+    # result = np.array(result)
+    # print(f"Accuracy (is_tab: {is_tab}, trials: {len(result)}): {result.mean()}")
+    rospy.spin()
+
+

@@ -1,15 +1,16 @@
 <launch>
   <arg name="serial_no_d455_0" default="146222252184" />
-  <arg name="serial_no_d405" default="126122270992" />
+  <arg name="serial_no_d405" default="126122270852" />
   <arg name="serial_no_d455_1" default="146222254752" />
-  <arg name="d405_clip_dist" default="0.3" />
+  <arg name="d405_clip_dist" default="0.5" />
   <arg name="initial_reset" default="false" />
   <arg name="sim" default="false" />
 
-  <arg name="d455_1_en" default="true"/>
-  <arg name="d405_en" default="true"/>
-  <arg name="d455_0_en" default="true"/>
+  <arg name="d455_1_en" default="false"/>
+  <arg name="d405_en" default="false"/>
+  <arg name="d455_0_en" default="false"/>
 
+  <!-- robot_id that all the camera transforms are relative to -->
   <arg name="robot_id" default="panda"/>
 
   <group ns="d455_0" if="$(arg d455_0_en)">
@@ -44,8 +45,8 @@
     </include>
   </group>
 
-  <node pkg="tf2_ros" type="static_transform_publisher" name="d405_broadcaster" args="0.0419262 -0.0542951 0.0249049  0.6312052481455493 -0.2611933430046631  0.677071864422379 0.2718384236028734 $(arg robot_id)_link8 d405_link" />
-
+  <node pkg="tf2_ros" type="static_transform_publisher" name="d405_broadcaster"
+        args="0.0405573 -0.0498377 0.0391613 0.6273660132281271 -0.2734178185167734 0.6730846841725235 0.2822768644735239 $(arg robot_id)_link8 d405_link" />
   <node pkg="tf2_ros" type="static_transform_publisher" name="d455_0_broad"
     args="0.14920791195950264 -0.24468079160915554 0.2661905924670789 -0.1091336001416634 0.3721667609345948 0.28487836048578946 0.8766010383647533 $(arg robot_id)_link0 d455_0_link" />
 

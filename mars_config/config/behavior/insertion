@@ -1,0 +1,9 @@
+amplitude_wiggle_x: 0.295
+amplitude_wiggle_y: 0.19
+desired_force: 1.0
+frequency_wiggle_x: 0.77
+frequency_wiggle_y: 0.84
+k_i: 1.0
+k_p: 0.5
+rotational_stiffness: 10.0
+translational_stiffness: 1500.0

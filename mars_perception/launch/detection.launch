@@ -1,37 +1,45 @@
 <launch>
 
-  <arg name="detection_threshold" default="0.8" />
-  <arg name="config" default="$(find mars_config)/config/detection/peg_config.yaml" />
-  <arg name="model" default="$(find mars_config)/config/detection/cable_peg_hole.pth" />
+  <!-- Detection params + class filter for detect_mask_node -->
+  <arg name="config" default="$(find mars_config)/config/detection/detectron_config.yaml" />
+  <arg name="model" default="$(find mars_config)/config/detection/cable_peg_hole_v4.pth" />
   <arg name="visualization" default="true" />
+  <arg name="detection_threshold" default="0.97" />
+  <arg name="class_names" default="[n/a, cable_male, cable_female]"/>
+  <arg name="detect_class_names" default="[cable_male]"/>
 
+  <!-- Enable/disable conversion to point cloud -->
   <arg name="d455_1_en" default="true"/>
   <arg name="d405_en" default="true"/>
   <arg name="d455_0_en" default="true"/>
 
+  <!-- List of cameras to run inference on -->
+  <arg name="detection_cameras_en" default="[d405]"/>
+
+  <!-- paths to respective topics assuming in namespace "camera_id/camera" -->
   <arg name="masked_info_topic" default="color/camera_info"/>
   <arg name="masked_color_topic" default="color/masked_image"/>
   <arg name="masked_depth_topic" default="aligned_depth_to_color/masked_image"/>
   <arg name="masked_points_topic" default="aligned_depth_to_color/color/masked_points"/>
 
-  <arg name="class_names" default="[n/a, cable_male, cable_female]"/>
-  <arg name="detect_class_names" default="[cable_male]"/>
-
-  <arg name="detection_camera_ns" default="[d455_0,d405]"/>
-
+  <!-- Run Detectron2 inference on camera streams -->
   <include file="$(find detectron2_ros)/launch/detectron2_ros.launch">
     <arg name="detection_threshold" value="$(arg detection_threshold)" />
     <arg name="config" value="$(arg config)" />
     <arg name="model" value="$(arg model)" />
     <arg name="visualization" value="$(arg visualization)" />
     <arg name="class_names" value="$(arg class_names)" />
-    <arg name="detection_camera_ns" value="$(arg detection_camera_ns)"/>
+    <arg name="detection_camera_ns" value="$(arg detection_cameras_en)"/>
   </include>
+
+  <!-- Mask depth/color images from detection masks  -->
 
   <rosparam param="detect_class_names" subst_value="True">$(arg detect_class_names)</rosparam> 
   <node pkg="mars_perception" name="detect_mask" type="detect_mask_node" output="screen">
-      <rosparam param="camera_ns" subst_value="True">$(arg detection_camera_ns)</rosparam> 
+      <rosparam param="camera_ns" subst_value="True">$(arg detection_cameras_en)</rosparam> 
   </node>
+
+  <!-- DepthImage to PointCloud procs -->
 
   <group ns="d455_0/camera" if="$(arg d455_0_en)">
     <node pkg="nodelet" type="nodelet" args="manager" name="d455_0_detect_nodelet" output="screen"/>

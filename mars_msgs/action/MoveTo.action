@@ -3,6 +3,5 @@ string planning_group
 string base_frame 
 string ee_frame
 ---
-bool was_success
+bool success
 ---
-float32 percent_complete

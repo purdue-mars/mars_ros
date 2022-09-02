@@ -1,0 +1,8 @@
+ip: 192.168.0.150
+port: 1001
+force: 50
+protocol: tcp
+local_port: 1501
+com_mode: script
+rate: 10
+home_at_start: false

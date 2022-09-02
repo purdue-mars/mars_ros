@@ -1,0 +1,12 @@
+<launch>
+    <arg name="init_pose" default="[0,0,0,0,0,0,1]"/>
+    <arg name="running" default="true"/>
+    <arg name="alg" default="ICP"/>
+    <node ns="perception" name="registration_from_file" type="registration_from_file" pkg="mars_perception" output="screen">
+        <param name="alg" value="$(arg alg)" />
+        <param name="running" value="$(arg running)" />
+        <rosparam param="init_mesh_pose" subst_value="True">
+            $(arg init_pose)
+        </rosparam>
+    </node>
+</launch>

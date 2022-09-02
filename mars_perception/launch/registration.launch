@@ -1,0 +1,8 @@
+<launch>
+    <node ns="perception" name="registration_server" type="registration_server" pkg="mars_perception" output="screen">
+        <param name="max_iterations" value="100" />
+
+        <param name="alg" value="CONSTRAINED_ICP" />
+        <param name="filtered_points_topic" value="/panda/pan_pan/gelsight/depth" />
+    </node>
+</launch>

@@ -1,0 +1,20 @@
+#! /usr/bin/env python3
+
+import rospy
+from mars_behavior.arm import ArmInterface
+from mars_behavior.gripper import WSGInterface
+import dynamic_reconfigure.client
+
+client = dynamic_reconfigure.client.Client()
+
+def wait():
+    r = rospy.Rate(30)
+    while(not rospy.is_shutdown()):
+        r.sleep()
+
+if __name__ == '__main__':
+    rospy.init_node('insertion')
+    interface = ArmInterface()
+    gripper = WSGInterface('pan_pan')
+    interface.run_task('insert',callback=wait)
+    rospy.spin()

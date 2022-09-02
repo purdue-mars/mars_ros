@@ -26,7 +26,7 @@ add_message_files(
   CableFollowingData.msg
 )
 
-add_action_files(DIRECTORY action FILES MoveTo.action)
+add_action_files(DIRECTORY action FILES MoveTo.action MoveToTarget.action)
 generate_messages(DEPENDENCIES geometry_msgs actionlib_msgs)
 
 # ###############################################

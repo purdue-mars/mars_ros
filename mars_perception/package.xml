@@ -56,6 +56,8 @@
   <!-- <depend>teaserpp</depend> -->
   <depend>pcl_conversions</depend>
   <depend>mars_msgs</depend>
+  <depend>mars_config</depend>
+  <depend>dynamic_reconfigure</depend>
   <depend>detectron2_ros</depend>
 
   <!-- The export tag contains other, unspecified, tags -->
