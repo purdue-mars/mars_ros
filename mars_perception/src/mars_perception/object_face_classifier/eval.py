@@ -7,6 +7,7 @@ import torch
 from mars_perception.object_face_classifier.model import SimpleCNN, SimpleClassifierNN
 from mars_perception.object_face_classifier.util import obj_center_crop
 
+
 class EvalObjectFaceClassifier:
     """
     Uses trained NN to classify object faces
@@ -43,20 +44,20 @@ class EvalObjectFaceClassifier:
             raise RuntimeError("Missing min_features.")
 
         self._device = torch.device(self._compute_type)
-        self._model = SimpleCNN(self._input_dim,len(self._axes))
+        self._model = SimpleCNN(self._input_dim, len(self._axes))
         self._model.to(self._device)
         self._model.load_state_dict(torch.load(cfg["model_path"]))
         self._model.eval()
 
     def run(self, frame: cv2.Mat):
         feats = len(np.argwhere(frame != 0))
-        if(feats > self._min_features):
-            frame = obj_center_crop(frame,self._input_dim)
+        if feats > self._min_features:
+            frame = obj_center_crop(frame, self._input_dim)
             assert frame.shape == tuple(self._input_dim)
             frame: torch.Tensor = torch.from_numpy(np.float32(frame)).to(self._device)
-            frame = torch.unsqueeze(frame,0)
+            frame = torch.unsqueeze(frame, 0)
             out: torch.Tensor = self._model(frame)
             out = out.detach().numpy().argmax()
-            return out 
+            return out
         else:
             return -1

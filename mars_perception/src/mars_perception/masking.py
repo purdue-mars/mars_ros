@@ -1,12 +1,13 @@
-from PIL import Image # (pip install Pillow)
-import numpy as np                                 # (pip install numpy)
-from skimage import measure                        # (pip install scikit-image)
-from shapely.geometry import Polygon, MultiPolygon # (pip install Shapely)
+from PIL import Image  # (pip install Pillow)
+import numpy as np  # (pip install numpy)
+from skimage import measure  # (pip install scikit-image)
+from shapely.geometry import Polygon, MultiPolygon  # (pip install Shapely)
 import numpy as np
 import cv2
 
+
 def create_sub_masks(mask_image_np):
-    mask_image = Image.fromarray(mask_image_np) 
+    mask_image = Image.fromarray(mask_image_np)
     width, height = mask_image.size
 
     # Initialize a dictionary of sub-masks indexed by RGB colors
@@ -14,7 +15,7 @@ def create_sub_masks(mask_image_np):
     for x in range(width):
         for y in range(height):
             # Get the RGB values of the pixel
-            pixel = mask_image.getpixel((x,y))[:3]
+            pixel = mask_image.getpixel((x, y))[:3]
 
             # If the pixel is not black...
             if pixel != (0, 0, 0):
@@ -22,23 +23,25 @@ def create_sub_masks(mask_image_np):
                 pixel_str = str(pixel)
                 sub_mask = sub_masks.get(pixel_str)
                 if sub_mask is None:
-                   # Create a sub-mask (one bit per pixel) and add to the dictionary
+                    # Create a sub-mask (one bit per pixel) and add to the dictionary
                     # Note: we add 1 pixel of padding in each direction
                     # because the contours module doesn't handle cases
                     # where pixels bleed to the edge of the image
-                    sub_masks[pixel_str] = Image.new('1', (width+2, height+2))
+                    sub_masks[pixel_str] = Image.new("1", (width + 2, height + 2))
 
                 # Set the pixel value to 1 (default is 0), accounting for padding
-                sub_masks[pixel_str].putpixel((x+1, y+1), 1)
+                sub_masks[pixel_str].putpixel((x + 1, y + 1), 1)
 
     return sub_masks
 
 
-def create_sub_mask_annotation(sub_mask, image_id, category_id, annotation_id, is_crowd):
+def create_sub_mask_annotation(
+    sub_mask, image_id, category_id, annotation_id, is_crowd
+):
     # Find contours (boundary lines) around each sub-mask
     # Note: there could be multiple contours if the object
     # is partially occluded. (E.g. an elephant behind a tree)
-    contours = measure.find_contours(sub_mask, 0.5, positive_orientation='low')
+    contours = measure.find_contours(sub_mask, 0.5, positive_orientation="low")
 
     segmentations = []
     polygons = []
@@ -65,13 +68,13 @@ def create_sub_mask_annotation(sub_mask, image_id, category_id, annotation_id, i
     area = multi_poly.area
 
     annotation = {
-        'segmentation': segmentations,
-        'iscrowd': is_crowd,
-        'image_id': image_id,
-        'category_id': category_id,
-        'id': annotation_id,
-        'bbox': bbox,
-        'area': area
+        "segmentation": segmentations,
+        "iscrowd": is_crowd,
+        "image_id": image_id,
+        "category_id": category_id,
+        "id": annotation_id,
+        "bbox": bbox,
+        "area": area,
     }
 
     return annotation

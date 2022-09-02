@@ -10,15 +10,7 @@ std::string MeshUtil::get_name()
     return mesh_name_;
 }
 
-
-void MeshUtil::stl_to_pcl_(std::string mesh_path)
-{
-    pcl::PolygonMesh mesh;
-    pcl::io::loadPolygonFileOBJ(mesh_path,mesh);
-    polygon_mesh_to_pc(&mesh, mesh_pc_);
-}
-
-bool MeshUtil::update_mesh(std::string name, Eigen::Affine3d tf)
+bool MeshUtil::update_mesh(std::string name, TFMatrix tf)
 {
     mesh_name_ = name;
     std::string mesh_param_name = "mesh_directory/" + name;
@@ -33,7 +25,7 @@ bool MeshUtil::update_mesh(std::string name, Eigen::Affine3d tf)
     ROS_INFO("MESH_PATH: %s", mesh_path.c_str());
     try
     {
-        stl_to_pcl_(mesh_path);
+        pcl::io::loadPCDFile<Point> (mesh_path, *mesh_pc_);
         pcl::transformPointCloud(*mesh_pc_, *mesh_pc_, tf);
     }
     catch (std::exception &e)

@@ -3,9 +3,15 @@ import queue
 import actionlib
 import numpy as np
 import rospy
-from franka_gripper.msg import (GraspEpsilon, HomingAction, HomingActionGoal,
-                                MoveAction, MoveGoal, StopAction,
-                                StopActionGoal)
+from franka_gripper.msg import (
+    GraspEpsilon,
+    HomingAction,
+    HomingActionGoal,
+    MoveAction,
+    MoveGoal,
+    StopAction,
+    StopActionGoal,
+)
 from std_msgs.msg import Bool, Float32
 from std_srvs.srv import Empty
 
@@ -96,7 +102,7 @@ class WSGInterface(GripperInterface):
         self.is_moving_ = rospy.Subscriber(
             f"/{root_id}/{robot_id}/wsg/moving", Bool, self.is_moving_cb_, queue_size=1
         )
-        #self.homing_ = rospy.ServiceProxy(f'/{root_id}/{robot_id}/wsg/homing',Empty)
+        # self.homing_ = rospy.ServiceProxy(f'/{root_id}/{robot_id}/wsg/homing',Empty)
         self.width_: float = 0.0
 
     def is_moving_cb_(self, msg: Bool):
@@ -105,15 +111,15 @@ class WSGInterface(GripperInterface):
     def home(self):
         self.grasping_.publish(-self.DEFAULT_SPEED)
         rospy.sleep(rospy.Duration(2))
-        rospy.loginfo('Done homing')
+        rospy.loginfo("Done homing")
 
     def stop(self):
         self.grasping_.publish(0.0)
-        rospy.loginfo('Stopped gripper')
-    
+        rospy.loginfo("Stopped gripper")
+
     def open(self):
         self.grasping_.publish(self.DEFAULT_SPEED)
-        rospy.loginfo('Opened gripper')
+        rospy.loginfo("Opened gripper")
 
     def grasp(self):
         self.grasping_.publish(-self.DEFAULT_SPEED)

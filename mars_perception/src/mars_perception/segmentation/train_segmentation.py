@@ -63,8 +63,15 @@ import argparse
 
 parser = argparse.ArgumentParser()
 
-parser.add_argument("-dataset_name", help="Roboflow dataset name, must be in coco format and in the same dir as script", type=str,required=True)
-parser.add_argument("-version", help="Roboflow dataset version", type=str,required=True)
+parser.add_argument(
+    "-dataset_name",
+    help="Roboflow dataset name, must be in coco format and in the same dir as script",
+    type=str,
+    required=True,
+)
+parser.add_argument(
+    "-version", help="Roboflow dataset version", type=str, required=True
+)
 
 args = vars(parser.parse_args())
 

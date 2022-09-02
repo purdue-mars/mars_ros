@@ -1,12 +1,14 @@
 dataset:
   data_dir: '/home/ruppulur/catkin_ws/src/icra_2022_mars/mars_perception/src/mars_perception/object_face_classifier/data'
-  dataset_name: 'connector-male-5'
+  dataset_name: 'connector-male-6'
   img_dim: [64,64] # h,w
-  min_features: 800  # features are defined by non-zero pixels
+  min_features: 500  # features are defined by non-zero pixels
   axes: [[0,0,1],[0,0,2]] # axes that correspond to face
 eval:
   # model_path: /home/ruppulur/catkin_ws/src/icra_2022_mars/mars_perception/src/mars_perception/object_face_classifier/.log/run_19-27-28/chpt_final.pth
-  model_path: /home/ruppulur/catkin_ws/src/icra_2022_mars/mars_perception/src/mars_perception/object_face_classifier/.log/run_19-59-07/chpt_final.pth
+  # model_path: /home/ruppulur/catkin_ws/src/icra_2022_mars/mars_perception/src/mars_perception/object_face_classifier/.log/run_19-59-07/chpt_final.pth
+  #model_path: /home/ruppulur/catkin_ws/src/icra_2022_mars/mars_perception/src/mars_perception/object_face_classifier/.log/log_09-01-2022_15-49-39/chpt_final.pth
+  model_path: /home/ruppulur/catkin_ws/src/icra_2022_mars/mars_perception/src/mars_perception/object_face_classifier/.log/log_09-01-2022_16-39-33/chpt_final.pth
   axes: [[0,0,1],[1,1,0]] # axes that correspond to face
   input_dim: [64,64] # h,w
   compute_type: 'cpu'

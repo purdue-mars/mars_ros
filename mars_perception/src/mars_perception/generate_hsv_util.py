@@ -5,12 +5,13 @@ Script to determine color range in HSV of a selected region
 import numpy as np
 import cv2 as cv
 import argparse
+
 parser = argparse.ArgumentParser()
 
 parser.add_argument("-image_path", type=str)
 args = vars(parser.parse_args())
 
-img = cv.imread(args['image_path'])
+img = cv.imread(args["image_path"])
 print(img)
 print("Select color range to threshold")
 r = cv.selectROI(img)

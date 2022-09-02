@@ -15,7 +15,7 @@ from controller_manager_msgs.srv import (
 from geometry_msgs.msg import Pose, PoseStamped
 from moveit_commander import MoveGroupCommander
 
-from mars_msgs.msg import * 
+from mars_msgs.msg import *
 
 from .tf import TFInterface
 
@@ -70,8 +70,12 @@ class ArmInterface:
     def __init__(self):
         self.root_id = rospy.get_param("/root_id")
         self.task_interface_ = ControlTaskInterface()
-        self.move_ = actionlib.SimpleActionClient(f"/{self.root_id}/move_to", MoveToAction)
-        self.move_target_ = actionlib.SimpleActionClient(f"/{self.root_id}/move_to_target", MoveToTargetAction)
+        self.move_ = actionlib.SimpleActionClient(
+            f"/{self.root_id}/move_to", MoveToAction
+        )
+        self.move_target_ = actionlib.SimpleActionClient(
+            f"/{self.root_id}/move_to_target", MoveToTargetAction
+        )
 
         self.tf_listener = tf.TransformListener()
         self.robot_ids = rospy.get_param(f"~{self.root_id}/robot_ids")

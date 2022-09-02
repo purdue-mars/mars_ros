@@ -57,8 +57,8 @@ void ConstrainedICP::constrained_icp_single_step_(open3d::geometry::PointCloud& 
 
     ceres::Solver::Options options;
     options.linear_solver_type = ceres::DENSE_QR;
-    // options.trust_region_strategy_type = ceres::DOGLEG;
-    // options.minimizer_progress_to_stdout = true;
+    //options.trust_region_strategy_type = ceres::DOGLEG;
+    options.minimizer_progress_to_stdout = true;
     options.max_num_iterations = 1;
 
     ceres::Problem problem;
@@ -68,6 +68,7 @@ void ConstrainedICP::constrained_icp_single_step_(open3d::geometry::PointCloud& 
     problem.AddResidualBlock(cost_function, loss_function, x);
 
     ceres::Solve(options, &problem, &summary);
+    std::cout << summary.FullReport() << "\n";
 }
 
 std::pair<Eigen::Matrix4d, Eigen::Matrix6d>
@@ -140,10 +141,10 @@ open3d::pipelines::registration::PoseGraph ConstrainedICP::build_pose_graph_(std
 
         std::tie(transform, information) = pairwise_registration_(*pcds[i-1], *pcds[i], base_transform);
 
-        // Just for debug
-        // pcds[i-1]->Transform(transform);
-        // auto g = std::vector<std::shared_ptr<const open3d::geometry::Geometry>>{geometries[i-1], geometries[i]};
-        // open3d::DrawGeometries(g);
+        //Just for debug
+        pcds[i-1]->Transform(transform);
+        auto g = std::vector<std::shared_ptr<const open3d::geometry::Geometry>>{geometries[i-1], geometries[i]};
+        open3d::visualization::DrawGeometries(g);
 
         pose_graph.edges_.push_back(open3d::pipelines::registration::PoseGraphEdge(i-1, i, transform, information, false));
     }
@@ -171,7 +172,23 @@ void pcl_to_open3d(PointCloudPtr pc_ptr, open3d::geometry::PointCloud& open3d_p)
     }
 }
 
+void open3d_to_pcl(PointCloudPtr pc_ptr, open3d::geometry::PointCloud& open3d_p) {
+    size_t pc_size = open3d_p.points_.size();
+    pc_ptr->resize(pc_size);
+    int i = 0;
+    for(auto& p: *pc_ptr) {
+        p.x = open3d_p.points_[i][0];
+        p.y = open3d_p.points_[i][1];
+        p.z = open3d_p.points_[i][2];
+        i++;
+    }
+}
+
 void ConstrainedICP::run() {
+    if (scene_ptr->empty() || mesh_ptr->empty())
+    {
+        return;
+    }
 
     std::vector<std::shared_ptr<const open3d::geometry::Geometry>> geometries;
     std::vector<std::shared_ptr<open3d::geometry::PointCloud>> pcds;
@@ -202,5 +219,6 @@ void ConstrainedICP::run() {
         pcds[i]->Transform(pose_graph.nodes_[i].pose_);
     }
 
-    *tf_mat_ptr = pose_graph.nodes_[1].pose_.cast<float>();
+    open3d_to_pcl(mesh_ptr,*pcds[1]);
+    *tf_mat_ptr = *tf_mat_ptr * pose_graph.nodes_[1].pose_.cast<float>();
 }

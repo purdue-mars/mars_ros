@@ -2,10 +2,10 @@ seed: 512
 dataset:
   rand_rotate: [-45,45]
   data_dir: '/home/ruppulur/catkin_ws/src/icra_2022_mars/mars_perception/src/mars_perception/object_face_classifier/data'
-  dataset_name: 'connector-male-3'
+  dataset_name: 'connector-male-6'
   img_dim: [64,64] # h,w
   min_features: 500  # features are defined by non-zero pixels
-  axes: [[0,0,1],[1,1,1]] # axes that correspond to face
+  faces: 2
 train:
   device: 'cuda'
   epochs: 50

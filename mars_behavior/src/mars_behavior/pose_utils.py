@@ -2,8 +2,12 @@ from typing import List
 
 import numpy as np
 from geometry_msgs.msg import Pose, Quaternion, QuaternionStamped
-from tf.transformations import (euler_from_matrix, quaternion_from_euler,
-                                quaternion_from_matrix, quaternion_matrix)
+from tf.transformations import (
+    euler_from_matrix,
+    quaternion_from_euler,
+    quaternion_from_matrix,
+    quaternion_matrix,
+)
 
 import ros_numpy
 

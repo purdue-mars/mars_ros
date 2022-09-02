@@ -92,7 +92,7 @@ class ConstrainedICP : public RegBase
 public:
     static const std::string NAME;
 
-    ConstrainedICP() : voxel_size_(0.02), max_depth_(2), rot_axis_(0,0,1), trans_axis0_(1,0,0), trans_axis1_(0,1,0),
+    ConstrainedICP() : voxel_size_(0.02), max_depth_(2), rot_axis_(0,1,1), trans_axis0_(1,0,0), trans_axis1_(0,0,1),
         mesh_o3d_(std::make_shared<open3d::geometry::PointCloud>()),
         scene_o3d_(std::make_shared<open3d::geometry::PointCloud>()),
         RegBase() {

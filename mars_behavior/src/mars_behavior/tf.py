@@ -76,13 +76,13 @@ class TFInterface:
         return new_eef_to_cur_eef
 
     def pose_from_object(
-        self, object_frame, pose_rel_obj: Pose = None, result_frame = None 
+        self, object_frame, pose_rel_obj: Pose = None, result_frame=None
     ) -> PoseStamped:
         """Generates pose in the result frame corresponding to a pose relative to the object"""
         if result_frame is None:
             result_frame = self.grasp_frame_
         object_frame_rel_result_frame: PoseStamped = self.get_transform(
-            object_frame, result_frame 
+            object_frame, result_frame
         ).pose
         assert object_frame_rel_result_frame is not None
         if pose_rel_obj is None:
@@ -92,7 +92,7 @@ class TFInterface:
         X_OP: np.ndarray = ros_numpy.numpify(pose_rel_obj)
         X_RP = ros_numpy.msgify(Pose, np.matmul(X_RO, X_OP))
         pose_rel_result_frame = PoseStamped(pose=X_RP)
-        pose_rel_result_frame.header.frame_id = result_frame 
+        pose_rel_result_frame.header.frame_id = result_frame
         return pose_rel_result_frame
 
     @property

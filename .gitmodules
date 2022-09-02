@@ -9,7 +9,7 @@
 	url = https://github.com/raghavauppuluri13/BundleTrack
 [submodule "third_party/gelsight-ros"]
 	path = third_party/gelsight-ros
-	url = https://github.com/hmccarty/gelsight-ros
+	url = https://github.com/purdue-mars/gelsight-ros
 [submodule "mars_panda"]
 	path = mars_panda
 	url = https://github.com/purdue-mars/mars_panda

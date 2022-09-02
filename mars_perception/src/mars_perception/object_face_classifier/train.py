@@ -11,14 +11,15 @@ from torch import optim
 from torch.utils.data import DataLoader
 from torchvision.transforms import ToTensor, Compose, Lambda
 from torchvision.datasets import ImageFolder
-#from torchvision.datasets import MNIST
+
+# from torchvision.datasets import MNIST
 from torch.utils.data import random_split
 from model import SimpleClassifierNN, SimpleCNN
 
 
 class Trainer:
     def __init__(self, cfg):
-        torch.manual_seed(cfg['seed'])
+        torch.manual_seed(cfg["seed"])
         cfg_data = cfg["dataset"]
         tfs = Compose(
             [
@@ -26,7 +27,10 @@ class Trainer:
                 Lambda(lambda x: x[:1, :, :]),
             ]
         )
-        self.dataset = ImageFolder(cfg_data['data_dir'] + '/'+ cfg_data["dataset_name"] + '_proc', transform=tfs)
+        self.dataset = ImageFolder(
+            cfg_data["data_dir"] + "/" + cfg_data["dataset_name"] + "_proc",
+            transform=tfs,
+        )
         train_dataset, test_dataset = random_split(
             self.dataset,
             (round(0.8 * len(self.dataset)), round(0.2 * len(self.dataset))),
@@ -47,7 +51,7 @@ class Trainer:
 
         cfg_train = cfg["train"]
         self.device = torch.device(cfg_train["device"])
-        self.model = SimpleCNN(cfg_data["img_dim"], len(cfg_data["axes"]))
+        self.model = SimpleCNN(cfg_data["img_dim"], cfg_data["faces"])
         self.model.to(self.device)
         self.epochs = cfg_train["epochs"]
 
@@ -68,7 +72,7 @@ class Trainer:
             os.mkdir(".log")
         self.log_pth = os.path.join(".log", log_folder)
         os.mkdir(self.log_pth)
-        with open(self.log_pth + '/config.yml', 'w') as outfile:
+        with open(self.log_pth + "/config.yml", "w") as outfile:
             yaml.dump(cfg, outfile, default_flow_style=False)
         logging.basicConfig(
             level=logging.INFO,
@@ -130,12 +134,15 @@ class Trainer:
             self.chpt += 1
         torch.save(self.model.state_dict(), self.log_pth + f"/chpt_{name}.pth")
 
+
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
-    parser.add_argument("-cfg_path", help="path to config file", type=str, default='./config.yml')
-    
+    parser.add_argument(
+        "-cfg_path", help="path to config file", type=str, default="./config.yml"
+    )
+
     args = vars(parser.parse_args())
-    with open(args['cfg_path'], "r") as f:
+    with open(args["cfg_path"], "r") as f:
         params = yaml.safe_load(f)
 
     trainer = Trainer(params)

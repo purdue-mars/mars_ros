@@ -1,10 +1,12 @@
 import random
 import numpy as np
 
-def color_randomize_object(imag_rgb_numpy, image_mask): 
+
+def color_randomize_object(imag_rgb_numpy, image_mask):
     pass
 
-# Code from https://github.com/RobotLocomotion/pytorch-dense-correspondence 
+
+# Code from https://github.com/RobotLocomotion/pytorch-dense-correspondence
 def domain_randomize_background(image_rgb_numpy, image_mask):
     """
     This function applies domain randomization to the non-masked part of the image.
