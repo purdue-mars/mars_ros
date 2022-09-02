@@ -43,7 +43,7 @@ WORKDIR /home/$USER
 # Setup bashrc ROS development
 RUN echo "\nalias rossrc='source ~/catkin_ws/devel/setup.bash'" >> /home/$USER/.bashrc && \
     echo "\n[[ ! -f ~/catkin_ws/devel/setup.bash ]] || source ~/catkin_ws/devel/setup.bash" >> /home/$USER/.bashrc && \
-    echo "\nexport GAZEBO_MODEL_PATH=~/catkin_ws/src/icra_2022_mars/mars_sim/nist_board_gazebo/models:$GAZEBO_MODEL_PATH" >> /home/$USER/.bashrc
+    echo "\nexport GAZEBO_MODEL_PATH=~/catkin_ws/src/mars_ros/mars_sim/nist_board_gazebo/models:$GAZEBO_MODEL_PATH" >> /home/$USER/.bashrc
 
 # Source ROS alias
 USER $USER

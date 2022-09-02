@@ -30,7 +30,7 @@ private:
     tf::TransformListener tf_listener_;
     tf::TransformBroadcaster br_;
     ICP icp_;
-    //ConstrainedICP constr_icp_;
+    // ConstrainedICP constr_icp_;
 
     std::string alg_;
     std::string base_frame_;
@@ -41,7 +41,7 @@ private:
 RegistrationFromFile::RegistrationFromFile() : scene_pc_(new PointCloud), mesh_pc_(new PointCloud), tf_mat_ptr_(std::make_shared<TFMatrix>(TFMatrix::Identity())), initialized_(false)
 {
     std::string data_folder;
-    ros::param::param<std::string>("~data_folder", data_folder, "/home/ruppulur/catkin_ws/src/icra_2022_mars/mars_perception/src/data");
+    ros::param::param<std::string>("~data_folder", data_folder, "/home/ruppulur/catkin_ws/src/mars_ros/mars_perception/src/data");
     std::vector<double> init_mesh_pose;
     ros::param::param<std::vector<double>>("~init_mesh_pose", init_mesh_pose, {0, 0.008, -0.015, 0, 0, 0.7071068, 0.7071068});
     if (pcl::io::loadPCDFile<Point>(data_folder + "/pcd_0.pcd", *scene_pc_) == -1) //* load the file
@@ -114,7 +114,8 @@ void RegistrationFromFile::publish()
 
 void RegistrationFromFile::run()
 {
-    if(!running_) return;
+    if (!running_)
+        return;
     if (alg_ == icp_.NAME)
     {
         icp_.run();
