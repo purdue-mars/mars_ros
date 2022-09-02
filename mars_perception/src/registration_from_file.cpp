@@ -8,7 +8,7 @@
 #include <sensor_msgs/PointCloud2.h>
 #include <mars_perception/registration/registration_base.h>
 #include <mars_perception/registration/icp.h>
-#include <mars_perception/registration/constrained_icp.h>
+//#include <mars_perception/registration/constrained_icp.h>
 #include <dynamic_reconfigure/server.h>
 #include <mars_config/RegistrationConfig.h>
 
@@ -30,7 +30,7 @@ private:
     tf::TransformListener tf_listener_;
     tf::TransformBroadcaster br_;
     ICP icp_;
-    ConstrainedICP constr_icp_;
+    //ConstrainedICP constr_icp_;
 
     std::string alg_;
     std::string base_frame_;
@@ -64,9 +64,9 @@ RegistrationFromFile::RegistrationFromFile() : scene_pc_(new PointCloud), mesh_p
     icp_.scene_ptr = scene_pc_;
     icp_.mesh_ptr = mesh_pc_;
     icp_.tf_mat_ptr = tf_mat_ptr_;
-    constr_icp_.scene_ptr = scene_pc_;
-    constr_icp_.mesh_ptr = mesh_pc_;
-    constr_icp_.tf_mat_ptr = tf_mat_ptr_;
+    // constr_icp_.scene_ptr = scene_pc_;
+    // constr_icp_.mesh_ptr = mesh_pc_;
+    // constr_icp_.tf_mat_ptr = tf_mat_ptr_;
 
     std::vector<double> tf(init_mesh_pose);
     assert(tf.size() == 7);
@@ -119,10 +119,10 @@ void RegistrationFromFile::run()
     {
         icp_.run();
     }
-    else if (alg_ == constr_icp_.NAME)
-    {
-        constr_icp_.run();
-    }
+    // else if (alg_ == constr_icp_.NAME)
+    // {
+    //     constr_icp_.run();
+    // }
 }
 
 int main(int argc, char **argv)
