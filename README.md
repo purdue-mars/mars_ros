@@ -1,5 +1,5 @@
 # mars_ros
-
+![surf-2022](https://github.com/purdue-mars/mars_ros/assets/41026849/7d6a94a8-6ce1-47e3-a287-ac200013eb54)
 
 ### mars_behavior
 This package includes a simple python interface to:
